@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>課程諮詢與預約 | 布魯卡美語 Broca English</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --brand-primary: #064E3B;
+      --brand-green-2: #047857;
+      --brand-accent: #FFCE00;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --soft: #f8fafc;
+      --card: #ffffff;
+      --danger: #dc2626;
+      --success: #047857;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow: 0 26px 74px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 14px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial Rounded MT Bold', 'Microsoft JhengHei', sans-serif; letter-spacing: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      overflow-x: hidden;
+      background: linear-gradient(180deg, #fbfdfb 0%, #f4f8f5 46%, #ffffff 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .62; cursor: wait; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px clamp(18px, 5vw, 72px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.78);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--brand-primary);
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-primary);
+      background: var(--brand-accent);
+      box-shadow: 0 12px 26px rgba(255, 206, 0, 0.28);
+      flex: 0 0 auto;
+    }
+
+    .brand-text strong { display: block; font-size: 18px; font-weight: 950; line-height: 1.1; }
+    .brand-text span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; }
+
+    .site-nav {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .site-nav > ul { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .site-nav li { position: relative; list-style: none; }
+
+    .site-nav a {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background .2s ease, color .2s ease, transform .2s ease;
+    }
+
+    .site-nav a:hover { background: #ecfdf5; color: var(--brand-primary); transform: translateY(-1px); }
+    .site-nav .nav-cta { background: var(--brand-primary); color: #fff; }
+    .site-nav .nav-cta:hover { background: #073f32; color: #fff; }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 12px);
+      left: 50%;
+      z-index: 60;
+      min-width: 210px;
+      display: none;
+      transform: translateX(-50%);
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.98);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dropdown:hover .dropdown-menu { display: grid; }
+    .dropdown-menu a { width: 100%; justify-content: flex-start; }
+
+    .menu-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 12px;
+      background: #f0f7f4;
+      color: var(--brand-primary);
+      font-size: 20px;
+    }
+
+    .page-shell { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+
+    .hero {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(300px, .58fr);
+      gap: 22px;
+      align-items: stretch;
+      padding: 42px 0 18px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--brand-primary);
+      font-size: 12px;
+      font-weight: 950;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      border-radius: 99px;
+      background: var(--brand-accent);
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 4vw, 56px);
+      line-height: 1.12;
+      font-weight: 950;
+      color: #10251e;
+      max-width: 700px;
+    }
+
+    .hero p {
+      margin-top: 16px;
+      max-width: 650px;
+      color: #475569;
+      font-size: 16px;
+      line-height: 1.9;
+      font-weight: 760;
+    }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+    .btn {
+      min-height: 46px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 950;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .btn-primary {
+      background: var(--brand-accent);
+      color: #173228;
+      box-shadow: 0 18px 38px rgba(255, 206, 0, 0.26);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, .74);
+      color: var(--brand-primary);
+      border-color: var(--line);
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      padding: 22px;
+      min-height: 0;
+      display: grid;
+      align-content: space-between;
+      background:
+        linear-gradient(135deg, rgba(6, 78, 59, .98), rgba(4, 120, 87, .88)),
+        var(--brand-primary);
+      color: #fff;
+      box-shadow: 0 22px 56px rgba(6, 78, 59, .17);
+    }
+
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .hero-card::before {
+      inset: 0;
+      background:
+        linear-gradient(115deg, rgba(255,255,255,.13) 0 1px, transparent 1px 34px),
+        radial-gradient(circle at 76% 20%, rgba(255, 206, 0, .25), transparent 24%);
+      opacity: .78;
+    }
+
+    .hero-card::after {
+      width: 220px;
+      height: 220px;
+      right: -76px;
+      bottom: -82px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: radial-gradient(circle, rgba(255,255,255,.15), transparent 64%);
+    }
+
+    .hero-card > * { position: relative; z-index: 1; }
+    .hero-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .hero-card-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, .13);
+      border: 1px solid rgba(255, 255, 255, .18);
+      color: var(--brand-accent);
+      font-size: 24px;
+    }
+
+    .hero-card small { display: block; color: rgba(255,255,255,.68); font-weight: 900; margin-bottom: 4px; }
+    .hero-card strong { display: block; color: var(--brand-accent); font-size: 25px; }
+    .hero-card h2 { font-size: 23px; line-height: 1.35; margin-bottom: 10px; }
+    .hero-card p { margin: 0; color: rgba(255,255,255,.78); font-size: 14px; line-height: 1.8; }
+
+    .trust-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 2px auto 20px;
+      padding: 10px;
+      border: 1px solid rgba(226, 232, 240, .92);
+      border-radius: 20px;
+      background: rgba(255,255,255,.74);
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .06);
+    }
+
+    .trust-item {
+      min-height: auto;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      column-gap: 10px;
+      align-items: start;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .trust-item i {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-primary);
+      background: #ecfdf5;
+      grid-row: 1 / span 2;
+    }
+    .trust-item strong { display: block; grid-column: 2; font-size: 14px; font-weight: 950; margin-bottom: 4px; }
+    .trust-item span { display: block; grid-column: 2; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.55; }
+
+    .form-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 66px;
+    }
+
+    .form-card,
+    .side-panel {
+      border: 1px solid rgba(226, 232, 240, .96);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .form-card { overflow: hidden; border-radius: 24px; }
+    .form-head {
+      position: relative;
+      padding: 24px 26px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff, #fbfdfc);
+    }
+
+    .form-head::before {
+      content: "";
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      top: 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brand-accent), rgba(6, 78, 59, .35));
+    }
+
+    .form-head h2 { font-size: 26px; font-weight: 950; margin-bottom: 8px; }
+    .form-head p { color: var(--muted); line-height: 1.75; font-size: 14px; font-weight: 780; max-width: 700px; }
+    .form-body { padding: 26px; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 28px 0 16px;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .section-title:first-child { margin-top: 0; }
+    .section-title span {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ecfdf5;
+      color: var(--brand-primary);
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field { display: grid; gap: 7px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    label, .field-label { color: #334155; font-size: 13px; font-weight: 950; }
+    .required { color: var(--danger); margin-left: 2px; }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--ink);
+      padding: 12px 13px;
+      outline: none;
+      font-size: 14px;
+      font-weight: 760;
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    textarea { min-height: 112px; resize: vertical; line-height: 1.65; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 4px rgba(6, 78, 59, .1);
+      background: #fcfffd;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .choice {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+
+    .choice:hover {
+      border-color: rgba(6, 78, 59, .22);
+      background: #fbfffd;
+      transform: translateY(-1px);
+    }
+
+    .choice input {
+      width: 17px;
+      height: 17px;
+      min-height: 0;
+      accent-color: var(--brand-primary);
+      flex: 0 0 auto;
+    }
+
+    .media-consent {
+      margin-top: 26px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(6, 78, 59, .14);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(248, 250, 252, .92)),
+        #fff;
+    }
+
+    .media-consent .field-label {
+      display: block;
+      margin-bottom: 7px;
+      color: #10251e;
+      font-size: 14px;
+    }
+
+    .media-consent p {
+      max-width: 760px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 780;
+      line-height: 1.7;
+    }
+
+    .consent-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .privacy-box {
+      margin-top: 26px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: 13px;
+      font-weight: 820;
+      line-height: 1.7;
+    }
+
+    .privacy-box input {
+      width: 18px;
+      height: 18px;
+      min-height: 0;
+      margin-top: 3px;
+      accent-color: var(--brand-primary);
+      flex: 0 0 auto;
+    }
+
+    .submit-row {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .submit-button {
+      min-height: 52px;
+      border: none;
+      border-radius: 999px;
+      padding: 0 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--brand-primary);
+      color: white;
+      font-size: 15px;
+      font-weight: 950;
+      box-shadow: 0 18px 36px rgba(6, 78, 59, .2);
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      background: #073f32;
+      box-shadow: 0 22px 44px rgba(6, 78, 59, .24);
+    }
+
+    .form-status {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.55;
+    }
+
+    .form-status.error { color: var(--danger); }
+    .form-status.success { color: var(--success); }
+
+    .success-panel {
+      display: none;
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 18px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .success-panel.is-visible { display: block; }
+    .success-panel strong { display: block; font-size: 20px; margin-bottom: 7px; }
+    .success-panel p { line-height: 1.7; font-size: 14px; font-weight: 820; }
+
+    .side-panel {
+      position: sticky;
+      top: 90px;
+      padding: 18px;
+      border-radius: 24px;
+    }
+
+    .side-panel h2 { font-size: 17px; font-weight: 950; margin-bottom: 12px; }
+    .side-list { display: grid; gap: 10px; }
+    .side-item {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid #edf2f7;
+    }
+
+    .side-item i {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ecfdf5;
+      color: var(--brand-primary);
+      flex: 0 0 auto;
+    }
+
+    .side-item strong { display: block; font-size: 13px; font-weight: 950; margin-bottom: 2px; }
+    .side-item span { display: block; color: var(--muted); font-size: 12px; line-height: 1.55; font-weight: 760; }
+
+    .contact-card {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-green-2));
+    }
+
+    .contact-card span { display: block; color: rgba(255,255,255,.72); font-size: 12px; font-weight: 900; margin-bottom: 4px; }
+    .contact-card a { display: inline-flex; align-items: center; gap: 8px; color: var(--brand-accent); font-size: 18px; font-weight: 950; text-decoration: none; }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 24px clamp(18px, 5vw, 72px);
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 820;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1120px) {
+      body.menu-open { overflow: hidden; }
+      .site-header { align-items: center; flex-direction: row; }
+      .menu-toggle { display: inline-flex; align-items: center; justify-content: center; position: relative; z-index: 101; }
+      .site-nav {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        align-items: start;
+        overflow-y: auto;
+        padding: 96px 24px 34px;
+        background: rgba(251,253,252,.985);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: opacity .24s ease, visibility .24s ease, transform .24s ease;
+      }
+      .site-nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
+      .site-nav > ul { width: min(100%, 520px); margin: 0 auto; display: grid; align-items: stretch; gap: 4px; }
+      .site-nav a { width: 100%; min-height: 48px; justify-content: space-between; border-radius: 12px; padding: 0 14px; }
+      .dropdown-menu,
+      .dropdown:hover .dropdown-menu {
+        position: static;
+        width: 100%;
+        min-width: 0;
+        display: grid;
+        transform: none;
+        margin: 4px 0 8px;
+        box-shadow: none;
+        background: #f3f7f5;
+      }
+      .site-nav .nav-cta { justify-content: center; margin-top: 8px; }
+      .hero, .form-shell { grid-template-columns: 1fr; }
+      .hero { padding-top: 34px; }
+      .side-panel { position: static; }
+      .trust-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .page-shell { width: min(100% - 28px, 1180px); }
+      .hero h1 { font-size: 36px; }
+      .hero p { font-size: 15px; }
+      .hero-card { border-radius: 22px; }
+      .trust-row { padding: 8px; }
+      .form-head, .form-body { padding: 20px; }
+      .field-grid, .choice-grid, .consent-grid { grid-template-columns: 1fr; }
+      .submit-button { width: 100%; }
+      .submit-row { align-items: stretch; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html" aria-label="回到布魯卡美語首頁">
+    <span class="brand-mark"><i class="fa-solid fa-star"></i></span>
+    <span class="brand-text">
+      <strong>布魯卡美語</strong>
+      <span>Broca English</span>
+    </span>
+  </a>
+  <button class="menu-toggle" id="menuToggle" type="button" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+  <nav class="site-nav" id="primaryNav" aria-label="主要導覽">
+    <a href="index.html">首頁</a>
+    <a href="courses.html">課程</a>
+    <a href="info.html#calendar">行事曆</a>
+    <a href="info.html#contact">聯絡我們</a>
+    <a href="#registrationForm" class="nav-cta"><i class="fa-solid fa-pen-to-square"></i> 預約諮詢</a>
+  </nav>
+</header>
+
+<main>
+  <section class="page-shell hero">
+    <div>
+      <span class="eyebrow">Broca Consultation</span>
+      <h1>讓我們先了解孩子，再安排合適的課程。</h1>
+      <p>請留下學生年級、英文程度與方便聯絡的時間。布魯卡老師會依照孩子目前的狀態，協助建議適合的班別、試聽或課輔安排。</p>
+      <div class="hero-actions">
+        <a href="#registrationForm" class="btn btn-primary"><i class="fa-solid fa-arrow-down"></i> 填寫諮詢資料</a>
+        <a href="tel:+88676978690" class="btn btn-secondary" aria-label="撥打布魯卡美語電話 07 697 8690"><i class="fa-solid fa-phone"></i> 撥打 (07) 697-8690</a>
+      </div>
+    </div>
+    <aside class="hero-card" aria-label="諮詢流程">
+      <div class="hero-card-top">
+        <span class="hero-card-icon"><i class="fa-solid fa-clipboard-check"></i></span>
+        <div>
+          <small>Estimated time</small>
+          <strong>2-3 分鐘</strong>
+        </div>
+      </div>
+      <h2>留下基本資料，我們會協助判斷適合的學習安排。</h2>
+      <p>從英文程度、可上課時間到是否需要課輔銜接，先由櫃台整理需求，再安排後續諮詢或試聽。</p>
+    </aside>
+  </section>
+
+  <section class="page-shell trust-row" aria-label="服務特色">
+    <article class="trust-item">
+      <i class="fa-solid fa-magnifying-glass-chart"></i>
+      <strong>程度判斷</strong>
+      <span>依年級、教材經驗與目前狀況，先掌握孩子的學習起點。</span>
+    </article>
+    <article class="trust-item">
+      <i class="fa-solid fa-layer-group"></i>
+      <strong>班級建議</strong>
+      <span>綜合程度、時段與課程需求，協助建議合適的班別方向。</span>
+    </article>
+    <article class="trust-item">
+      <i class="fa-solid fa-calendar-check"></i>
+      <strong>試聽安排</strong>
+      <span>需要先觀察孩子適應狀況時，可由試聽或程度確認開始。</span>
+    </article>
+  </section>
+
+  <section class="page-shell form-shell">
+    <div class="form-card">
+      <div class="form-head">
+        <h2>諮詢資料</h2>
+        <p>資料不用寫得很完美，先讓我們知道孩子目前的狀況即可。必填欄位以紅色星號標示。</p>
+      </div>
+      <div class="form-body">
+        <form id="registrationForm">
+          <h3 class="section-title"><span>1</span> 想了解的方向</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="inquiryType">主要需求<span class="required">*</span></label>
+              <select id="inquiryType" name="inquiryType" required>
+                <option value="COURSE">課程諮詢</option>
+                <option value="TRIAL">預約試聽</option>
+                <option value="AFTERSCHOOL">安親課輔</option>
+                <option value="SUMMER">暑期課程</option>
+                <option value="GEPT">GEPT 全民英檢</option>
+                <option value="TRANSFER">轉班 / 插班</option>
+                <option value="OTHER">其他需求</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="currentNeed">目前想法</label>
+              <select id="currentNeed" name="currentNeed">
+                <option value="想先了解課程">想先了解課程</option>
+                <option value="想預約試聽">想預約試聽</option>
+                <option value="近期想報名">近期想報名</option>
+                <option value="需要課輔或接送協助">需要課輔或接送協助</option>
+                <option value="還不確定，想請老師建議">還不確定，想請老師建議</option>
+              </select>
+            </div>
+            <div class="field full">
+              <span class="field-label">想詢問的課程<span class="required">*</span></span>
+              <div class="choice-grid" data-required-group="programInterests">
+                <label class="choice"><input type="checkbox" name="programInterests" value="幼兒美語 / 小一銜接">幼兒美語 / 小一銜接</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="兒童美語">兒童美語</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="國中英文 / 先修">國中英文 / 先修</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="高中英文">高中英文</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="GEPT 全民英檢">GEPT 全民英檢</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="安親課輔">安親課輔</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="暑期課程">暑期課程</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="試聽安排">試聽安排</label>
+                <label class="choice"><input type="checkbox" name="programInterests" value="尚未確定">尚未確定</label>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title"><span>2</span> 學生資料</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="studentChineseName">學生中文姓名<span class="required">*</span></label>
+              <input id="studentChineseName" name="studentChineseName" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="studentEnglishName">學生英文姓名</label>
+              <input id="studentEnglishName" name="studentEnglishName" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="gradeLevel">目前年級<span class="required">*</span></label>
+              <select id="gradeLevel" name="gradeLevel" required>
+                <option value="">請選擇</option>
+                <option>幼兒園小班</option>
+                <option>幼兒園中班</option>
+                <option>幼兒園大班</option>
+                <option>小一</option>
+                <option>小二</option>
+                <option>小三</option>
+                <option>小四</option>
+                <option>小五</option>
+                <option>小六</option>
+                <option>國一</option>
+                <option>國二</option>
+                <option>國三</option>
+                <option>高一</option>
+                <option>高二</option>
+                <option>高三</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="school">就讀學校</label>
+              <input id="school" name="school" autocomplete="organization">
+            </div>
+            <div class="field full">
+              <label for="englishLevel">目前英文程度簡述</label>
+              <textarea id="englishLevel" name="englishLevel" placeholder="例如：自然發音已學過、Oxford Discover 2、學校英文約 80 分、完全初學等。"></textarea>
+            </div>
+          </div>
+
+          <h3 class="section-title"><span>3</span> 家長聯絡資料</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="parentName">家長姓名<span class="required">*</span></label>
+              <input id="parentName" name="parentName" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="parentPhone">家長手機<span class="required">*</span></label>
+              <input id="parentPhone" name="parentPhone" inputmode="tel" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="parentLineId">LINE ID</label>
+              <input id="parentLineId" name="parentLineId" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="contactPreference">希望聯絡方式</label>
+              <select id="contactPreference" name="contactPreference">
+                <option value="電話或 LINE 皆可">電話或 LINE 皆可</option>
+                <option value="請先用 LINE">請先用 LINE</option>
+                <option value="請先用電話">請先用電話</option>
+                <option value="請簡訊聯絡">請簡訊聯絡</option>
+              </select>
+            </div>
+            <div class="field full">
+              <span class="field-label">方便聯絡時間</span>
+              <div class="choice-grid">
+                <label class="choice"><input type="checkbox" name="preferredContactTime" value="平日早上">平日早上</label>
+                <label class="choice"><input type="checkbox" name="preferredContactTime" value="平日下午">平日下午</label>
+                <label class="choice"><input type="checkbox" name="preferredContactTime" value="平日晚上">平日晚上</label>
+                <label class="choice"><input type="checkbox" name="preferredContactTime" value="週六">週六</label>
+                <label class="choice"><input type="checkbox" name="preferredContactTime" value="皆可">皆可</label>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title"><span>4</span> 課程與時間</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label for="needHomeworkCare">是否需要安親課輔</label>
+              <select id="needHomeworkCare" name="needHomeworkCare">
+                <option value="想了解">想了解</option>
+                <option value="需要">需要</option>
+                <option value="不需要">不需要</option>
+                <option value="尚未確定">尚未確定</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="needPickupSupport">是否需要接送或放學銜接</label>
+              <select id="needPickupSupport" name="needPickupSupport">
+                <option value="想了解">想了解</option>
+                <option value="需要">需要</option>
+                <option value="不需要">不需要</option>
+                <option value="尚未確定">尚未確定</option>
+              </select>
+            </div>
+            <div class="field full">
+              <span class="field-label">可上課時間</span>
+              <div class="choice-grid">
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週一">週一</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週二">週二</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週三">週三</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週四">週四</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週五">週五</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="週六">週六</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="平日晚上">平日晚上</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="暑假白天">暑假白天</label>
+                <label class="choice"><input type="checkbox" name="availableTimes" value="時間需再討論">時間需再討論</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="referralSource">如何得知布魯卡美語</label>
+              <select id="referralSource" name="referralSource">
+                <option value="">請選擇</option>
+                <option>親友介紹</option>
+                <option>Google 搜尋</option>
+                <option>Facebook / Instagram</option>
+                <option>LINE</option>
+                <option>路過看到</option>
+                <option>舊生家長</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="notes">想補充的問題或需求</label>
+              <textarea id="notes" name="notes" placeholder="例如：想安排試聽、想了解費用、兄弟姊妹一起報名、需要接送協助等。"></textarea>
+            </div>
+          </div>
+
+          <div class="media-consent">
+            <span class="field-label">孩子照片與作品使用授權<span class="required">*</span></span>
+            <p>僅用於布魯卡美語官網、Facebook、Instagram、課堂成果紀錄或招生公告等公開展示；不公開電話、地址等個人聯絡資料。不同意也不影響諮詢、試聽或入班安排。</p>
+            <div class="choice-grid consent-grid">
+              <label class="choice"><input type="radio" name="photoConsent" value="AGREE" required>同意公開使用</label>
+              <label class="choice"><input type="radio" name="photoConsent" value="DISAGREE">不同意公開使用</label>
+            </div>
+          </div>
+
+          <label class="privacy-box">
+            <input type="checkbox" name="privacyAccepted" required>
+            <span>我同意布魯卡美語使用以上資料作為課程諮詢、聯絡與報名安排用途。資料僅供補習班內部作業使用。</span>
+          </label>
+
+          <div class="submit-row">
+            <p class="form-status" id="formStatus">送出後，櫃台老師會依資料與您聯繫。</p>
+            <button class="submit-button" id="submitButton" type="submit">
+              <i class="fa-solid fa-paper-plane"></i>
+              送出諮詢資料
+            </button>
+          </div>
+
+          <div class="success-panel" id="successPanel" aria-live="polite">
+            <strong>已收到您的資料 <span id="requestNumber"></span></strong>
+            <p>謝謝您填寫布魯卡美語課程諮詢表。櫃台老師會依照學生資料與可聯絡時間，盡快與您確認後續安排。</p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <h2>接下來會怎麼安排？</h2>
+      <div class="side-list">
+        <div class="side-item">
+          <i class="fa-solid fa-phone-volume"></i>
+          <div><strong>先與家長確認</strong><span>我們會依您方便的時間，用電話或 LINE 聯繫。</span></div>
+        </div>
+        <div class="side-item">
+          <i class="fa-solid fa-user-check"></i>
+          <div><strong>了解孩子狀況</strong><span>老師會參考年級、程度與可上課時間，建議適合方向。</span></div>
+        </div>
+        <div class="side-item">
+          <i class="fa-solid fa-calendar-check"></i>
+          <div><strong>安排試聽或班別</strong><span>若有適合班級，櫃台會協助安排試聽或報名細節。</span></div>
+        </div>
+      </div>
+      <div class="contact-card">
+        <span>電話諮詢</span>
+        <a href="tel:+88676978690" aria-label="撥打布魯卡美語電話 07 697 8690"><i class="fa-solid fa-phone"></i> (07) 697-8690</a>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 布魯卡美語 Broca English. All rights reserved.</span>
+  <span>高雄市路竹區國昌路309號</span>
+</footer>
+
+<script src="public-config.js"></script>
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const primaryNav = document.getElementById('primaryNav');
+
+  function setMenuOpen(open) {
+    primaryNav.classList.toggle('open', open);
+    document.body.classList.toggle('menu-open', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
+    menuToggle.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+  }
+
+  menuToggle.addEventListener('click', () => setMenuOpen(!primaryNav.classList.contains('open')));
+  primaryNav.addEventListener('click', event => {
+    if (event.target.closest('a') && window.innerWidth <= 1120) setMenuOpen(false);
+  });
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape') setMenuOpen(false);
+  });
+
+  const form = document.getElementById('registrationForm');
+  const submitButton = document.getElementById('submitButton');
+  const formStatus = document.getElementById('formStatus');
+  const successPanel = document.getElementById('successPanel');
+  const requestNumber = document.getElementById('requestNumber');
+
+  function checkedValues(name) {
+    return Array.from(form.querySelectorAll(`input[name="${name}"]:checked`)).map(input => input.value);
+  }
+
+  function fieldValue(name) {
+    const field = form.elements[name];
+    return field ? String(field.value || '').trim() : '';
+  }
+
+  function setStatus(message, type) {
+    formStatus.textContent = message;
+    formStatus.classList.remove('error', 'success');
+    if (type) formStatus.classList.add(type);
+  }
+
+  async function readError(response) {
+    try {
+      const body = await response.json();
+      return body.detail || body.message || `送出失敗 (${response.status})`;
+    } catch (ignored) {
+      return `送出失敗 (${response.status})`;
+    }
+  }
+
+  function validateProgramInterests() {
+    if (checkedValues('programInterests').length) return true;
+    setStatus('請至少選擇一個想詢問的課程。', 'error');
+    form.querySelector('[data-required-group="programInterests"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    successPanel.classList.remove('is-visible');
+    if (!form.reportValidity() || !validateProgramInterests()) return;
+
+    const payload = {
+      inquiryType: fieldValue('inquiryType'),
+      currentNeed: fieldValue('currentNeed'),
+      programInterests: checkedValues('programInterests'),
+      studentChineseName: fieldValue('studentChineseName'),
+      studentEnglishName: fieldValue('studentEnglishName'),
+      gradeLevel: fieldValue('gradeLevel'),
+      school: fieldValue('school'),
+      englishLevel: fieldValue('englishLevel'),
+      parentName: fieldValue('parentName'),
+      parentPhone: fieldValue('parentPhone'),
+      parentLineId: fieldValue('parentLineId'),
+      preferredContactTime: checkedValues('preferredContactTime').join(' / '),
+      contactPreference: fieldValue('contactPreference'),
+      needHomeworkCare: fieldValue('needHomeworkCare'),
+      needPickupSupport: fieldValue('needPickupSupport'),
+      availableTimes: checkedValues('availableTimes'),
+      notes: fieldValue('notes'),
+      referralSource: fieldValue('referralSource'),
+      photoConsent: fieldValue('photoConsent'),
+      privacyAccepted: Boolean(form.querySelector('input[name="privacyAccepted"]').checked)
+    };
+
+    submitButton.disabled = true;
+    setStatus('正在送出資料...', '');
+
+    try {
+      const response = await fetch('/api/public/registration-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error(await readError(response));
+      const result = await response.json();
+      requestNumber.textContent = result.requestCode ? `｜報名序號 ${result.requestCode}` : (result.id ? `#${result.id}` : '');
+      successPanel.classList.add('is-visible');
+      setStatus('諮詢資料已送出。', 'success');
+      form.reset();
+      successPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (error) {
+      const fallback = window.location.protocol === 'file:'
+        ? '請用正式網站網址開啟此頁，直接開 HTML 檔無法送到後台。'
+        : '送出失敗，請稍後再試或直接來電。';
+      setStatus(error.message || fallback, 'error');
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

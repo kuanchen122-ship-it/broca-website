@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>手機版點名 | 布魯卡美語</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-polish.css">
+    <style>
+        :root {
+            --bg-app: #edf2f7;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-primary: #064E3B;
+            --brand-accent: #FFCE00;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #2563eb;
+            --radius-xl: 22px;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-float: 0 -8px 28px rgba(15, 23, 42, 0.16);
+            --transition-smooth: all 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', 'Microsoft JhengHei', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(6, 78, 59, 0.16), transparent 34%),
+                #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+        button, select, input { font: inherit; }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 920px;
+            background: var(--bg-app);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 26px 60px rgba(15, 23, 42, 0.26);
+        }
+
+        .app-header {
+            background:
+                linear-gradient(135deg, rgba(6, 78, 59, 0.98), rgba(4, 120, 87, 0.92));
+            color: var(--white);
+            padding: max(18px, env(safe-area-inset-top)) 18px 18px;
+            display: grid;
+            gap: 16px;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 28px),
+                linear-gradient(90deg, rgba(255,206,0,0.18), transparent 45%);
+            pointer-events: none;
+        }
+
+        .header-row,
+        .header-controls,
+        .header-summary {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .header-title h1 { font-size: 21px; font-weight: 950; margin-bottom: 5px; }
+        .header-title span { color: #d1fae5; font-size: 12px; font-weight: 800; line-height: 1.5; }
+        .close-btn { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.12); color: var(--white); display: flex; align-items: center; justify-content: center; text-decoration: none; flex: 0 0 auto; }
+
+        .header-controls { display: grid; grid-template-columns: 1fr 132px; gap: 8px; }
+        .mobile-select,
+        .mobile-date {
+            min-width: 0;
+            min-height: 44px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.14);
+            color: #ffffff;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 900;
+            outline: none;
+        }
+
+        .mobile-select option { color: #0f172a; }
+        .mobile-date { color-scheme: dark; }
+
+        .header-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .summary-pill {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .summary-pill strong { display: block; color: var(--brand-accent); font-size: 18px; font-weight: 950; }
+        .summary-pill span { display: block; color: #d1fae5; font-size: 11px; font-weight: 850; margin-top: 2px; }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            padding-bottom: 118px;
+        }
+
+        .system-note {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 13px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            color: #334155;
+            line-height: 1.55;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+        }
+
+        .system-note i { color: var(--brand-primary); margin-top: 2px; }
+
+        .student-list { display: grid; gap: 12px; }
+
+        .student-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 15px;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+
+        .student-card[data-status="late"] { border-color: #fcd34d; box-shadow: 0 10px 24px rgba(245, 158, 11, 0.12); }
+        .student-card[data-status="leave"] { border-color: #93c5fd; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.10); }
+        .student-card[data-status="absent"] { border-color: #fca5a5; box-shadow: 0 10px 24px rgba(239, 68, 68, 0.10); }
+
+        .student-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .student-name strong { display: block; font-size: 18px; font-weight: 950; margin-bottom: 3px; }
+        .student-name span { color: var(--text-muted); font-size: 12px; font-weight: 850; }
+        .student-number {
+            width: 38px;
+            height: 38px;
+            border-radius: 13px;
+            background: #ecfdf5;
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 950;
+            flex: 0 0 auto;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .status-btn {
+            min-height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 950;
+            cursor: pointer;
+        }
+
+        .status-btn.active-present { background: #dcfce7; color: #166534; border-color: #86efac; }
+        .status-btn.active-late { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+        .status-btn.active-leave { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+        .status-btn.active-absent { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+        .late-row,
+        .note-row {
+            margin-top: 9px;
+            display: none;
+        }
+
+        .student-card.is-late .late-row,
+        .student-card.has-note .note-row {
+            display: block;
+        }
+
+        .late-row input,
+        .note-row input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0 12px;
+            background: #ffffff;
+            outline: none;
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .note-toggle {
+            margin-top: 9px;
+            border: none;
+            background: transparent;
+            color: var(--brand-primary);
+            font-size: 12px;
+            font-weight: 950;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .empty-state {
+            min-height: 300px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+            padding: 26px;
+            color: var(--text-muted);
+            font-weight: 850;
+        }
+
+        .empty-state i {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: #ecfdf5;
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .bottom-bar {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(18px);
+            border-top: 1px solid var(--border-color);
+            box-shadow: var(--shadow-float);
+            z-index: 20;
+        }
+
+        .bottom-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .bottom-meta span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .bottom-meta i { color: var(--brand-primary); }
+
+        .submit-btn {
+            width: 100%;
+            min-height: 54px;
+            border: none;
+            border-radius: 16px;
+            background: var(--brand-primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .submit-btn:disabled {
+            background: #94a3b8;
+            color: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.62);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 40;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .confirm-sheet {
+            width: min(430px, 100%);
+            background: #ffffff;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            box-shadow: 0 -20px 50px rgba(15,23,42,0.25);
+        }
+
+        .confirm-sheet h2 { font-size: 20px; font-weight: 950; margin-bottom: 8px; }
+        .confirm-sheet p { color: var(--text-muted); font-size: 13px; font-weight: 800; line-height: 1.65; margin-bottom: 16px; }
+        .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .confirm-actions button {
+            min-height: 48px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 950;
+            cursor: pointer;
+        }
+        .cancel-btn { background: #e2e8f0; color: #334155; }
+        .confirm-btn { background: var(--brand-primary); color: #ffffff; }
+
+        @media (max-width: 480px) {
+            body { background: var(--bg-app); display: block; }
+            .app-container { max-width: none; max-height: none; min-height: 100vh; box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="mobile-app-polish">
+<div class="app-container">
+    <header class="app-header">
+        <div class="header-row">
+            <div class="header-title">
+                <h1>手機點名</h1>
+                <span id="teacherHint">登入老師：<span data-user-name>教職員</span>・LINE 推播尚未正式串接</span>
+            </div>
+            <a href="teacher-dashboard.html" class="close-btn" aria-label="回到老師工作台"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <div class="header-controls">
+            <select class="mobile-select" id="classSelect" aria-label="選擇班級">
+                <option value="">讀取班級中...</option>
+            </select>
+            <input class="mobile-date" id="sessionDate" type="date" aria-label="點名日期">
+        </div>
+
+        <div class="header-summary">
+            <div class="summary-pill"><strong id="presentCount">0</strong><span>實到</span></div>
+            <div class="summary-pill"><strong id="lateCount">0</strong><span>遲到</span></div>
+            <div class="summary-pill"><strong id="leaveCount">0</strong><span>請假</span></div>
+            <div class="summary-pill"><strong id="absentCount">0</strong><span>缺曠</span></div>
+        </div>
+    </header>
+
+    <main class="app-content">
+        <div class="system-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>這個手機版會直接儲存點名資料。送出前會再確認一次；目前 LINE 只保留草稿狀態，不會真的發送給家長。</div>
+        </div>
+        <section class="student-list" id="studentList">
+            <div class="empty-state">
+                <i class="fa-solid fa-spinner"></i>
+                <strong>正在讀取班級名單</strong>
+                <span>請稍候，系統正在同步 Reading Assignment 名單。</span>
+            </div>
+        </section>
+    </main>
+
+    <div class="bottom-bar">
+        <div class="bottom-meta">
+            <span id="mobileProgressText"><i class="fa-solid fa-list-check"></i> 尚未載入名單</span>
+            <span>LINE 草稿</span>
+        </div>
+        <button class="submit-btn" id="submitBtn" type="button" disabled onclick="openConfirmSheet()">
+            <i class="fa-solid fa-cloud-arrow-up"></i> 儲存點名
+        </button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-sheet">
+        <h2 id="confirmTitle">確認送出點名？</h2>
+        <p id="confirmSummary">請再確認一次點名狀態。送出後會儲存到系統，LINE 通知仍不會正式發送。</p>
+        <div class="confirm-actions">
+            <button class="cancel-btn" type="button" onclick="closeConfirmSheet()">再檢查</button>
+            <button class="confirm-btn" type="button" onclick="saveAttendance()">確認儲存</button>
+        </div>
+    </div>
+</div>
+
+<script src="admin-session.js"></script>
+<script>
+    const classSelect = document.getElementById('classSelect');
+    const sessionDateInput = document.getElementById('sessionDate');
+    const studentList = document.getElementById('studentList');
+    const submitBtn = document.getElementById('submitBtn');
+    const presentCount = document.getElementById('presentCount');
+    const lateCount = document.getElementById('lateCount');
+    const leaveCount = document.getElementById('leaveCount');
+    const absentCount = document.getElementById('absentCount');
+    const mobileProgressText = document.getElementById('mobileProgressText');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmSummary = document.getElementById('confirmSummary');
+    const pageParams = new URLSearchParams(window.location.search);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        sessionDateInput.value = pageParams.get('date') || window.BrocaAdmin.localDateValue();
+        classSelect.addEventListener('change', () => loadRoster(classSelect.value));
+        sessionDateInput.addEventListener('change', () => {
+            if (classSelect.value) loadRoster(classSelect.value);
+        });
+        loadClasses();
+    });
+
+    async function loadClasses() {
+        try {
+            const response = await fetch('/api/admin/classes', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('classes failed');
+            const classes = await response.json();
+
+            if (!classes.length) {
+                classSelect.innerHTML = '<option value="">尚無班級</option>';
+                renderMessage('尚未匯入班級', '請先到數位互動課表匯入 Excel。');
+                return;
+            }
+
+            classSelect.innerHTML = classes.map((item) =>
+                `<option value="${item.id}">${escapeHtml(item.code)}・${item.activeStudentCount || 0} 人</option>`
+            ).join('');
+            const requestedClassId = pageParams.get('classId');
+            const selected = classes.find((item) => String(item.id) === String(requestedClassId)) || classes[0];
+            classSelect.value = selected.id;
+            await loadRoster(selected.id);
+        } catch (error) {
+            classSelect.innerHTML = '<option value="">讀取失敗</option>';
+            renderMessage('目前連不到後端', '請確認 Spring Boot 已啟動，或重新登入後再試。');
+        }
+    }
+
+    async function loadRoster(classId) {
+        if (!classId) return;
+        submitBtn.disabled = true;
+        renderMessage('正在讀取學生名單', '名單由 Reading Assignment / 班級分發資料帶入。');
+
+        try {
+            const response = await fetch(`/api/admin/classes/${encodeURIComponent(classId)}/roster`, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('roster failed');
+            const roster = await response.json();
+
+            if (!roster.students || !roster.students.length) {
+                renderMessage('這個班級目前沒有學生', '請先確認 Reading Assignment 或學生分班資料。');
+                return;
+            }
+
+            studentList.innerHTML = roster.students.map(renderStudentCard).join('');
+            submitBtn.disabled = false;
+            await loadAttendanceSession(classId);
+            updateStats();
+        } catch (error) {
+            renderMessage('學生名單讀取失敗', '請稍後再試，或改用電腦版點名。');
+        }
+    }
+
+    function renderStudentCard(student, index) {
+        const english = student.englishName ? ` / ${escapeHtml(student.englishName)}` : '';
+        const number = String(index + 1).padStart(2, '0');
+        return `
+            <article class="student-card" data-student-id="${student.id}" data-status="present">
+                <div class="student-main">
+                    <div class="student-name">
+                        <strong>${escapeHtml(student.chineseName || '')}${english}</strong>
+                        <span>${escapeHtml(student.school || '')}${student.gradeLevel ? `・${escapeHtml(student.gradeLevel)} 年級` : ''}</span>
+                    </div>
+                    <div class="student-number">${number}</div>
+                </div>
+                <div class="status-grid">
+                    <button class="status-btn active-present" data-status-option="present" type="button" onclick="setStatus(this, 'present')">準時</button>
+                    <button class="status-btn" data-status-option="late" type="button" onclick="setStatus(this, 'late')">遲到</button>
+                    <button class="status-btn" data-status-option="leave" type="button" onclick="setStatus(this, 'leave')">請假</button>
+                    <button class="status-btn" data-status-option="absent" type="button" onclick="setStatus(this, 'absent')">曠課</button>
+                </div>
+                <div class="late-row">
+                    <input class="late-input" type="time" aria-label="抵達時間">
+                </div>
+                <button class="note-toggle" type="button" onclick="toggleNote(this)"><i class="fa-solid fa-pen"></i> 加備註</button>
+                <div class="note-row">
+                    <input class="note-input" type="text" placeholder="備註，例如：家長已電話告知">
+                </div>
+            </article>
+        `;
+    }
+
+    async function loadAttendanceSession(classId) {
+        try {
+            const response = await fetch(`/api/admin/attendance/sessions?classId=${encodeURIComponent(classId)}&sessionDate=${encodeURIComponent(sessionDateInput.value)}`, { credentials: 'same-origin' });
+            if (!response.ok) return;
+            const session = await response.json();
+            (session.rows || []).forEach((row) => {
+                const card = studentList.querySelector(`[data-student-id="${row.studentId}"]`);
+                if (!card) return;
+                const status = normalizeClientStatus(row.status);
+                const button = card.querySelector(`[data-status-option="${status}"]`);
+                if (button) setStatus(button, status);
+                const lateInput = card.querySelector('.late-input');
+                if (lateInput) lateInput.value = row.arrivalTime ? row.arrivalTime.slice(0, 5) : '';
+                const noteInput = card.querySelector('.note-input');
+                if (noteInput && row.note) {
+                    noteInput.value = row.note;
+                    card.classList.add('has-note');
+                }
+            });
+        } catch (error) {
+            // No saved attendance yet. The fresh roster remains usable.
+        }
+    }
+
+    function setStatus(button, status) {
+        const card = button.closest('.student-card');
+        card.dataset.status = status;
+        card.classList.toggle('is-late', status === 'late');
+        if (status !== 'late') {
+            const lateInput = card.querySelector('.late-input');
+            if (lateInput) lateInput.value = '';
+        }
+
+        card.querySelectorAll('.status-btn').forEach((item) => {
+            item.className = 'status-btn';
+        });
+        button.classList.add(`active-${status}`);
+        updateStats();
+    }
+
+    function toggleNote(button) {
+        const card = button.closest('.student-card');
+        card.classList.toggle('has-note');
+        if (card.classList.contains('has-note')) {
+            card.querySelector('.note-input')?.focus();
+        }
+    }
+
+    function updateStats() {
+        const cards = Array.from(studentList.querySelectorAll('.student-card'));
+        const present = cards.filter((card) => ['present', 'late'].includes(card.dataset.status)).length;
+        const late = cards.filter((card) => card.dataset.status === 'late').length;
+        const leave = cards.filter((card) => card.dataset.status === 'leave').length;
+        const absent = cards.filter((card) => card.dataset.status === 'absent').length;
+        presentCount.textContent = present;
+        lateCount.textContent = late;
+        leaveCount.textContent = leave;
+        absentCount.textContent = absent;
+        mobileProgressText.innerHTML = `<i class="fa-solid fa-list-check"></i> ${cards.length ? `${cards.length} 位｜遲到 ${late}｜缺曠 ${absent}` : '尚未載入名單'}`;
+    }
+
+    function openConfirmSheet() {
+        const cards = Array.from(studentList.querySelectorAll('.student-card'));
+        if (!cards.length) return;
+        const present = cards.filter((card) => ['present', 'late'].includes(card.dataset.status)).length;
+        const leave = cards.filter((card) => card.dataset.status === 'leave').length;
+        const absent = cards.filter((card) => card.dataset.status === 'absent').length;
+        confirmSummary.textContent = `本次將儲存 ${cards.length} 位學生：實到 ${present}、請假 ${leave}、缺曠 ${absent}。LINE 通知尚未正式串接，所以不會發送給家長。`;
+        confirmModal.classList.add('show');
+    }
+
+    function closeConfirmSheet() {
+        confirmModal.classList.remove('show');
+    }
+
+    async function saveAttendance() {
+        const cards = Array.from(studentList.querySelectorAll('.student-card'));
+        if (!cards.length || !classSelect.value || !sessionDateInput.value) return;
+
+        const students = cards.map((card) => ({
+            studentId: Number(card.dataset.studentId),
+            status: normalizeServerStatus(card.dataset.status),
+            arrivalTime: card.querySelector('.late-input')?.value || '',
+            note: card.querySelector('.note-input')?.value || ''
+        }));
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner"></i> 儲存中';
+
+        try {
+            const response = await fetch('/api/admin/attendance/sessions', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    classId: Number(classSelect.value),
+                    sessionDate: sessionDateInput.value,
+                    lineNotificationRequested: false,
+                    students
+                })
+            });
+
+            if (!response.ok) throw new Error('save failed');
+            const result = await response.json();
+            closeConfirmSheet();
+            submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> 已儲存 ${result.savedCount || students.length} 筆`;
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> 儲存點名';
+            }, 1400);
+        } catch (error) {
+            closeConfirmSheet();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> 儲存點名';
+            window.BrocaAdmin?.notify?.('點名儲存失敗，請確認網路或改用電腦版點名。', 'danger');
+        }
+    }
+
+    function renderMessage(title, desc) {
+        studentList.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-list-check"></i>
+                <strong>${escapeHtml(title)}</strong>
+                <span>${escapeHtml(desc)}</span>
+            </div>
+        `;
+        presentCount.textContent = '0';
+        lateCount.textContent = '0';
+        leaveCount.textContent = '0';
+        absentCount.textContent = '0';
+        mobileProgressText.innerHTML = '<i class="fa-solid fa-list-check"></i> 尚未載入名單';
+    }
+
+    function normalizeClientStatus(status) {
+        const value = String(status || 'PRESENT').toUpperCase();
+        if (value === 'LATE') return 'late';
+        if (value === 'LEAVE') return 'leave';
+        if (value === 'ABSENT') return 'absent';
+        return 'present';
+    }
+
+    function normalizeServerStatus(status) {
+        const value = String(status || 'present').toLowerCase();
+        if (value === 'late') return 'LATE';
+        if (value === 'leave') return 'LEAVE';
+        if (value === 'absent') return 'ABSENT';
+        return 'PRESENT';
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+</body>
+</html>

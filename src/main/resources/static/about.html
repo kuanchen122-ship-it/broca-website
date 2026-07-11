@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>關於我們 | 布魯卡美語 Broca English</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="public-polish.css">
+  <script src="public-config.js" defer></script>
+  <script src="public-polish.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">
+    <a href="index.html" aria-label="布魯卡美語 首頁">
+      <svg width="234" height="68" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><g id="broca-star"><path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/></g></defs>
+        <use href="#broca-star" transform="translate(88, 12) scale(0.9) rotate(-15)"/><use href="#broca-star" transform="translate(85, 23) scale(0.8) rotate(15)"/><use href="#broca-star" transform="translate(97, 16) scale(0.4) rotate(-5)"/><use href="#broca-star" transform="translate(105, 11) scale(0.7) rotate(-15)"/><use href="#broca-star" transform="translate(108, 20) scale(0.6) rotate(15)"/>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B" letter-spacing="1">BROCA ENGLISH</text>
+      </svg>
+    </a>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <nav class="site-nav" id="primaryNav">
+    <ul>
+      <li><a href="index.html">首頁</a></li>
+      <li><a href="about.html" class="active">關於我們</a></li>
+      <li class="dropdown">
+        <a href="courses.html">課程介紹 <i class="fa-solid fa-angle-down" style="font-size:12px;"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="course-details.html?id=halfday">半日美語課程</a></li>
+          <li><a href="course-details.html?id=kids">兒童美語課程</a></li>
+          <li><a href="course-details.html?id=junior">國中美語課程</a></li>
+          <li><a href="course-details.html?id=gept">全民英檢課程</a></li>
+          <li><a href="course-details.html?id=conversation">英文會話課程</a></li>
+          <li><a href="course-details.html?id=kindergarten">幼兒美語課程</a></li>
+          <li><a href="course-details.html?id=senior">高中美語課程</a></li>
+          <li><a href="course-details.html?id=tutor">國小安親課程</a></li>
+        </ul>
+      </li>
+      <li><a href="learning.html">學習中心</a></li>
+      <li><a href="info.html#news">最新消息</a></li>
+      <li><a href="info.html#calendar">家長行事曆</a></li>
+      <li><a href="info.html#honor">榮譽榜</a></li>
+      <li><a href="info.html#contact">聯絡我們</a></li>
+      <li><a href="info.html#registration" class="nav-cta" data-enrollment-link>線上報名</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">About Broca</span>
+        <h1>穩穩扎根，讓孩子自然開口。</h1>
+        <p>布魯卡美語深耕高雄路竹多年，重視扎實、有節奏、可累積的學習。從幼兒啟蒙、兒童美語到課業輔導，我們希望每個孩子都能在安全規律的環境裡，慢慢建立英文能力與學習自信。</p>
+        <div class="hero-actions">
+          <a href="courses.html" class="btn btn-primary"><i class="fa-solid fa-book-open-reader"></i> 查看課程</a>
+          <a href="info.html#registration" class="btn btn-quiet" data-enrollment-link><i class="fa-solid fa-pen-to-square"></i> 線上報名</a>
+        </div>
+      </div>
+      <div class="hero-panel reveal">
+        <div class="photo-placeholder">
+          <div>
+            <i class="fa-regular fa-image"></i>
+            <strong>校園與教室照片</strong>
+            <span>真實照片確認後可直接替換，現在先以品牌色塊維持正式版面。</span>
+          </div>
+        </div>
+        <div class="hero-panel-meta">
+          <div class="hero-stat"><strong>民國 93 年</strong><span>在地深耕</span></div>
+          <div class="hero-stat"><strong>路竹區</strong><span>實體教學</span></div>
+          <div class="hero-stat"><strong>分級</strong><span>依程度安排</span></div>
+          <div class="hero-stat"><strong>美語＋課輔</strong><span>完整陪伴</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="story-grid">
+      <article class="surface-card story-card reveal">
+        <span class="quote-mark"><i class="fa-solid fa-seedling"></i></span>
+        <h2>品牌故事</h2>
+        <p>布魯卡美語成立於民國 93 年，從一間重視基礎、重視陪伴的在地美語教室開始，一路陪著孩子完成從聽、說、讀、寫到課業習慣的長期累積。</p>
+        <p>我們相信英文不是短時間衝刺的成果，而是一段需要穩定節奏與正確方法的養成。孩子每一次敢開口、每一次完成訂正、每一次願意再試一次，都是學習真正往前的證明。</p>
+      </article>
+      <article class="surface-card story-card reveal">
+        <span class="quote-mark"><i class="fa-solid fa-compass"></i></span>
+        <h2>我們重視的事</h2>
+        <p>課程設計以「能理解、能練習、能表達」為核心，不追求表面華麗，而是讓學生在清楚的架構裡逐步累積能力。</p>
+        <p>對家長而言，我們希望布魯卡是一個放心的學習據點；對孩子而言，這裡是一個可以被引導、被鼓勵，也能慢慢看見自己進步的地方。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head center reveal">
+      <span class="eyebrow">Learning Values</span>
+      <h2 class="section-title">四個教學堅持</h2>
+      <p class="section-lead">正式網站不需要浮誇承諾，只需要讓家長一眼看見：孩子來到這裡，學習會被好好安排。</p>
+    </div>
+    <div class="principle-grid">
+      <div class="principle-card reveal">
+        <span class="principle-icon"><i class="fa-solid fa-shield-heart"></i></span>
+        <h3>嚴謹踏實</h3>
+        <p>每個階段都重視基礎與複習，避免孩子只會一時記憶，卻沒有真正理解。</p>
+      </div>
+      <div class="principle-card reveal">
+        <span class="principle-icon"><i class="fa-solid fa-layer-group"></i></span>
+        <h3>循序分級</h3>
+        <p>依程度與年齡安排學習內容，讓學生在適合自己的節奏中穩定前進。</p>
+      </div>
+      <div class="principle-card reveal">
+        <span class="principle-icon"><i class="fa-solid fa-comments"></i></span>
+        <h3>自然表達</h3>
+        <p>透過主題、句型與反覆練習，把英文從課本知識轉化成能開口使用的能力。</p>
+      </div>
+      <div class="principle-card reveal">
+        <span class="principle-icon"><i class="fa-solid fa-house-chimney-user"></i></span>
+        <h3>家長安心</h3>
+        <p>課程、作業與學習狀況會逐步數位化，讓行政與溝通更清楚、更有效率。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head reveal">
+      <span class="eyebrow">How We Work</span>
+      <h2 class="section-title">從了解孩子開始，安排合適的學習路線。</h2>
+      <p class="section-lead">先讓家長理解基本流程，再依孩子的年級、程度與時間安排合適的學習路線。</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step reveal">
+        <span class="step-no">01</span>
+        <h3>初步了解</h3>
+        <p>透過電話或粉專聯絡，先確認年級、程度、需求與可上課時間。</p>
+      </div>
+      <div class="flow-step reveal">
+        <span class="step-no">02</span>
+        <h3>程度安排</h3>
+        <p>依孩子狀況安排合適課程，避免過難挫折或過簡單停滯。</p>
+      </div>
+      <div class="flow-step reveal">
+        <span class="step-no">03</span>
+        <h3>穩定練習</h3>
+        <p>在固定節奏中累積單字、句型、閱讀、聽說與課業習慣。</p>
+      </div>
+      <div class="flow-step reveal">
+        <span class="step-no">04</span>
+        <h3>持續回饋</h3>
+        <p>學習狀況、出缺席與課程進度會透過清楚的紀錄與溝通持續追蹤。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="cta-band reveal">
+      <div>
+        <h2>想了解孩子適合哪一班？</h2>
+        <p>可以先從課程總覽開始，也可以直接聯絡我們預約現場了解。</p>
+      </div>
+      <div class="hero-actions" style="margin-top:0;">
+        <a href="courses.html" class="btn btn-primary"><i class="fa-solid fa-table-cells-large"></i> 課程總覽</a>
+        <a href="info.html#registration" class="btn btn-quiet" data-enrollment-link><i class="fa-solid fa-pen-to-square"></i> 線上報名</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <h3>布魯卡美語 Broca English</h3>
+      <p><i class="fa-solid fa-location-dot"></i> 高雄市路竹區國昌路309號</p>
+      <p><i class="fa-solid fa-phone"></i> (07) 697-8690</p>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/BrocaEnglish/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://maps.google.com/?q=高雄市路竹區國昌路309號" target="_blank" rel="noopener" aria-label="Google Maps"><i class="fa-solid fa-map-location-dot"></i></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 布魯卡美語 Broca English. All rights reserved.
+      <span style="margin:0 8px;color:#334155;">|</span>
+      <a href="login.html"><i class="fa-solid fa-lock" style="font-size:11px;margin-right:4px;opacity:.7;"></i>管理端登入</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>

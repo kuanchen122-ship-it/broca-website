@@ -1,0 +1,847 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生請假審核 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Core Variables (Synced with Admin Theme) --- */
+        :root {
+            --bg-admin: #f8fafc;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --transition-smooth: all 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { background-color: var(--bg-admin); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- 1. Sidebar --- */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: var(--transition-smooth); }
+        .nav-link i { font-size: 18px; width: 30px; text-align: center; margin-right: 10px; }
+        .nav-link:hover { background-color: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        /* CHECKED: Active class on Leave Approval */
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background-color: rgba(0,0,0,0.15); color: var(--brand-accent); }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: #ef4444; color: var(--white); }
+
+        /* --- 2. Main Content --- */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar { height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid var(--border-color); z-index: 10; flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 20px; font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-accent); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .user-info strong { display: block; font-size: 13px; }
+        .user-info span { color: var(--text-muted); font-size: 12px; font-weight: 800; }
+
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; }
+        .module-intro { background: linear-gradient(135deg, rgba(6, 78, 59, 0.97), rgba(4, 120, 87, 0.9)); color: #fff; border-radius: 18px; padding: 24px 26px; margin-bottom: 22px; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.10); position: relative; overflow: hidden; }
+        .module-intro::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 28px), linear-gradient(90deg, rgba(255,206,0,0.16), transparent 42%); pointer-events: none; }
+        .module-intro > * { position: relative; z-index: 1; }
+        .module-intro span { display: inline-flex; align-items: center; gap: 8px; color: var(--brand-accent); font-size: 12px; font-weight: 950; text-transform: uppercase; margin-bottom: 10px; }
+        .module-intro h1 { font-size: 28px; line-height: 1.25; margin-bottom: 8px; }
+        .module-intro p { color: rgba(255,255,255,0.82); line-height: 1.75; font-size: 14px; font-weight: 750; max-width: 860px; }
+
+        /* Stats Panel */
+        .stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: var(--white); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px; }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .icon-warning { background: #fffbeb; color: #d97706; }
+        .icon-success { background: #ecfdf5; color: #059669; }
+        .icon-total { background: #f1f5f9; color: #475569; }
+        .stat-info h3 { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .stat-info p { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+
+        /* Toolbar */
+        .toolbar { background: var(--white); padding: 15px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .filter-group { display: flex; gap: 15px; }
+        .filter-btn { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid var(--border-color); background: var(--white); color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .filter-btn.active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
+        .filter-btn:hover:not(.active) { background: #f1f5f9; }
+        .module-pill { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 999px; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 12px; font-weight: 900; }
+
+        .manual-entry-panel {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .manual-entry-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .manual-entry-head h2 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 17px;
+            font-weight: 950;
+            margin-bottom: 5px;
+        }
+
+        .manual-entry-head p {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.65;
+        }
+
+        .leave-form-grid {
+            display: grid;
+            grid-template-columns: minmax(160px, 0.9fr) minmax(180px, 1fr) minmax(150px, 0.8fr) minmax(150px, 0.8fr);
+            gap: 12px;
+            align-items: end;
+        }
+
+        .leave-field {
+            display: grid;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .leave-field label {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 950;
+        }
+
+        .leave-input,
+        .leave-select,
+        .leave-note {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #f8fafc;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 800;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .leave-input,
+        .leave-select {
+            min-height: 42px;
+            padding: 0 12px;
+        }
+
+        .leave-note {
+            min-height: 42px;
+            padding: 11px 12px;
+            resize: vertical;
+            grid-column: span 3;
+        }
+
+        .leave-input:focus,
+        .leave-select:focus,
+        .leave-note:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px rgba(6, 78, 59, 0.11);
+            background: #ffffff;
+        }
+
+        .create-leave-btn {
+            min-height: 42px;
+            border: none;
+            border-radius: 10px;
+            background: var(--brand-primary);
+            color: white;
+            font-weight: 950;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .create-leave-btn:hover { background: var(--sidebar-hover); transform: translateY(-1px); }
+        .create-leave-btn:disabled { cursor: not-allowed; transform: none; background: #cbd5e1; }
+
+        .approval-console {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .approval-card {
+            min-height: 132px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .approval-card strong {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 950;
+            margin-bottom: 9px;
+        }
+
+        .approval-card p,
+        .approval-card li {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.65;
+        }
+
+        .approval-card ul {
+            display: grid;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .approval-card li::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            display: inline-block;
+            border-radius: 999px;
+            background: var(--brand-primary);
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .approval-status-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        /* Table */
+        .table-container { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border-color); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background-color: #f8fafc; padding: 16px 25px; font-size: 13px; font-weight: 700; color: var(--text-muted); border-bottom: 2px solid var(--border-color); }
+        td { padding: 18px 25px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        tr.pending-row { background-color: #fffdf5; } /* 待審核的列會有一點點黃底提示 */
+        tr:last-child td { border-bottom: none; }
+
+        .student-cell { display: flex; align-items: center; gap: 12px; }
+        .student-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #64748b; font-size: 13px; }
+        .student-info h4 { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+        .student-info p { font-size: 12px; color: var(--text-muted); }
+
+        .course-info { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .date-info { font-size: 12px; font-weight: 600; color: var(--danger); display: flex; align-items: center; gap: 4px; }
+
+        .reason-box { font-size: 13px; color: #475569; background: #f1f5f9; padding: 8px 12px; border-radius: 6px; display: inline-block; }
+        .reason-type { font-weight: 800; color: var(--brand-primary); margin-right: 6px; }
+
+        .status-tag { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+        .tag-pending { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .tag-approved { background: #d1fae5; color: #059669; border: 1px solid #a7f3d0; }
+        .tag-rejected { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+        .action-btns { display: flex; gap: 8px; }
+        .btn-approve { width: 36px; height: 36px; border-radius: 8px; border: none; background: #10b981; color: white; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .btn-approve:hover { background: #059669; transform: scale(1.05); }
+        .btn-reject { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #fca5a5; background: white; color: #ef4444; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .btn-reject:hover { background: #fee2e2; }
+
+        .action-done-text { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+        .empty-state { display: grid; justify-items: center; gap: 12px; padding: 54px 24px; text-align: center; color: var(--text-muted); }
+        .empty-state i { width: 54px; height: 54px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; background: #ecfdf5; color: var(--brand-primary); font-size: 22px; }
+        .empty-state strong { color: var(--text-main); font-size: 17px; font-weight: 950; }
+        .empty-state p { max-width: 620px; line-height: 1.8; font-weight: 750; }
+
+        .review-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(15, 23, 42, 0.38);
+            backdrop-filter: blur(8px);
+        }
+
+        .review-modal.open { display: flex; }
+        .review-dialog {
+            width: min(460px, 100%);
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 28px 70px rgba(15, 23, 42, 0.22);
+            padding: 20px;
+        }
+
+        .review-dialog h2 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 18px;
+            font-weight: 950;
+            margin-bottom: 8px;
+        }
+
+        .review-dialog p {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .review-dialog textarea {
+            width: 100%;
+            min-height: 104px;
+            resize: vertical;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 800;
+            outline: none;
+        }
+
+        .review-dialog textarea:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px rgba(6, 78, 59, 0.11);
+            background: #ffffff;
+        }
+
+        .review-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .review-cancel,
+        .review-submit {
+            min-height: 40px;
+            border-radius: 10px;
+            padding: 0 14px;
+            font-weight: 950;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .review-cancel { background: #ffffff; color: var(--text-muted); }
+        .review-submit { background: #ef4444; border-color: #ef4444; color: #ffffff; }
+
+        @media (max-width: 1180px) {
+            .approval-console,
+            .stats-panel { grid-template-columns: 1fr; }
+            .toolbar { align-items: stretch; flex-direction: column; gap: 12px; }
+            .filter-group { flex-wrap: wrap; }
+            .manual-entry-head { flex-direction: column; }
+            .leave-form-grid { grid-template-columns: 1fr 1fr; }
+            .leave-note { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 720px) {
+            .content-area { padding: 18px; }
+            .module-intro h1 { font-size: 24px; }
+            .leave-form-grid { grid-template-columns: 1fr; }
+            .leave-note { grid-column: auto; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 860px; }
+        }
+
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-admin-page="true">
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link active"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-clipboard-user" style="color: var(--brand-primary);"></i> 學生請假單審核中心
+        </div>
+        <div class="topbar-right">
+            <div class="avatar" data-user-initial>B</div>
+            <div class="user-info">
+                <strong data-user-name>系統管理員</strong>
+                <span data-user-role>教務主任</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="module-intro">
+            <span><i class="fa-solid fa-clipboard-check"></i> Leave Approval</span>
+            <h1>請假單集中審核，後續與點名紀錄同步。</h1>
+            <p>正式請假入口啟用後，家長送出的假單會集中在這裡，由主任確認狀態，再回到點名與課程紀錄中使用。現階段保留乾淨的審核介面，不顯示臨時資料。</p>
+        </section>
+
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-icon icon-warning"><i class="fa-solid fa-bell"></i></div>
+                <div class="stat-info">
+                    <h3 id="pendingTodayCount">--</h3>
+                    <p>今日待審核假單</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-success"><i class="fa-solid fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h3 id="approvedWeekCount">--</h3>
+                    <p>本週已核准</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-total"><i class="fa-solid fa-folder-open"></i></div>
+                <div class="stat-info">
+                    <h3 id="totalWeekCount">--</h3>
+                    <p>本週累計單量</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="approval-console" aria-label="請假審核營運狀態">
+            <article class="approval-card">
+                <strong><i class="fa-solid fa-door-open" style="color: var(--brand-primary);"></i> 家長入口狀態</strong>
+                <p>線上請假入口尚未正式開放。現階段可由櫃台或主任在本頁代登，核准後會同步寫入班級點名紀錄。</p>
+                <div class="approval-status-line"><i class="fa-solid fa-circle-info"></i> 目前使用內部代登，不連外部表單</div>
+            </article>
+            <article class="approval-card">
+                <strong><i class="fa-solid fa-circle-check" style="color: var(--success);"></i> 審核規則</strong>
+                <ul>
+                    <li>主任確認後才視為正式請假</li>
+                    <li>退回假單可保留原因，方便櫃台追蹤</li>
+                    <li>點名頁以最新核准狀態為準</li>
+                </ul>
+            </article>
+            <article class="approval-card">
+                <strong><i class="fa-solid fa-link" style="color: var(--info);"></i> 後續同步</strong>
+                <p>核准假單會立刻同步到班級點名；LINE 官方帳號尚未串接前，只維持後台紀錄，不會對家長發送訊息。</p>
+                <div class="approval-status-line"><i class="fa-solid fa-route"></i> 請假入口 → 主任審核 → 點名同步</div>
+            </article>
+        </section>
+
+        <div class="toolbar">
+            <div class="filter-group">
+                <button class="filter-btn active" type="button" data-filter-status="ALL">全部假單</button>
+                <button class="filter-btn" type="button" data-filter-status="PENDING">待審核 <span data-pending-total>(--)</span></button>
+                <button class="filter-btn" type="button" data-filter-status="APPROVED">已核准 <span data-approved-total>(--)</span></button>
+                <button class="filter-btn" type="button" data-filter-status="REJECTED">已退回 <span data-rejected-total>(--)</span></button>
+            </div>
+            <span class="module-pill" id="leaveStatusPill"><i class="fa-solid fa-hourglass-half"></i> 讀取請假資料中</span>
+        </div>
+
+        <section class="manual-entry-panel" aria-label="櫃台代登請假單">
+            <div class="manual-entry-head">
+                <div>
+                    <h2><i class="fa-solid fa-pen-to-square" style="color: var(--brand-primary);"></i> 櫃台代登請假單</h2>
+                    <p>表單與家長端晚一點再做；目前先讓主任或櫃台可以用正式資料庫代登，核准後老師點名頁會看到請假狀態。</p>
+                </div>
+                <span class="module-pill" style="background:#ecfdf5;color:#166534;border-color:#bbf7d0;"><i class="fa-solid fa-database"></i> 寫入 leave_requests</span>
+            </div>
+            <div class="leave-form-grid">
+                <div class="leave-field">
+                    <label for="leaveClassSelect">請假班級</label>
+                    <select id="leaveClassSelect" class="leave-select">
+                        <option value="">讀取班級中...</option>
+                    </select>
+                </div>
+                <div class="leave-field">
+                    <label for="leaveStudentSelect">學生</label>
+                    <select id="leaveStudentSelect" class="leave-select" disabled>
+                        <option value="">先選擇班級</option>
+                    </select>
+                </div>
+                <div class="leave-field">
+                    <label for="leaveDateInput">請假日期</label>
+                    <input id="leaveDateInput" class="leave-input" type="date">
+                </div>
+                <div class="leave-field">
+                    <label for="leaveReasonType">假別</label>
+                    <select id="leaveReasonType" class="leave-select">
+                        <option value="SICK">病假</option>
+                        <option value="PERSONAL">事假</option>
+                        <option value="FAMILY">家庭因素</option>
+                        <option value="SCHOOL">學校活動</option>
+                        <option value="OTHER">其他</option>
+                    </select>
+                </div>
+                <textarea id="leaveReasonText" class="leave-note" placeholder="請假事由或櫃台備註，例如：家長來電告知發燒，今日請假。"></textarea>
+                <button id="createLeaveBtn" class="create-leave-btn" type="button"><i class="fa-solid fa-plus"></i> 建立待審假單</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th width="15%">送單時間</th>
+                    <th width="20%">學生資訊</th>
+                    <th width="25%">請假課程與時間</th>
+                    <th width="20%">假別與事由</th>
+                    <th width="10%">狀態</th>
+                    <th width="10%">操作</th>
+                </tr>
+                </thead>
+                <tbody id="leaveRows">
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <strong>正在讀取請假資料</strong>
+                            <p>請稍候。</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</main>
+
+<div class="review-modal" id="rejectModal" aria-hidden="true">
+    <div class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="rejectModalTitle">
+        <h2 id="rejectModalTitle"><i class="fa-solid fa-circle-xmark" style="color: var(--danger);"></i> 退回請假單</h2>
+        <p>退回後不會同步到點名。可留下原因，方便櫃台之後追蹤家長或老師溝通紀錄。</p>
+        <textarea id="rejectReasonInput" placeholder="退回原因，例如：請假日期需再確認、班級選錯、家長資料待確認。"></textarea>
+        <div class="review-actions">
+            <button class="review-cancel" type="button" id="rejectCancelBtn">取消</button>
+            <button class="review-submit" type="button" id="rejectSubmitBtn"><i class="fa-solid fa-xmark"></i> 確認退回</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const leaveRows = document.getElementById('leaveRows');
+    const leaveClassSelect = document.getElementById('leaveClassSelect');
+    const leaveStudentSelect = document.getElementById('leaveStudentSelect');
+    const leaveDateInput = document.getElementById('leaveDateInput');
+    const leaveReasonType = document.getElementById('leaveReasonType');
+    const leaveReasonText = document.getElementById('leaveReasonText');
+    const createLeaveBtn = document.getElementById('createLeaveBtn');
+    const leaveStatusPill = document.getElementById('leaveStatusPill');
+    const rejectModal = document.getElementById('rejectModal');
+    const rejectReasonInput = document.getElementById('rejectReasonInput');
+    const rejectCancelBtn = document.getElementById('rejectCancelBtn');
+    const rejectSubmitBtn = document.getElementById('rejectSubmitBtn');
+    let currentFilter = 'ALL';
+    let classCache = [];
+    let pendingRejectId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        leaveDateInput.value = window.BrocaAdmin.localDateValue();
+        document.querySelectorAll('[data-filter-status]').forEach(button => {
+            button.addEventListener('click', () => {
+                currentFilter = button.dataset.filterStatus || 'ALL';
+                document.querySelectorAll('[data-filter-status]').forEach(btn => btn.classList.toggle('active', btn === button));
+                loadLeaveRequests();
+            });
+        });
+        leaveClassSelect.addEventListener('change', loadStudentsForSelectedClass);
+        createLeaveBtn.addEventListener('click', createLeaveRequest);
+        rejectCancelBtn.addEventListener('click', closeRejectModal);
+        rejectSubmitBtn.addEventListener('click', submitReject);
+        rejectModal.addEventListener('click', event => {
+            if (event.target === rejectModal) closeRejectModal();
+        });
+        loadClasses();
+        loadLeaveRequests();
+    });
+
+    async function loadClasses() {
+        try {
+            const response = await fetch('/api/admin/classes', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error(`HTTP_${response.status}`);
+            classCache = await response.json();
+            leaveClassSelect.innerHTML = '<option value="">選擇班級</option>' + classCache
+                    .map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.code)}｜${escapeHtml(item.name || item.category || '')} (${item.activeStudentCount || 0} 人)</option>`)
+                    .join('');
+        } catch (error) {
+            leaveClassSelect.innerHTML = '<option value="">班級讀取失敗</option>';
+        }
+    }
+
+    async function loadStudentsForSelectedClass() {
+        const classId = leaveClassSelect.value;
+        leaveStudentSelect.disabled = true;
+        leaveStudentSelect.innerHTML = '<option value="">讀取學生中...</option>';
+        if (!classId) {
+            leaveStudentSelect.innerHTML = '<option value="">先選擇班級</option>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/classes/${encodeURIComponent(classId)}/roster`, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error(`HTTP_${response.status}`);
+            const roster = await response.json();
+            const students = roster.students || [];
+            leaveStudentSelect.disabled = students.length === 0;
+            leaveStudentSelect.innerHTML = students.length
+                    ? '<option value="">選擇學生</option>' + students.map(student => {
+                        const english = student.englishName ? ` / ${student.englishName}` : '';
+                        return `<option value="${escapeHtml(student.id)}">${escapeHtml(student.chineseName || '')}${escapeHtml(english)}｜${escapeHtml(student.studentNo || '')}</option>`;
+                    }).join('')
+                    : '<option value="">此班目前沒有學生</option>';
+        } catch (error) {
+            leaveStudentSelect.innerHTML = '<option value="">學生讀取失敗</option>';
+        }
+    }
+
+    async function loadLeaveRequests() {
+        leaveRows.innerHTML = loadingRow('正在讀取請假資料', '請稍候。');
+        const query = currentFilter === 'ALL' ? '' : `?status=${encodeURIComponent(currentFilter)}`;
+        try {
+            const response = await fetch(`/api/admin/leave-requests${query}`, { credentials: 'same-origin' });
+            if (response.status === 401 || response.status === 403) {
+                leaveRows.innerHTML = emptyRow('fa-solid fa-lock', '請重新登入', '主任帳號登入後才能查看請假審核。');
+                return;
+            }
+            if (!response.ok) throw new Error(`HTTP_${response.status}`);
+            const data = await response.json();
+            renderSummary(data.summary || {});
+            renderRows(data.requests || []);
+        } catch (error) {
+            leaveRows.innerHTML = emptyRow('fa-solid fa-triangle-exclamation', '無法讀取請假資料', '請確認 Spring Boot 後端正在執行。');
+        }
+    }
+
+    function renderSummary(summary) {
+        setText('pendingTodayCount', summary.pendingToday ?? 0);
+        setText('approvedWeekCount', summary.approvedThisWeek ?? 0);
+        setText('totalWeekCount', summary.totalThisWeek ?? 0);
+        document.querySelector('[data-pending-total]').textContent = `(${summary.pendingTotal ?? 0})`;
+        document.querySelector('[data-approved-total]').textContent = `(${summary.approvedTotal ?? 0})`;
+        document.querySelector('[data-rejected-total]').textContent = `(${summary.rejectedTotal ?? 0})`;
+        leaveStatusPill.innerHTML = `<i class="fa-solid fa-database"></i> 待審 ${summary.pendingTotal ?? 0}・已核准 ${summary.approvedTotal ?? 0}`;
+    }
+
+    function renderRows(rows) {
+        if (!rows.length) {
+            const label = currentFilter === 'PENDING' ? '目前沒有待審核假單'
+                    : currentFilter === 'APPROVED' ? '目前沒有已核准假單'
+                    : currentFilter === 'REJECTED' ? '目前沒有已退回假單'
+                    : '目前沒有請假紀錄';
+            leaveRows.innerHTML = emptyRow('fa-regular fa-folder-open', label, '可先使用上方櫃台代登功能建立正式請假單。');
+            return;
+        }
+
+        leaveRows.innerHTML = rows.map(row => {
+            const pending = row.status === 'PENDING';
+            const english = row.englishName ? ` / ${escapeHtml(row.englishName)}` : '';
+            const classText = [row.classCode, row.className].filter(Boolean).join('｜') || '-';
+            const statusClass = row.status === 'APPROVED' ? 'tag-approved' : row.status === 'REJECTED' ? 'tag-rejected' : 'tag-pending';
+            const statusIcon = row.status === 'APPROVED' ? 'fa-check' : row.status === 'REJECTED' ? 'fa-xmark' : 'fa-clock';
+            return `
+                <tr class="${pending ? 'pending-row' : ''}" data-request-id="${escapeHtml(row.id)}">
+                    <td>${escapeHtml(row.createdAt || '-')}<br><span style="color: var(--text-muted); font-size: 12px; font-weight: 800;">${sourceLabel(row.source)}</span></td>
+                    <td>
+                        <div class="student-cell">
+                            <div class="student-avatar">${escapeHtml((row.studentName || row.englishName || '?').slice(0, 1))}</div>
+                            <div class="student-info">
+                                <h4>${escapeHtml(row.studentName || '')}${english}</h4>
+                                <p>${escapeHtml(row.studentNo || '')}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="course-info">${escapeHtml(classText)}</div>
+                        <div class="date-info"><i class="fa-regular fa-calendar"></i> ${escapeHtml(row.leaveDate || '-')}</div>
+                    </td>
+                    <td><span class="reason-box"><span class="reason-type">${escapeHtml(row.reasonLabel || '其他')}</span>${escapeHtml(row.reasonText || '未填寫')}</span></td>
+                    <td><span class="status-tag ${statusClass}"><i class="fa-solid ${statusIcon}"></i> ${escapeHtml(row.statusLabel || '-')}</span></td>
+                    <td>${renderActions(row)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderActions(row) {
+        if (row.status === 'PENDING') {
+            return `
+                <div class="action-btns">
+                    <button class="btn-approve" type="button" onclick="reviewLeave(${Number(row.id)}, 'APPROVED')" title="核准"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn-reject" type="button" onclick="openRejectModal(${Number(row.id)})" title="退回"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `;
+        }
+        const note = row.reviewNote ? `｜${escapeHtml(row.reviewNote)}` : '';
+        return `<span class="action-done-text">${escapeHtml(row.reviewedBy || '主任已審核')}${note}</span>`;
+    }
+
+    async function createLeaveRequest() {
+        if (!leaveClassSelect.value || !leaveStudentSelect.value || !leaveDateInput.value) {
+            window.BrocaAdmin?.notify?.('請先選擇班級、學生與日期。', 'warning');
+            return;
+        }
+        createLeaveBtn.disabled = true;
+        try {
+            const response = await fetch('/api/admin/leave-requests', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    classId: Number(leaveClassSelect.value),
+                    studentId: Number(leaveStudentSelect.value),
+                    leaveDate: leaveDateInput.value,
+                    reasonType: leaveReasonType.value,
+                    reasonText: leaveReasonText.value
+                })
+            });
+            if (!response.ok) {
+                const message = await readErrorMessage(response);
+                window.BrocaAdmin?.notify?.(message || `建立失敗 (${response.status})`, 'danger');
+                return;
+            }
+            leaveReasonText.value = '';
+            window.BrocaAdmin?.notify?.('已建立待審請假單。', 'success');
+            currentFilter = 'PENDING';
+            document.querySelectorAll('[data-filter-status]').forEach(btn => btn.classList.toggle('active', btn.dataset.filterStatus === 'PENDING'));
+            await loadLeaveRequests();
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('建立請假單時發生錯誤。', 'danger');
+        } finally {
+            createLeaveBtn.disabled = false;
+        }
+    }
+
+    function openRejectModal(id) {
+        pendingRejectId = id;
+        rejectReasonInput.value = '';
+        rejectModal.classList.add('open');
+        rejectModal.setAttribute('aria-hidden', 'false');
+        rejectReasonInput.focus();
+    }
+
+    function closeRejectModal() {
+        pendingRejectId = null;
+        rejectModal.classList.remove('open');
+        rejectModal.setAttribute('aria-hidden', 'true');
+    }
+
+    async function submitReject() {
+        if (!pendingRejectId) return;
+        await reviewLeave(pendingRejectId, 'REJECTED', rejectReasonInput.value);
+        closeRejectModal();
+    }
+
+    async function reviewLeave(id, status, reviewNote = '') {
+        try {
+            const response = await fetch(`/api/admin/leave-requests/${encodeURIComponent(id)}/review`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, reviewNote })
+            });
+            if (!response.ok) {
+                const message = await readErrorMessage(response);
+                window.BrocaAdmin?.notify?.(message || `審核失敗 (${response.status})`, 'danger');
+                return;
+            }
+            window.BrocaAdmin?.notify?.(status === 'APPROVED' ? '假單已核准，並同步到點名。' : '假單已退回。', status === 'APPROVED' ? 'success' : 'warning');
+            await loadLeaveRequests();
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('審核請假單時發生錯誤。', 'danger');
+        }
+    }
+
+    async function readErrorMessage(response) {
+        try {
+            const text = await response.text();
+            return text && text.length < 160 ? text : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function loadingRow(title, text) {
+        return `<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><strong>${escapeHtml(title)}</strong><p>${escapeHtml(text)}</p></div></td></tr>`;
+    }
+
+    function emptyRow(icon, title, text) {
+        return `<tr><td colspan="6"><div class="empty-state"><i class="${escapeHtml(icon)}"></i><strong>${escapeHtml(title)}</strong><p>${escapeHtml(text)}</p></div></td></tr>`;
+    }
+
+    function sourceLabel(source) {
+        return source === 'MANUAL' ? '櫃台代登' : '線上送單';
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+<script src="admin-session.js"></script>
+</body>
+</html>

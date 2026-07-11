@@ -1,0 +1,1288 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數位互動課表 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #2563eb;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        html { min-height: 100%; background: var(--bg-admin); }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: auto; }
+
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); letter-spacing: 1px; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: visible; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 900; color: var(--text-main); }
+        .topbar-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .import-btn, .utility-btn, .date-btn, .primary-btn, .secondary-btn {
+            border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; transition: var(--transition-smooth);
+        }
+        .import-btn { background: #10b981; color: white; padding: 11px 18px; border-radius: 8px; font-size: 14px; box-shadow: 0 8px 18px rgba(16,185,129,0.18); }
+        .import-btn:hover { background: #059669; transform: translateY(-1px); }
+
+        .content-area { flex: 1; width: 100%; max-width: 1680px; margin: 0 auto; overflow: visible; padding: 22px 28px 34px; }
+        .schedule-hero { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(360px, 0.85fr); gap: 12px; align-items: stretch; margin-bottom: 14px; }
+        .hero-panel, .stat-card, .toolbar, .schedule-container, .import-panel { background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+        .hero-panel { padding: 17px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .hero-title h1 { font-size: 20px; font-weight: 950; letter-spacing: 0; margin-bottom: 6px; }
+        .hero-title p { color: var(--text-muted); font-size: 13px; line-height: 1.6; font-weight: 700; max-width: 720px; }
+        .range-chip { display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px 9px; border-radius: 8px; background: #ecfdf5; color: #047857; font-size: 12px; font-weight: 900; }
+        .hero-status { min-width: 112px; padding: 12px; border-radius: 12px; background: #0f172a; color: white; text-align: center; }
+        .hero-status span { display: block; color: #cbd5e1; font-size: 12px; font-weight: 800; margin-bottom: 5px; }
+        .hero-status strong { display: block; font-size: 19px; font-weight: 950; color: var(--brand-accent); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+        .stat-card { padding: 14px; min-width: 0; }
+        .stat-card strong { display: block; font-size: 23px; color: var(--brand-primary); margin-bottom: 4px; }
+        .stat-card span { color: var(--text-muted); font-size: 12px; font-weight: 900; }
+
+        .toolbar { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 12px; align-items: stretch; margin-bottom: 14px; overflow: visible; position: sticky; top: 72px; z-index: 45; }
+        .date-picker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
+        .date-label-wrap { min-width: 260px; flex: 1 1 320px; }
+        #scheduleDateLabel { display: block; font-size: 19px; color: var(--brand-primary); font-weight: 950; line-height: 1.25; }
+        .schedule-meta { display: block; margin-top: 4px; color: var(--text-muted); font-size: 12px; font-weight: 800; line-height: 1.45; }
+        .date-btn { width: 38px; height: 38px; border-radius: 8px; background: #eef2f7; color: var(--text-muted); font-size: 16px; }
+        .date-btn:hover { background: #ecfdf5; color: var(--brand-primary); }
+        .date-input, .search-filter, .select-filter { width: 100%; min-width: 0; min-height: 40px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: var(--text-main); font-size: 13px; font-weight: 800; padding: 9px 11px; outline: none; }
+        .date-input { width: 170px; flex: 0 0 170px; cursor: pointer; color-scheme: light; }
+        .date-input:focus, .search-filter:focus, .select-filter:focus { border-color: var(--brand-primary); background: var(--white); }
+        .utility-btn { min-height: 38px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border-color); background: #ffffff; color: var(--text-muted); font-size: 12px; }
+        .utility-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); background: #ecfdf5; }
+        .utility-btn:disabled, .date-btn:disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; border-color: var(--border-color); transform: none; }
+        .filter-group { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(150px, 180px) minmax(172px, 214px); gap: 10px; width: 100%; min-width: 0; max-width: 100%; align-items: center; padding: 10px; border: 1px solid #e8edf4; border-radius: 12px; background: #f8fafc; }
+        .sort-toggle { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; min-width: 0; min-height: 42px; padding: 4px; border: 1px solid var(--border-color); border-radius: 10px; background: #ffffff; }
+        .sort-option { min-width: 0; border: none; border-radius: 7px; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 950; cursor: pointer; transition: var(--transition-smooth); white-space: nowrap; }
+        .sort-option:hover { color: var(--brand-primary); background: #ecfdf5; }
+        .sort-option.active { color: var(--white); background: var(--brand-primary); }
+
+        .schedule-container { min-height: 380px; overflow: visible; }
+        .schedule-strip { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: #fbfdff; }
+        .schedule-strip h2 { font-size: 16px; font-weight: 950; }
+        .schedule-strip span { font-size: 12px; color: var(--text-muted); font-weight: 800; }
+        .timeline { padding: 16px; overflow: visible; }
+        .lesson-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+        .class-card { border-radius: 14px; background: var(--white); border: 1px solid var(--border-color); border-left: 5px solid #cbd5e1; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column; min-height: 228px; transition: var(--transition-smooth); overflow: hidden; }
+        .class-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .card-approved { border-left-color: var(--success); }
+        .card-draft { border-left-color: var(--warning); background: #fffdf5; }
+        .card-review { border-left-color: var(--danger); background: #fff7f7; }
+        .card-header { padding: 16px 16px 12px; display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+        .class-name { font-size: 18px; font-weight: 950; color: var(--text-main); line-height: 1.25; word-break: break-word; }
+        .class-date { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .source-tag { max-width: 180px; min-width: 0; padding: 5px 8px; border-radius: 8px; background: #eef2f7; color: #475569; font-size: 11px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-body { padding: 0 16px 14px; flex: 1; }
+        .teacher-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 16px 10px; }
+        .teacher-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 11px; font-weight: 950; }
+        .content-summary { color: #334155; font-size: 14px; line-height: 1.62; font-weight: 750; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; white-space: normal; overflow: hidden; overflow-wrap: anywhere; }
+        .card-footer { padding: 13px 16px; border-top: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 950; white-space: nowrap; }
+        .pill-approved { background: #dcfce7; color: #166534; }
+        .pill-draft { background: #fef3c7; color: #92400e; }
+        .pill-review { background: #fee2e2; color: #991b1b; }
+        .action-btn { border: none; border-radius: 8px; padding: 8px 11px; background: var(--brand-primary); color: white; font-size: 12px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: var(--transition-smooth); }
+        .action-btn:hover { background: var(--sidebar-hover); transform: translateY(-1px); }
+        .empty-state { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); font-weight: 800; padding: 42px 24px; }
+        .empty-state i { display: block; color: #cbd5e1; font-size: 40px; margin-bottom: 14px; }
+        .empty-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.58); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 300; }
+        .modal-overlay.show { display: flex; }
+        .import-modal, .detail-modal { width: min(1120px, 100%); max-height: calc(100vh - 48px); background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28); overflow: hidden; display: flex; flex-direction: column; }
+        .detail-modal { width: min(780px, 100%); }
+        .modal-header { padding: 22px 26px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .modal-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .modal-icon { width: 42px; height: 42px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .modal-title h2 { font-size: 20px; font-weight: 950; color: var(--text-main); margin-bottom: 4px; }
+        .modal-title p { font-size: 13px; color: var(--text-muted); font-weight: 700; line-height: 1.4; }
+        .close-modal { width: 38px; height: 38px; border: none; border-radius: 10px; background: #f1f5f9; color: var(--text-muted); cursor: pointer; font-size: 16px; transition: var(--transition-smooth); }
+        .close-modal:hover { color: var(--text-main); background: #e2e8f0; }
+        .modal-body { padding: 24px 26px; overflow-y: auto; }
+        .import-grid { display: grid; grid-template-columns: 320px 1fr; gap: 22px; }
+        .import-panel { padding: 18px; }
+        .panel-title { font-size: 14px; font-weight: 950; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .upload-dropzone { border: 1.5px dashed #94a3b8; border-radius: 14px; background: #f8fafc; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px; cursor: pointer; transition: var(--transition-smooth); }
+        .upload-dropzone:hover { border-color: #10b981; background: #ecfdf5; }
+        .upload-dropzone i { font-size: 28px; color: #10b981; margin-bottom: 10px; }
+        .upload-dropzone strong { display: block; font-size: 14px; color: var(--text-main); margin-bottom: 4px; }
+        .upload-dropzone span { font-size: 12px; color: var(--text-muted); font-weight: 700; line-height: 1.5; }
+        .import-field { margin-top: 14px; }
+        .import-field label { display: block; font-size: 12px; font-weight: 900; color: var(--text-muted); margin-bottom: 6px; }
+        .import-field select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: var(--text-main); font-weight: 800; outline: none; }
+        .sync-toggle { margin-top: 14px; display: grid; grid-template-columns: auto 1fr; gap: 10px 12px; align-items: start; padding: 13px; border: 1px solid #dbe5ee; border-radius: 12px; background: #fbfdff; cursor: pointer; }
+        .sync-toggle input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand-primary); }
+        .sync-toggle strong { display: block; color: var(--text-main); font-size: 13px; font-weight: 950; line-height: 1.35; }
+        .sync-toggle small { display: block; margin-top: 4px; color: var(--text-muted); font-size: 11px; font-weight: 800; line-height: 1.55; }
+        .approval-map { display: grid; gap: 10px; margin-top: 16px; }
+        .map-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; background: #f8fafc; border-radius: 10px; border: 1px solid var(--border-color); }
+        .map-item span { font-size: 13px; color: var(--text-muted); font-weight: 800; }
+        .history-panel { margin-top: 16px; border: 1px solid #dbe5ee; border-radius: 14px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); overflow: hidden; }
+        .history-header { padding: 13px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid #e8edf4; }
+        .history-header strong { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 950; color: var(--text-main); }
+        .history-header span { font-size: 11px; color: var(--text-muted); font-weight: 850; white-space: nowrap; }
+        .history-list { display: grid; gap: 10px; padding: 12px; max-height: 360px; overflow-y: auto; }
+        .history-item { border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; padding: 12px; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04); }
+        .history-item.active { border-color: rgba(6, 78, 59, 0.36); background: #f0fdf4; }
+        .history-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+        .history-batch { color: var(--text-muted); font-size: 11px; font-weight: 950; }
+        .history-current { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 8px; background: #dcfce7; color: #166534; font-size: 10px; font-weight: 950; white-space: nowrap; }
+        .history-current.old { background: #eef2f7; color: #475569; }
+        .history-file { display: block; color: var(--text-main); font-size: 13px; font-weight: 950; line-height: 1.35; word-break: break-word; }
+        .history-meta { margin-top: 7px; color: var(--text-muted); font-size: 11px; font-weight: 800; line-height: 1.55; }
+        .history-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+        .history-kpis span { border-radius: 8px; background: #f8fafc; border: 1px solid #edf2f7; padding: 7px; color: #475569; font-size: 10px; font-weight: 900; line-height: 1.35; }
+        .history-kpis strong { display: block; color: var(--brand-primary); font-size: 13px; font-weight: 950; margin-bottom: 2px; }
+        .history-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+        .history-mode { color: var(--text-muted); font-size: 10px; font-weight: 850; line-height: 1.4; }
+        .history-actions { display: inline-flex; align-items: center; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+        .restore-btn { border: none; border-radius: 8px; background: #0f172a; color: #ffffff; padding: 7px 9px; font-size: 11px; font-weight: 950; cursor: pointer; white-space: nowrap; transition: var(--transition-smooth); }
+        .restore-btn:hover { background: var(--brand-primary); transform: translateY(-1px); }
+        .delete-btn { border: none; border-radius: 8px; background: #fff1f2; color: #be123c; padding: 7px 9px; font-size: 11px; font-weight: 950; cursor: pointer; white-space: nowrap; transition: var(--transition-smooth); }
+        .delete-btn:hover { background: #ffe4e6; color: #9f1239; transform: translateY(-1px); }
+        .history-empty { padding: 16px; color: var(--text-muted); font-size: 12px; line-height: 1.55; font-weight: 800; text-align: center; }
+        .review-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .review-stat { border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; background: #f8fafc; }
+        .review-stat strong { display: block; font-size: 24px; color: var(--brand-primary); margin-bottom: 3px; }
+        .review-stat span { font-size: 12px; color: var(--text-muted); font-weight: 900; }
+        .review-alerts { display: grid; gap: 10px; margin-bottom: 16px; }
+        .review-alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; font-weight: 800; }
+        .review-alert.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .review-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .diff-review-panel { border: 1px solid #dbe5ee; border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); padding: 14px; margin-bottom: 16px; }
+        .diff-review-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .diff-review-head strong { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 14px; font-weight: 950; }
+        .diff-review-head span { color: var(--text-muted); font-size: 11px; font-weight: 850; line-height: 1.5; text-align: right; }
+        .diff-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+        .diff-card { border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; padding: 12px; min-height: 112px; }
+        .diff-card.warning { border-color: #fed7aa; background: #fff7ed; }
+        .diff-card.good { border-color: #bbf7d0; background: #f0fdf4; }
+        .diff-label { color: var(--text-muted); font-size: 11px; font-weight: 950; margin-bottom: 7px; }
+        .diff-number { color: var(--brand-primary); font-size: 25px; font-weight: 950; line-height: 1; }
+        .diff-note { color: #475569; font-size: 11px; font-weight: 800; line-height: 1.45; margin-top: 8px; }
+        .diff-list { display: grid; gap: 4px; margin-top: 9px; padding-top: 9px; border-top: 1px solid #e2e8f0; }
+        .diff-list span { color: #334155; font-size: 10px; font-weight: 850; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .diff-empty { color: var(--text-muted); font-size: 12px; font-weight: 800; line-height: 1.6; padding: 8px 2px; }
+        .preview-table-wrap { border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
+        .preview-table { width: 100%; border-collapse: collapse; }
+        .preview-table th { background: #f8fafc; padding: 12px 14px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-align: left; white-space: nowrap; }
+        .preview-table td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        .preview-class { font-weight: 950; color: var(--text-main); white-space: nowrap; }
+        .preview-note { color: var(--text-muted); font-weight: 700; line-height: 1.45; }
+        .modal-footer { padding: 18px 26px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #f8fafc; }
+        .footer-status { font-size: 13px; color: var(--text-muted); font-weight: 800; line-height: 1.5; }
+        .footer-actions { display: flex; gap: 10px; }
+        .secondary-btn, .primary-btn { border-radius: 8px; padding: 10px 16px; font-size: 13px; }
+        .secondary-btn { background: #e2e8f0; color: #334155; }
+        .secondary-btn:hover { background: #cbd5e1; }
+        .primary-btn { background: var(--brand-primary); color: var(--white); }
+        .primary-btn:hover { background: var(--sidebar-hover); transform: translateY(-1px); }
+        .primary-btn:disabled, .secondary-btn:disabled { background: #94a3b8; color: #ffffff; cursor: not-allowed; transform: none; opacity: 0.72; }
+        .lesson-detail-content { white-space: pre-wrap; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: #334155; font-size: 14px; line-height: 1.65; font-weight: 650; }
+        .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .schedule-confidence { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 14px; }
+        .confidence-card { padding: 12px 14px; border-radius: 12px; border: 1px solid #e2e8f0; background: #ffffff; color: #475569; font-size: 12px; font-weight: 850; line-height: 1.55; }
+        .confidence-card strong { display: block; color: var(--text-main); font-size: 13px; font-weight: 950; margin-bottom: 3px; }
+
+        @media (max-width: 1080px) {
+            .schedule-hero, .toolbar { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+            .filter-group { grid-template-columns: minmax(220px, 1fr) minmax(145px, 180px); }
+            .sort-toggle { grid-column: 1 / -1; }
+            .toolbar { position: static; }
+            .schedule-confidence { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1320px) and (min-width: 901px) {
+            .filter-group { grid-template-columns: minmax(220px, 1fr) minmax(145px, 180px); }
+            .sort-toggle { grid-column: 1 / -1; }
+        }
+        @media (max-width: 900px) {
+            body { display: block; height: auto; min-height: 100vh; overflow: auto; }
+            .sidebar { display: none; }
+            .main-wrapper { min-width: 0; min-height: 100vh; }
+            .topbar { min-height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+            .content-area { padding: 16px; }
+            .hero-panel { flex-direction: column; align-items: stretch; }
+            .date-label-wrap { min-width: 0; flex-basis: 100%; order: -1; }
+            .filter-group { grid-template-columns: 1fr; }
+            .date-btn, .date-input, .search-filter, .select-filter, .utility-btn { width: 100%; min-width: 0; flex: 1 1 100%; }
+            .sort-toggle { grid-column: auto; }
+            .lesson-grid { grid-template-columns: 1fr; }
+            .import-grid { grid-template-columns: 1fr; }
+            .review-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .diff-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .modal-footer { align-items: stretch; flex-direction: column; }
+            .footer-actions { flex-direction: column; }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link active"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="mobile-rollcall.html" class="nav-link"><i class="fa-solid fa-mobile-screen"></i> 手機點名</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-calendar-days" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>數位互動課表</div>
+                <div class="topbar-subtitle">Excel Daily Syllabus 與每日教務檢視</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="import-btn" type="button" onclick="openImportModal()">
+                <i class="fa-solid fa-file-excel"></i> 匯入 Excel 課表
+            </button>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="schedule-hero">
+            <div class="hero-panel">
+                <div class="hero-title">
+                    <h1>今日教務節奏</h1>
+                    <p id="heroNarrative">正在讀取最近一次匯入資料...</p>
+                    <span class="range-chip" id="rangeChip"><i class="fa-solid fa-database"></i> 尚未讀取資料範圍</span>
+                </div>
+                <div class="hero-status">
+                    <span>目前日期</span>
+                    <strong id="heroDateMini">--</strong>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><strong id="statTotal">0</strong><span>當日課程</span></div>
+                <div class="stat-card"><strong id="statApproved">0</strong><span>主任已核准</span></div>
+                <div class="stat-card"><strong id="statDraft">0</strong><span>老師草稿</span></div>
+                <div class="stat-card"><strong id="statReview">0</strong><span>需確認</span></div>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <div class="date-picker">
+                <button class="date-btn" type="button" onclick="moveScheduleDate(-1)" aria-label="前一天"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="date-label-wrap">
+                    <span id="scheduleDateLabel">讀取課表中...</span>
+                    <span class="schedule-meta" id="scheduleSourceLabel"></span>
+                </div>
+                <button class="date-btn" type="button" onclick="moveScheduleDate(1)" aria-label="後一天"><i class="fa-solid fa-chevron-right"></i></button>
+                <input class="date-input" id="scheduleDateInput" type="date" oninput="jumpScheduleDate(this.value)" onchange="jumpScheduleDate(this.value)" aria-label="選擇課表日期">
+                <button class="utility-btn" type="button" onclick="jumpToToday()"><i class="fa-regular fa-calendar-check"></i> 今日</button>
+                <button class="utility-btn" id="prevLessonDayBtn" type="button" onclick="jumpToLessonDay('previous')" disabled><i class="fa-solid fa-arrow-left"></i> 上個有課日</button>
+                <button class="utility-btn" id="nextLessonDayBtn" type="button" onclick="jumpToLessonDay('next')" disabled>下個有課日 <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="filter-group">
+                <input class="search-filter" id="classSearch" type="search" placeholder="搜尋班級、老師、教材或內容" oninput="applyScheduleFilters()">
+                <select class="select-filter" id="statusFilter" onchange="applyScheduleFilters()">
+                    <option value="all">所有狀態</option>
+                    <option value="DIRECTOR_APPROVED">主任已核准</option>
+                    <option value="TEACHER_DRAFT">老師草稿</option>
+                    <option value="NEEDS_REVIEW">需確認</option>
+                </select>
+                <div class="sort-toggle" aria-label="排序方式">
+                    <button class="sort-option active" id="sortClassBtn" type="button" onclick="setSortMode('class')">依班級</button>
+                    <button class="sort-option" id="sortStatusBtn" type="button" onclick="setSortMode('status')">依狀態</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="schedule-confidence" aria-label="課表資料狀態">
+            <div class="confidence-card"><strong>Excel 批次追溯</strong>保留檔名、工作表與來源儲存格，之後可回查原始資料。</div>
+            <div class="confidence-card"><strong>學生名單同步</strong>只有勾選同步時才會讀取 Reading Assignment 更新學生、班級與分班。</div>
+            <div class="confidence-card"><strong>核准狀態清楚</strong>主任已核准、老師草稿、需確認分開顯示，避免現場混用。</div>
+        </section>
+
+        <section class="schedule-container">
+            <div class="schedule-strip">
+                <div>
+                    <h2>每日課程進度</h2>
+                    <span id="resultSummary">正在同步資料...</span>
+                </div>
+                <button class="utility-btn" type="button" onclick="loadSchedule()"><i class="fa-solid fa-rotate-right"></i> 重新整理</button>
+            </div>
+            <div class="timeline" id="scheduleTimeline">
+                <div class="empty-state">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    正在讀取課表資料...
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div class="modal-overlay" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="import-modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <div class="modal-icon"><i class="fa-solid fa-file-excel"></i></div>
+                <div>
+                    <h2 id="importModalTitle">匯入 Excel 課表 / 課程進度</h2>
+                    <p>Daily Syllabus 會建立新的匯入批次，OK 欄位會保留為主任已核准。</p>
+                </div>
+            </div>
+            <button class="close-modal" type="button" onclick="closeImportModal()" aria-label="關閉匯入視窗"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="import-grid">
+                <section class="import-panel">
+                    <div class="panel-title"><i class="fa-solid fa-upload"></i> 來源設定</div>
+                    <label class="upload-dropzone" for="excelFileInput">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <strong id="selectedFileName">選擇 Excel 檔案</strong>
+                        <span>支援 .xlsx / .xls，先產生預覽，不直接覆蓋舊批次。</span>
+                    </label>
+                    <input id="excelFileInput" type="file" accept=".xlsx,.xls" hidden onchange="handleSelectedExcel(this)">
+                    <div class="import-field">
+                        <label for="sheetSelect">工作表</label>
+                        <select id="sheetSelect">
+                            <option>Daily Syllabus 2025-2026</option>
+                            <option>Daily Syllabus 2024-2025 OLD</option>
+                        </select>
+                    </div>
+                    <label class="sync-toggle" for="syncRosterToggle">
+                        <input id="syncRosterToggle" type="checkbox" checked onchange="updateImportModeCopy()">
+                        <span>
+                            <strong>同步學生資料與分班</strong>
+                            <small>預設同步 Reading Assignment 名單；寫入前會先顯示新增學生、班級與分班差異。</small>
+                        </span>
+                    </label>
+                    <div class="import-field">
+                        <label for="importMode">處理方式</label>
+                        <select id="importMode">
+                            <option id="importModeOption">只建立課程進度批次，保留 OK 核准狀態</option>
+                        </select>
+                    </div>
+                    <div class="approval-map">
+                        <div class="map-item"><span>Excel 狀態：OK</span><strong class="status-pill pill-approved"><i class="fa-solid fa-check"></i> 主任已核准</strong></div>
+                        <div class="map-item"><span>Excel 狀態：空白</span><strong class="status-pill pill-draft"><i class="fa-regular fa-clock"></i> 老師草稿</strong></div>
+                        <div class="map-item"><span>特殊值 / 異常</span><strong class="status-pill pill-review"><i class="fa-solid fa-triangle-exclamation"></i> 需確認</strong></div>
+                    </div>
+                    <div class="history-panel" aria-label="匯入批次歷史">
+                        <div class="history-header">
+                            <strong><i class="fa-solid fa-clock-rotate-left"></i> 最近匯入批次</strong>
+                            <span id="historyTotalLabel">讀取中</span>
+                        </div>
+                        <div class="history-list" id="importHistoryList">
+                            <div class="history-empty">開啟匯入視窗後會載入最近批次，主任可將舊批次設回現行課表。</div>
+                        </div>
+                    </div>
+                </section>
+                <section class="import-panel">
+                    <div class="panel-title"><i class="fa-solid fa-magnifying-glass-chart"></i> 匯入預覽</div>
+                    <div class="review-strip">
+                        <div class="review-stat"><strong id="importTotalLessons">0</strong><span>匯入筆數</span></div>
+                        <div class="review-stat"><strong id="importApprovedCount">0</strong><span>主任已核准</span></div>
+                        <div class="review-stat"><strong id="importReviewCount">0</strong><span>需確認</span></div>
+                        <div class="review-stat"><strong id="importRosterCount">未同步</strong><span>學生/分班</span></div>
+                    </div>
+                    <div class="review-alerts">
+                        <div class="review-alert warning"><i class="fa-solid fa-triangle-exclamation"></i><span id="warningSummary">空白確認欄會先進入草稿，主任核准後才會成為正式課程進度。</span></div>
+                        <div class="review-alert info"><i class="fa-solid fa-circle-info"></i><span id="sourceSummary">匯入會保留 Excel 工作表、列號、欄位位置，之後可以追溯原始來源。</span></div>
+                        <div class="review-alert info"><i class="fa-solid fa-users-gear"></i><span id="rosterDiffSummary">預設會同步 Reading Assignment 學生與分班；寫入前請先確認差異審核。</span></div>
+                    </div>
+                    <div class="diff-review-panel" id="rosterDiffPanel">
+                        <div class="diff-review-head">
+                            <strong><i class="fa-solid fa-clipboard-check" style="color: var(--brand-primary);"></i> 學生 / 班級差異審核</strong>
+                            <span id="rosterDiffMode">尚未預覽同步差異</span>
+                        </div>
+                        <div class="diff-grid" id="rosterDiffCards">
+                            <div class="diff-empty">勾選「同步 Reading Assignment 學生與分班」並按下預覽後，這裡會整理本次會新增、更新、恢復或停用的資料。</div>
+                        </div>
+                    </div>
+                    <div class="preview-table-wrap">
+                        <table class="preview-table">
+                            <thead>
+                            <tr><th>日期</th><th>班級</th><th>內容摘要</th><th>Excel 狀態</th><th>系統動作</th></tr>
+                            </thead>
+                            <tbody id="previewRows">
+                            <tr><td colspan="5"><div class="preview-note">尚未匯入 Excel。選擇檔案後按下預覽，系統會在這裡顯示解析結果。</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="footer-status" id="importStatus">尚未選擇檔案。若已有匯入紀錄，開啟視窗後會自動讀取最近一次結果。</div>
+            <div class="footer-actions">
+                <button class="secondary-btn" type="button" onclick="closeImportModal()"><i class="fa-solid fa-arrow-left"></i> 稍後處理</button>
+                <button class="secondary-btn" id="confirmImportBtn" type="button" onclick="confirmImportPreview()" disabled><i class="fa-solid fa-magnifying-glass-chart"></i> 預覽匯入</button>
+                <button class="primary-btn" id="commitImportBtn" type="button" onclick="applyImportCommit()" disabled><i class="fa-solid fa-database"></i> 確認寫入</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="lessonDetailModal" role="dialog" aria-modal="true" aria-labelledby="lessonDetailTitle">
+    <div class="detail-modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <div class="modal-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div>
+                    <h2 id="lessonDetailTitle">課程內容</h2>
+                    <p id="lessonDetailSubtitle"></p>
+                </div>
+            </div>
+            <button class="close-modal" type="button" onclick="closeLessonDetail()" aria-label="關閉課程內容"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-meta" id="lessonDetailMeta"></div>
+            <div class="lesson-detail-content" id="lessonDetailContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const importModal = document.getElementById('importModal');
+    const lessonDetailModal = document.getElementById('lessonDetailModal');
+    const importStatus = document.getElementById('importStatus');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const confirmImportBtn = document.getElementById('confirmImportBtn');
+    const commitImportBtn = document.getElementById('commitImportBtn');
+    const excelFileInput = document.getElementById('excelFileInput');
+    const sheetSelect = document.getElementById('sheetSelect');
+    const syncRosterToggle = document.getElementById('syncRosterToggle');
+    const importModeOption = document.getElementById('importModeOption');
+    const previewRows = document.getElementById('previewRows');
+    const importTotalLessons = document.getElementById('importTotalLessons');
+    const importApprovedCount = document.getElementById('importApprovedCount');
+    const importReviewCount = document.getElementById('importReviewCount');
+    const importRosterCount = document.getElementById('importRosterCount');
+    const historyTotalLabel = document.getElementById('historyTotalLabel');
+    const importHistoryList = document.getElementById('importHistoryList');
+    const warningSummary = document.getElementById('warningSummary');
+    const sourceSummary = document.getElementById('sourceSummary');
+    const rosterDiffSummary = document.getElementById('rosterDiffSummary');
+    const rosterDiffMode = document.getElementById('rosterDiffMode');
+    const rosterDiffCards = document.getElementById('rosterDiffCards');
+    const scheduleTimeline = document.getElementById('scheduleTimeline');
+    const scheduleDateLabel = document.getElementById('scheduleDateLabel');
+    const scheduleSourceLabel = document.getElementById('scheduleSourceLabel');
+    const scheduleDateInput = document.getElementById('scheduleDateInput');
+    const prevLessonDayBtn = document.getElementById('prevLessonDayBtn');
+    const nextLessonDayBtn = document.getElementById('nextLessonDayBtn');
+    const classSearch = document.getElementById('classSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortClassBtn = document.getElementById('sortClassBtn');
+    const sortStatusBtn = document.getElementById('sortStatusBtn');
+    const resultSummary = document.getElementById('resultSummary');
+    const heroNarrative = document.getElementById('heroNarrative');
+    const heroDateMini = document.getElementById('heroDateMini');
+    const rangeChip = document.getElementById('rangeChip');
+    const statTotal = document.getElementById('statTotal');
+    const statApproved = document.getElementById('statApproved');
+    const statDraft = document.getElementById('statDraft');
+    const statReview = document.getElementById('statReview');
+
+    const scheduleState = {
+        selectedDate: '',
+        firstLessonDate: '',
+        lastLessonDate: '',
+        previousLessonDate: '',
+        nextLessonDate: '',
+        lessons: [],
+        filteredLessons: []
+    };
+    let currentSortMode = 'class';
+    let importPreviewReady = false;
+    let importHistoryRows = [];
+
+    function openImportModal() {
+        importModal.classList.add('show');
+        loadLatestImportPreview();
+        loadImportHistory();
+    }
+
+    function closeImportModal() {
+        importModal.classList.remove('show');
+    }
+
+    function handleSelectedExcel(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        resetImportPreviewState();
+        selectedFileName.textContent = file.name;
+        importStatus.textContent = syncRosterToggle.checked
+                ? `已選擇 ${file.name}。請先預覽課程進度與 Reading Assignment 學生/分班差異。`
+                : `已選擇 ${file.name}。請先預覽課程進度；學生資料與分班不會變更。`;
+        confirmImportBtn.disabled = false;
+    }
+
+    function updateImportModeCopy() {
+        importModeOption.textContent = syncRosterToggle.checked
+                ? '建立課程批次，並同步 Reading Assignment 學生與分班'
+                : '只建立課程進度批次，保留 OK 核准狀態';
+        rosterDiffMode.textContent = syncRosterToggle.checked ? '預設同步，待預覽差異' : '不會寫入學生 / 班級 / 分班';
+        if (excelFileInput.files && excelFileInput.files[0]) {
+            handleSelectedExcel(excelFileInput);
+        }
+    }
+
+    function resetImportPreviewState() {
+        importPreviewReady = false;
+        commitImportBtn.disabled = true;
+        importRosterCount.textContent = syncRosterToggle.checked ? '待預覽' : '未同步';
+        rosterDiffSummary.textContent = syncRosterToggle.checked
+                ? '尚未預覽。系統會先比對 Reading Assignment 與目前資料庫，再讓你確認是否寫入。'
+                : '本次未勾選同步學生與分班；預覽只會檢查課程進度。';
+        rosterDiffMode.textContent = syncRosterToggle.checked ? '預設同步，待預覽差異' : '不會寫入學生 / 班級 / 分班';
+        rosterDiffCards.innerHTML = syncRosterToggle.checked
+                ? `<div class="diff-empty">選擇 Excel 後按下預覽，這裡會列出新增學生、班級與分班異動。</div>`
+                : `<div class="diff-empty">學生資料、班級與分班不會被更新。</div>`;
+    }
+
+    async function confirmImportPreview() {
+        const file = excelFileInput.files && excelFileInput.files[0];
+        if (!file) {
+            importStatus.textContent = '請先選擇 Excel 檔案。';
+            return;
+        }
+
+        confirmImportBtn.disabled = true;
+        commitImportBtn.disabled = true;
+        confirmImportBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 預覽中';
+        importStatus.textContent = syncRosterToggle.checked
+                ? '正在解析 Excel 並比對學生、班級與分班差異；尚未寫入資料庫...'
+                : '正在解析 Excel 課程進度；尚未寫入資料庫...';
+
+        try {
+            const response = await fetch('/api/admin/syllabus-import/preview', {
+                method: 'POST',
+                body: buildImportFormData(file),
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                importStatus.textContent = '登入狀態已失效，請重新登入後再匯入。';
+                return;
+            }
+            if (!response.ok) {
+                importStatus.textContent = await readErrorMessage(response);
+                return;
+            }
+
+            const result = await response.json();
+            renderImportResult(result);
+            importPreviewReady = true;
+            commitImportBtn.disabled = false;
+            importStatus.textContent = importPreviewMessage(result);
+        } catch (error) {
+            importStatus.textContent = '無法連線到匯入預覽 API。請確認目前是用 Spring Boot 啟動網站，不是只開靜態 HTML。';
+        } finally {
+            confirmImportBtn.disabled = !excelFileInput.files || !excelFileInput.files[0];
+            confirmImportBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart"></i> 預覽匯入';
+        }
+    }
+
+    async function applyImportCommit() {
+        const file = excelFileInput.files && excelFileInput.files[0];
+        if (!file) {
+            importStatus.textContent = '請先選擇 Excel 檔案。';
+            return;
+        }
+        if (!importPreviewReady) {
+            importStatus.textContent = '請先完成預覽，再確認寫入。';
+            return;
+        }
+
+        confirmImportBtn.disabled = true;
+        commitImportBtn.disabled = true;
+        commitImportBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 寫入中';
+        importStatus.textContent = syncRosterToggle.checked
+                ? '正在寫入課程進度，並同步學生與分班...'
+                : '正在寫入課程進度；學生與分班保持不變...';
+
+        try {
+            const response = await fetch('/api/admin/syllabus-import', {
+                method: 'POST',
+                body: buildImportFormData(file),
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                importStatus.textContent = '登入狀態已失效，請重新登入後再匯入。';
+                return;
+            }
+            if (!response.ok) {
+                importStatus.textContent = await readErrorMessage(response);
+                return;
+            }
+
+            const result = await response.json();
+            renderImportResult(result);
+            importPreviewReady = false;
+            importStatus.textContent = importCompleteMessage(result);
+            await loadSchedule(result.preview && result.preview[0] ? result.preview[0].lessonDate : '');
+            await loadImportHistory();
+        } catch (error) {
+            importStatus.textContent = '無法連線到匯入 API。請確認目前是用 Spring Boot 啟動網站，不是只開靜態 HTML。';
+        } finally {
+            confirmImportBtn.disabled = !excelFileInput.files || !excelFileInput.files[0];
+            commitImportBtn.disabled = true;
+            commitImportBtn.innerHTML = '<i class="fa-solid fa-database"></i> 確認寫入';
+        }
+    }
+
+    function buildImportFormData(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('sheetName', sheetSelect.value);
+        formData.append('syncRoster', syncRosterToggle.checked ? 'true' : 'false');
+        return formData;
+    }
+
+    async function loadSchedule(date = scheduleState.selectedDate) {
+        const query = date ? `?date=${encodeURIComponent(date)}` : '';
+        scheduleTimeline.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>正在讀取課表資料...</div>`;
+
+        try {
+            const response = await fetch(`/api/admin/syllabus-import/schedule${query}`, {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                scheduleDateLabel.textContent = '請重新登入';
+                scheduleSourceLabel.textContent = '';
+                renderScheduleEmpty('登入狀態已失效，請重新登入後查看課表。');
+                return;
+            }
+            if (!response.ok) {
+                scheduleDateLabel.textContent = '課表讀取失敗';
+                scheduleSourceLabel.textContent = '';
+                renderScheduleEmpty(`無法讀取課表 API (${response.status})。`);
+                return;
+            }
+
+            const result = await response.json();
+            updateScheduleState(result);
+            applyScheduleFilters();
+        } catch (error) {
+            scheduleDateLabel.textContent = '靜態預覽模式';
+            scheduleSourceLabel.textContent = '';
+            renderScheduleEmpty('目前沒有連到 Spring Boot 後端，所以主課表無法自動更新。');
+        }
+    }
+
+    function updateScheduleState(result) {
+        scheduleState.selectedDate = result.selectedDate || scheduleState.selectedDate || todayIso();
+        scheduleState.firstLessonDate = result.firstLessonDate || '';
+        scheduleState.lastLessonDate = result.lastLessonDate || '';
+        scheduleState.previousLessonDate = result.previousLessonDate || '';
+        scheduleState.nextLessonDate = result.nextLessonDate || '';
+        scheduleState.lessons = result.lessons || [];
+
+        scheduleDateLabel.textContent = result.displayDate || formatDisplayDate(scheduleState.selectedDate) || '尚未匯入課程進度';
+        scheduleDateInput.value = scheduleState.selectedDate || '';
+        heroDateMini.textContent = compactDate(scheduleState.selectedDate) || '--';
+        prevLessonDayBtn.disabled = !scheduleState.previousLessonDate;
+        nextLessonDayBtn.disabled = !scheduleState.nextLessonDate;
+
+        const rangeText = scheduleState.firstLessonDate && scheduleState.lastLessonDate
+                ? `${compactDate(scheduleState.firstLessonDate)} 到 ${compactDate(scheduleState.lastLessonDate)}`
+                : '尚未建立資料範圍';
+        scheduleSourceLabel.textContent = result.fileName ? `來源：${result.fileName}｜資料範圍：${rangeText}` : `尚未匯入 Excel｜資料範圍：${rangeText}`;
+        rangeChip.innerHTML = `<i class="fa-solid fa-database"></i> ${escapeHtml(rangeText)}`;
+
+        const counts = countStatuses(scheduleState.lessons);
+        statTotal.textContent = scheduleState.lessons.length;
+        statApproved.textContent = counts.approved;
+        statDraft.textContent = counts.draft;
+        statReview.textContent = counts.review;
+        heroNarrative.textContent = result.hasImport
+                ? `最近一次匯入批次已同步。你可以選日期、跳到有課日，或用搜尋快速找班級與教材。`
+                : '尚未匯入 Excel 課程進度。';
+    }
+
+    function applyScheduleFilters() {
+        const keyword = classSearch.value.trim().toLowerCase();
+        const status = statusFilter.value;
+        const sorter = currentSortMode;
+
+        let lessons = [...scheduleState.lessons].filter(lesson => {
+            const text = `${lesson.classLabel || ''} ${lesson.teacherNames || ''} ${lesson.contentSummary || ''} ${lesson.content || ''}`.toLowerCase();
+            const matchesKeyword = !keyword || text.includes(keyword);
+            const matchesStatus = status === 'all' || lesson.approvalStatus === status;
+            return matchesKeyword && matchesStatus;
+        });
+
+        lessons.sort((a, b) => {
+            if (sorter === 'status') {
+                return statusWeight(a.approvalStatus) - statusWeight(b.approvalStatus)
+                        || String(a.classLabel || '').localeCompare(String(b.classLabel || ''), 'zh-Hant');
+            }
+            return String(a.classLabel || '').localeCompare(String(b.classLabel || ''), 'zh-Hant');
+        });
+
+        scheduleState.filteredLessons = lessons;
+        renderSchedule();
+    }
+
+    function renderSchedule() {
+        const total = scheduleState.lessons.length;
+        const shown = scheduleState.filteredLessons.length;
+        resultSummary.textContent = total ? `顯示 ${shown} / ${total} 筆課程進度` : '這一天沒有課程進度';
+
+        if (!total) {
+            renderScheduleEmpty('這一天沒有課程進度。', true);
+            return;
+        }
+
+        if (!shown) {
+            renderScheduleEmpty('沒有符合篩選條件的課程。', false);
+            return;
+        }
+
+        scheduleTimeline.innerHTML = `
+            <div class="lesson-grid">
+                ${scheduleState.filteredLessons.map((lesson, index) => renderScheduleCard(lesson, index)).join('')}
+            </div>
+        `;
+    }
+
+    function renderScheduleCard(lesson, index) {
+        const cardClass = lesson.approvalStatus === 'DIRECTOR_APPROVED' ? 'card-approved'
+                : lesson.approvalStatus === 'TEACHER_DRAFT' ? 'card-draft' : 'card-review';
+        return `
+            <article class="class-card ${cardClass}">
+                <div class="card-header">
+                    <div>
+                        <div class="class-name">${escapeHtml(lesson.classLabel)}</div>
+                        <div class="class-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(lesson.lessonDate)}</div>
+                    </div>
+                    <span class="source-tag" title="${escapeHtml(lesson.sourceCell)}">${escapeHtml(lesson.sourceCell)}</span>
+                </div>
+                ${renderTeacherChips(lesson.teacherNames)}
+                <div class="card-body">
+                    <div class="content-summary">${escapeHtml(lesson.contentSummary)}</div>
+                </div>
+                <div class="card-footer">
+                    <span class="status-pill ${statusPillClass(lesson.approvalStatus)}">${statusIcon(lesson.approvalStatus)} ${escapeHtml(lesson.approvalLabel)}</span>
+                    <button class="action-btn" type="button" onclick="openLessonDetail(${index})"><i class="fa-solid fa-eye"></i> 查看內容</button>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderScheduleEmpty(message, showJumpButtons) {
+        scheduleTimeline.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-regular fa-calendar"></i>
+                ${escapeHtml(message)}
+                ${showJumpButtons ? `
+                    <div class="empty-actions">
+                        <button class="utility-btn" type="button" onclick="jumpToLessonDay('previous')" ${scheduleState.previousLessonDate ? '' : 'disabled'}><i class="fa-solid fa-arrow-left"></i> 上個有課日</button>
+                        <button class="utility-btn" type="button" onclick="jumpToLessonDay('next')" ${scheduleState.nextLessonDate ? '' : 'disabled'}>下個有課日 <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function openLessonDetail(index) {
+        const lesson = scheduleState.filteredLessons[index];
+        if (!lesson) return;
+        document.getElementById('lessonDetailTitle').textContent = lesson.classLabel || '課程內容';
+        document.getElementById('lessonDetailSubtitle').textContent = `${lesson.lessonDate || ''}｜${lesson.sourceCell || ''}`;
+        document.getElementById('lessonDetailMeta').innerHTML = `
+            <span class="status-pill ${statusPillClass(lesson.approvalStatus)}">${statusIcon(lesson.approvalStatus)} ${escapeHtml(lesson.approvalLabel)}</span>
+            <span class="status-pill pill-draft"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(lesson.sourceCell)}</span>
+            ${teacherMetaPill(lesson.teacherNames)}
+        `;
+        document.getElementById('lessonDetailContent').textContent = lesson.content || lesson.contentSummary || '';
+        lessonDetailModal.classList.add('show');
+    }
+
+    function setSortMode(mode) {
+        currentSortMode = mode === 'status' ? 'status' : 'class';
+        sortClassBtn.classList.toggle('active', currentSortMode === 'class');
+        sortStatusBtn.classList.toggle('active', currentSortMode === 'status');
+        applyScheduleFilters();
+    }
+
+    function renderTeacherChips(teacherNames) {
+        const names = splitTeacherNames(teacherNames);
+        if (!names.length) return '';
+        return `
+            <div class="teacher-row" aria-label="授課老師">
+                ${names.map(name => `<span class="teacher-chip"><i class="fa-solid fa-chalkboard-user"></i>${escapeHtml(name)}</span>`).join('')}
+            </div>
+        `;
+    }
+
+    function teacherMetaPill(teacherNames) {
+        const names = splitTeacherNames(teacherNames);
+        if (!names.length) return '';
+        return `<span class="status-pill pill-draft"><i class="fa-solid fa-chalkboard-user"></i> ${escapeHtml(names.join('、'))}</span>`;
+    }
+
+    function splitTeacherNames(teacherNames) {
+        return String(teacherNames || '')
+                .split(/[、,]/)
+                .map(name => name.trim())
+                .filter(Boolean);
+    }
+
+    function closeLessonDetail() {
+        lessonDetailModal.classList.remove('show');
+    }
+
+    function moveScheduleDate(offsetDays) {
+        const baseDate = parseIsoDate(scheduleState.selectedDate || scheduleDateInput.value || todayIso());
+        baseDate.setDate(baseDate.getDate() + offsetDays);
+        loadSchedule(formatIsoDate(baseDate));
+    }
+
+    function jumpScheduleDate(date) {
+        if (date && date !== scheduleState.selectedDate) loadSchedule(date);
+    }
+
+    function jumpToToday() {
+        loadSchedule(todayIso());
+    }
+
+    function jumpToLessonDay(direction) {
+        const target = direction === 'previous' ? scheduleState.previousLessonDate : scheduleState.nextLessonDate;
+        if (target) loadSchedule(target);
+    }
+
+    async function loadLatestImportPreview() {
+        try {
+            const response = await fetch('/api/admin/syllabus-import/latest', {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+            if (response.status === 404) {
+                importStatus.textContent = '目前是靜態預覽模式；用 Spring Boot 啟動後才會讀取匯入紀錄。';
+                return;
+            }
+            if (!response.ok) return;
+            const result = await response.json();
+            if (result.hasImport) {
+                renderImportResult(result);
+                importStatus.textContent = `最近一次匯入：${result.fileName}，共 ${result.totalLessons} 筆。`;
+            }
+        } catch (error) {
+            // Static preview or offline backend: keep the modal usable for file selection.
+        }
+    }
+
+    async function loadImportHistory() {
+        if (!importHistoryList) return;
+        historyTotalLabel.textContent = '讀取中';
+        importHistoryList.innerHTML = `<div class="history-empty"><i class="fa-solid fa-spinner fa-spin"></i> 正在讀取匯入批次...</div>`;
+
+        try {
+            const response = await fetch('/api/admin/syllabus-import/history', {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                historyTotalLabel.textContent = '需登入';
+                importHistoryList.innerHTML = `<div class="history-empty">登入狀態已失效，請重新登入後查看匯入歷史。</div>`;
+                return;
+            }
+            if (!response.ok) {
+                historyTotalLabel.textContent = '讀取失敗';
+                importHistoryList.innerHTML = `<div class="history-empty">暫時無法讀取匯入歷史。</div>`;
+                return;
+            }
+
+            renderImportHistory(await response.json());
+        } catch (error) {
+            historyTotalLabel.textContent = '離線';
+            importHistoryList.innerHTML = `<div class="history-empty">目前沒有連到 Spring Boot 後端，匯入歷史會在正式啟動後顯示。</div>`;
+        }
+    }
+
+    function renderImportHistory(history) {
+        importHistoryRows = history.batches || [];
+        const activeBatchId = history.activeBatchId ? String(history.activeBatchId) : '';
+        historyTotalLabel.textContent = `${history.totalBatches || importHistoryRows.length || 0} 批`;
+
+        if (!importHistoryRows.length) {
+            importHistoryList.innerHTML = `<div class="history-empty">尚未有匯入批次。第一次確認寫入後，這裡會開始保留歷史紀錄。</div>`;
+            return;
+        }
+
+        const isAdmin = isAdminUser();
+        importHistoryList.innerHTML = importHistoryRows.map(row => {
+            const current = Boolean(row.active) || String(row.id) === activeBatchId;
+            const restoreButton = isAdmin && !current && row.canRestore
+                    ? `<button class="restore-btn" type="button" onclick="restoreImportBatch(${Number(row.id)})"><i class="fa-solid fa-rotate-left"></i> 設為現行</button>`
+                    : '';
+            const deleteButton = isAdmin && !current
+                    ? `<button class="delete-btn" type="button" onclick="deleteImportBatch(${Number(row.id)})"><i class="fa-regular fa-trash-can"></i> 刪除</button>`
+                    : '';
+            const historyActions = restoreButton || deleteButton
+                    ? `<div class="history-actions">${restoreButton}${deleteButton}</div>`
+                    : '';
+            const rosterText = row.syncRoster
+                    ? `含學生/分班同步：${row.rosterStudentCount || 0} 位、${row.rosterClassCount || 0} 班`
+                    : '只處理課程進度，未同步學生分班';
+            return `
+                <article class="history-item ${current ? 'active' : ''}">
+                    <div class="history-top">
+                        <span class="history-batch">批次 #${escapeHtml(row.id)}</span>
+                        <span class="history-current ${current ? '' : 'old'}">
+                            <i class="fa-solid ${current ? 'fa-circle-check' : 'fa-clock'}"></i>
+                            ${current ? '現行課表' : statusLabel(row.status)}
+                        </span>
+                    </div>
+                    <strong class="history-file">${escapeHtml(row.fileName || '未命名 Excel')}</strong>
+                    <div class="history-meta">
+                        ${escapeHtml(row.sheetName || 'Daily Syllabus')}｜${escapeHtml(row.dateRange || '尚無日期範圍')}<br>
+                        匯入：${escapeHtml(row.importedAt || '-')}｜${escapeHtml(row.importedByName || '系統')}
+                    </div>
+                    <div class="history-kpis">
+                        <span><strong>${row.totalLessons || 0}</strong>課程</span>
+                        <span><strong>${row.approvedCount || 0}</strong>已核准</span>
+                        <span><strong>${row.warningCount || 0}</strong>提醒</span>
+                    </div>
+                    <div class="history-foot">
+                        <span class="history-mode">${escapeHtml(rosterText)}</span>
+                        ${historyActions}
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    async function restoreImportBatch(batchId) {
+        const row = importHistoryRows.find(item => String(item.id) === String(batchId));
+        if (!row) return;
+
+        const confirmed = confirm(`確定要把「${row.fileName || `批次 #${batchId}`}」設回現行課表？\n\n這只會切換課程進度批次，不會回復或覆蓋學生資料、LINE、家長聯絡資料。`);
+        if (!confirmed) return;
+
+        importStatus.textContent = `正在回復批次 #${batchId}...`;
+        try {
+            const response = await fetch(`/api/admin/syllabus-import/${encodeURIComponent(batchId)}/restore`, {
+                method: 'POST',
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                importStatus.textContent = '只有主任帳號可以回復匯入批次。';
+                return;
+            }
+            if (!response.ok) {
+                importStatus.textContent = await readErrorMessage(response);
+                return;
+            }
+
+            const result = await response.json();
+            if (result.currentImport) renderImportResult(result.currentImport);
+            importStatus.textContent = result.message || `已回復批次 #${batchId}。`;
+            const restoredDate = result.currentImport?.preview?.[0]?.lessonDate || scheduleState.selectedDate || '';
+            await loadImportHistory();
+            await loadSchedule(restoredDate);
+        } catch (error) {
+            importStatus.textContent = '無法連線到回復 API。請確認目前是用 Spring Boot 啟動網站。';
+        }
+    }
+
+    async function deleteImportBatch(batchId) {
+        const row = importHistoryRows.find(item => String(item.id) === String(batchId));
+        if (!row) return;
+
+        const typed = prompt(`確定要刪除「${row.fileName || `批次 #${batchId}`}」？\n\n這會刪除此批課程進度與匯入紀錄，不會刪除學生、分班、LINE 或家長聯絡資料。現行課表不可直接刪除。\n\n請輸入「刪除」才會真的刪除。`);
+        if (typed !== '刪除') {
+            importStatus.textContent = '已取消刪除。';
+            return;
+        }
+
+        importStatus.textContent = `正在刪除批次 #${batchId}...`;
+        try {
+            const response = await fetch(`/api/admin/syllabus-import/${encodeURIComponent(batchId)}`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                importStatus.textContent = '只有主任帳號可以刪除匯入批次。';
+                return;
+            }
+            if (!response.ok) {
+                importStatus.textContent = await readErrorMessage(response);
+                return;
+            }
+
+            const result = await response.json();
+            importStatus.textContent = result.message || `已刪除批次 #${batchId}。`;
+            await loadImportHistory();
+            await loadSchedule(scheduleState.selectedDate || '');
+        } catch (error) {
+            importStatus.textContent = '無法連線到刪除 API。請確認目前是用 Spring Boot 啟動網站。';
+        }
+    }
+
+    function statusLabel(status) {
+        if (status === 'SUPERSEDED') return '舊批次';
+        if (status === 'ACTIVE') return '現行課表';
+        if (status === 'IMPORTED') return '已匯入';
+        return status || '歷史批次';
+    }
+
+    function isAdminUser() {
+        return document.body.dataset.role === 'admin' || window.BrocaAdmin?.currentRole === 'ADMIN';
+    }
+
+    async function readErrorMessage(response) {
+        try {
+            const error = await response.json();
+            return error.detail || error.message || `匯入失敗 (${response.status})`;
+        } catch (ignored) {
+            return `匯入失敗 (${response.status})`;
+        }
+    }
+
+    function renderImportResult(result) {
+        importTotalLessons.textContent = result.totalLessons || 0;
+        importApprovedCount.textContent = result.approvedCount || 0;
+        importReviewCount.textContent = result.reviewCount || 0;
+        importRosterCount.textContent = result.rosterSyncRequested ? (result.rosterStudentCount || 0) : '未同步';
+        renderImportWarnings(result);
+        renderRosterDiff(result);
+
+        if (!result.preview || result.preview.length === 0) {
+            previewRows.innerHTML = `<tr><td colspan="5"><div class="preview-note">目前沒有可顯示的匯入資料。</div></td></tr>`;
+            return;
+        }
+
+        previewRows.innerHTML = result.preview.map(row => `
+            <tr>
+                <td>${escapeHtml(row.lessonDate)}</td>
+                <td><span class="preview-class">${escapeHtml(row.classLabel)}</span></td>
+                <td><div class="preview-note">${escapeHtml(row.contentSummary)}</div><div class="preview-note" style="font-size: 11px; margin-top: 5px;">${row.teacherNames ? `老師：${escapeHtml(row.teacherNames)}｜` : ''}來源：${escapeHtml(row.sourceCell)}</div></td>
+                <td><span class="status-pill ${statusPillClass(row.approvalStatus)}">${escapeHtml(row.approvalLabel)}</span></td>
+                <td><span class="status-pill ${statusPillClass(row.approvalStatus)}">${escapeHtml(row.actionLabel)}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    function importPreviewMessage(result) {
+        const rosterText = result.rosterSyncRequested
+                ? `學生/分班預覽：${result.rosterStudentCount || 0} 位學生、${result.rosterClassCount || 0} 個班級、${result.rosterEnrollmentCount || 0} 筆分班。`
+                : '學生資料、班級與分班不會變更。';
+        const base = `預覽完成：${result.totalLessons || 0} 筆課程進度，主任已核准 ${result.approvedCount || 0} 筆。${rosterText}`;
+        if (!result.warningCount) return `${base} 確認無誤後可按「確認寫入」。`;
+        return `${base} 另有 ${result.warningCount} 筆解析提醒，請查看黃色提示後再寫入。`;
+    }
+
+    function importCompleteMessage(result) {
+        const rosterText = result.rosterSyncRequested
+                ? ` Reading Assignment 同步 ${result.rosterStudentCount || 0} 位學生、${result.rosterClassCount || 0} 個班級、${result.rosterEnrollmentCount || 0} 筆分班。`
+                : ' 學生資料、班級與分班保持不變。';
+        const base = `已匯入 ${result.fileName}：${result.totalLessons} 筆課程進度，主任已核准 ${result.approvedCount} 筆。${rosterText}`;
+        if (!result.warningCount) return base;
+        return `${base} 另有 ${result.warningCount} 筆解析提醒，請查看黃色提示。`;
+    }
+
+    function renderImportWarnings(result) {
+        const rosterText = result.rosterSyncRequested
+                ? ` Reading Assignment 已同步 ${result.rosterStudentCount || 0} 位學生 / ${result.rosterClassCount || 0} 個班級。`
+                : ' 本次未同步學生與分班。';
+        const batchText = result.previewOnly ? '預覽模式，尚未寫入資料庫' : `批次 #${result.batchId || '-'}`;
+        sourceSummary.textContent = `來源：${result.sheetName || 'Daily Syllabus'}，${batchText}，最多顯示前 50 筆。${rosterText}`;
+        if (!result.warningCount) {
+            warningSummary.textContent = '解析完成，沒有需要特別提醒的略過項目。';
+            return;
+        }
+        const sampleWarnings = (result.warnings || []).slice(0, 3).join('；');
+        warningSummary.textContent = `解析完成，但有 ${result.warningCount} 筆提醒。${sampleWarnings ? `例如：${sampleWarnings}` : '請主任確認 Excel 是否有空白日期或特殊格式。'}`;
+    }
+
+    function renderRosterDiff(result) {
+        if (!result.rosterSyncRequested) {
+            rosterDiffSummary.textContent = '本次未勾選同步學生與分班；預覽或寫入都只會處理課程進度。';
+            rosterDiffMode.textContent = '不會寫入學生 / 班級 / 分班';
+            rosterDiffCards.innerHTML = `<div class="diff-empty">學生資料、班級與分班不會被更新。若要同步 Reading Assignment 名單，請先勾選左側同步選項並重新預覽。</div>`;
+            return;
+        }
+
+        const diff = result.rosterDiff;
+        if (!diff) {
+            rosterDiffSummary.textContent = result.rosterSyncMessage || '學生與分班同步結果已完成。';
+            rosterDiffMode.textContent = result.previewOnly ? '預覽模式，尚未寫入' : '已寫入同步結果';
+            rosterDiffCards.innerHTML = `<div class="diff-empty">${escapeHtml(result.rosterSyncMessage || '目前沒有可顯示的學生與分班差異。')}</div>`;
+            return;
+        }
+
+        rosterDiffSummary.textContent = [
+            `新增學生 ${diff.newStudents || 0}`,
+            `資料更新 ${diff.changedStudents || 0}`,
+            `換班/分班異動 ${diff.movedStudents || 0}`,
+            `可能移出名單 ${diff.studentsLosingAssignments || 0}`,
+            `新班級 ${diff.newClasses || 0}`,
+            `新增分班 ${diff.newEnrollments || 0}`,
+            `恢復分班 ${diff.reactivatedEnrollments || 0}`,
+            `將停用分班 ${diff.deactivatedEnrollments || 0}`
+        ].join('｜') + '。';
+        rosterDiffMode.textContent = result.previewOnly ? '預覽模式，確認後才會寫入' : '已寫入本次同步結果';
+        rosterDiffCards.innerHTML = [
+            renderDiffCard('新增學生', diff.newStudents, `既有學生 ${diff.existingStudents || 0} 位；資料更新 ${diff.changedStudents || 0} 位。`, 'good', diff.newStudentSamples),
+            renderDiffCard('新班級', diff.newClasses, `既有班級 ${diff.existingClasses || 0} 個。`, '', diff.newClassSamples),
+            renderDiffCard('新增分班', diff.newEnrollments, `恢復分班 ${diff.reactivatedEnrollments || 0} 筆；不變 ${diff.unchangedEnrollments || 0} 筆。`, 'good', diff.newEnrollmentSamples),
+            renderDiffCard('換班 / 分班異動', diff.movedStudents, '同一學生出現在不同班級時，主任可先確認是否為美語 + 安親或真正換班。', diff.movedStudents ? 'warning' : '', diff.movedStudentSamples),
+            renderDiffCard('將停用分班', diff.deactivatedEnrollments, '這代表舊名單中有分班關係本次 Excel 未再出現。', diff.deactivatedEnrollments ? 'warning' : '', diff.deactivatedEnrollmentSamples),
+            renderDiffCard('移出名單提醒', diff.studentsLosingAssignments, '學生仍保留在學生資料中心，只是可能失去目前分班。', diff.studentsLosingAssignments ? 'warning' : '', diff.studentsLosingAssignmentSamples)
+        ].join('');
+    }
+
+    function renderDiffCard(label, value, note, tone = '', samples = []) {
+        const count = Number(value || 0);
+        const toneClass = tone ? ` ${tone}` : '';
+        return `
+            <div class="diff-card${toneClass}">
+                <div class="diff-label">${escapeHtml(label)}</div>
+                <div class="diff-number">${count}</div>
+                <div class="diff-note">${escapeHtml(note)}</div>
+                ${renderDiffSamples(samples)}
+            </div>
+        `;
+    }
+
+    function renderDiffSamples(samples) {
+        if (!samples || !samples.length) return '';
+        return `<div class="diff-list">${samples.slice(0, 8).map(item => `<span title="${escapeHtml(item)}">${escapeHtml(item)}</span>`).join('')}</div>`;
+    }
+
+    function countStatuses(lessons) {
+        return lessons.reduce((counts, lesson) => {
+            if (lesson.approvalStatus === 'DIRECTOR_APPROVED') counts.approved++;
+            else if (lesson.approvalStatus === 'TEACHER_DRAFT') counts.draft++;
+            else counts.review++;
+            return counts;
+        }, { approved: 0, draft: 0, review: 0 });
+    }
+
+    function statusWeight(status) {
+        if (status === 'NEEDS_REVIEW') return 0;
+        if (status === 'TEACHER_DRAFT') return 1;
+        return 2;
+    }
+
+    function statusPillClass(status) {
+        if (status === 'DIRECTOR_APPROVED') return 'pill-approved';
+        if (status === 'TEACHER_DRAFT') return 'pill-draft';
+        return 'pill-review';
+    }
+
+    function statusIcon(status) {
+        if (status === 'DIRECTOR_APPROVED') return '<i class="fa-solid fa-check"></i>';
+        if (status === 'TEACHER_DRAFT') return '<i class="fa-regular fa-clock"></i>';
+        return '<i class="fa-solid fa-triangle-exclamation"></i>';
+    }
+
+    function todayIso() {
+        return formatIsoDate(new Date());
+    }
+
+    function parseIsoDate(value) {
+        const parts = String(value || '').split('-').map(Number);
+        if (parts.length === 3 && parts.every(Number.isFinite)) {
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+        return new Date();
+    }
+
+    function formatIsoDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function formatDisplayDate(value) {
+        if (!value) return '';
+        const date = parseIsoDate(value);
+        return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+    }
+
+    function compactDate(value) {
+        if (!value) return '';
+        const parts = value.split('-');
+        if (parts.length !== 3) return value;
+        return `${Number(parts[1])}/${Number(parts[2])}`;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImportModal();
+            closeLessonDetail();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateImportModeCopy();
+        loadSchedule();
+    });
+</script>
+<script src="admin-session.js"></script>
+</body>
+</html>

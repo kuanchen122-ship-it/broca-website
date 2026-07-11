@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>課程詳情 | 布魯卡美語 Broca English</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main:#f7f9f8; --paper:#fff; --ink:#11241d; --body:#4a5b53; --muted:#8a9a92;
+            --brand-primary:#064E3B; --brand-primary-hover:#047857; --brand-soft:#0a6a4f;
+            --brand-accent:#FFCE00; --brand-accent-deep:#F2B600;
+            --mist:#eef4f1; --line:#e4ede9;
+            --radius-lg:24px; --radius-md:14px; --radius-sm:10px;
+            --shadow-sm:0 1px 2px rgba(16,36,29,.04),0 4px 12px -6px rgba(16,36,29,.06);
+            --shadow-md:0 10px 26px -12px rgba(6,78,59,.14),0 4px 10px -6px rgba(6,78,59,.08);
+            --shadow-lg:0 30px 60px -24px rgba(6,78,59,.18),0 12px 24px -12px rgba(6,78,59,.10);
+            --ease-out:cubic-bezier(0.16,1,0.3,1); --ease-cubic:cubic-bezier(0.65,0,0.35,1);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Arial Rounded MT Bold','Microsoft JhengHei','微軟正黑體',Arial,sans-serif;}
+        html{scroll-behavior:smooth;}
+        body{background:var(--bg-main);color:var(--ink);overflow-x:hidden;display:flex;flex-direction:column;min-height:100vh;-webkit-font-smoothing:antialiased;}
+        main{flex:1;}
+        a{color:inherit;}
+        @keyframes headerFade{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes ambientDrift1{0%{transform:translate(0,0) scale(1);}50%{transform:translate(4vw,-3vh) scale(1.1);}100%{transform:translate(0,0) scale(1);}}
+        @keyframes ambientDrift2{0%{transform:translate(0,0) scale(1.05);}50%{transform:translate(-3vw,4vh) scale(.92);}100%{transform:translate(0,0) scale(1.05);}}
+        .reveal{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease-out),transform 1s var(--ease-out);will-change:opacity,transform;}
+        .reveal.is-visible{opacity:1;transform:translateY(0);}
+        /* nav */
+        header{display:flex;justify-content:space-between;align-items:center;padding:16px 56px;background:rgba(247,249,248,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000;animation:headerFade .8s var(--ease-out) forwards;}
+        .logo a{text-decoration:none;display:flex;align-items:center;padding-top:4px;}
+        nav>ul{list-style:none;display:flex;gap:36px;align-items:center;}
+        nav>ul>li>a{text-decoration:none;color:var(--brand-primary);font-weight:700;font-size:15px;position:relative;padding-bottom:6px;transition:color .3s;}
+        nav>ul>li>a::after{content:'';position:absolute;width:0;height:3px;bottom:-2px;left:0;background:var(--brand-accent);transition:width .3s var(--ease-cubic);border-radius:4px;}
+        nav>ul>li>a:hover::after,nav>ul>li>a.active::after{width:100%;}
+        .dropdown{position:relative;}
+        .dropdown-menu{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.98);backdrop-filter:blur(10px);min-width:210px;box-shadow:0 15px 40px rgba(16,36,29,.10);border-radius:var(--radius-md);overflow:hidden;padding:10px 0;margin-top:18px;flex-direction:column;z-index:1001;border:1px solid var(--line);}
+        .dropdown::before{content:'';position:absolute;width:100%;height:25px;bottom:-25px;left:0;}
+        .dropdown:hover .dropdown-menu{display:flex;animation:headerFade .3s ease forwards;}
+        .dropdown-menu li{width:100%;}
+        .dropdown-menu li a{padding:12px 26px;display:block;color:var(--body);font-size:14px;font-weight:600;text-align:center;text-decoration:none;transition:all .3s var(--ease-cubic);}
+        .dropdown-menu li a:hover{background:#fffbeb;color:var(--brand-accent-deep);}
+        .nav-cta{background:linear-gradient(135deg,var(--brand-accent) 0%,var(--brand-accent-deep) 100%);color:#1a1a1a !important;padding:11px 24px;border-radius:50px;font-weight:800;transition:all .4s var(--ease-out);box-shadow:0 6px 14px rgba(242,182,0,.28);}
+        .nav-cta::after{display:none !important;}
+        .nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(242,182,0,.4);filter:brightness(1.03);}
+        .menu-toggle{display:none;background:none;border:none;font-size:25px;color:var(--brand-primary);cursor:pointer;padding:4px 8px;}
+        /* course header */
+        .course-header{position:relative;overflow:hidden;padding:54px 24px 104px;background:linear-gradient(135deg,#064E3B 0%,#066b4f 55%,#047857 100%);color:#fff;}
+        .ch-glow1{position:absolute;top:8%;right:-12%;width:62vw;height:170px;background:linear-gradient(115deg,transparent 18%,rgba(255,206,0,.16) 48%,transparent 78%);filter:blur(14px);animation:ambientDrift1 24s infinite ease-in-out;}
+        .ch-glow2{position:absolute;bottom:4%;left:-12%;width:58vw;height:160px;background:linear-gradient(115deg,transparent 18%,rgba(52,211,153,.14) 48%,transparent 78%);filter:blur(16px);animation:ambientDrift2 28s infinite ease-in-out;}
+        .ch-inner{max-width:1200px;margin:0 auto;position:relative;z-index:2;}
+        .back-link{color:#a7f3d0;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:20px;display:inline-flex;align-items:center;gap:8px;transition:all .4s var(--ease-out);}
+        .back-link:hover{color:var(--brand-accent);transform:translateX(-4px);}
+        .badge-tag{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:800;display:inline-block;margin-bottom:16px;letter-spacing:1px;}
+        .course-header h1{font-size:2.6rem;font-weight:800;margin-bottom:16px;letter-spacing:0;line-height:1.25;}
+        .course-header .desc{font-size:1.1rem;color:#ecfdf5;max-width:640px;line-height:1.75;font-weight:500;}
+        /* layout */
+        .layout{max-width:1200px;margin:-64px auto 100px;padding:0 24px;display:grid;grid-template-columns:2fr 1fr;gap:30px;position:relative;z-index:10;align-items:start;}
+        .content-card{background:var(--paper);border-radius:var(--radius-lg);padding:44px;box-shadow:var(--shadow-lg);border:1px solid var(--line);}
+        .sec-title{font-size:1.4rem;font-weight:800;color:var(--brand-primary);margin-bottom:22px;display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--mist);padding-bottom:12px;letter-spacing:0;}
+        .sec-title i{color:var(--brand-accent-deep);}
+        .sec-title:not(:first-child){margin-top:42px;}
+        .intro{font-size:16px;color:var(--body);line-height:1.85;}
+        .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+        .goal{background:var(--mist);padding:22px;border-radius:var(--radius-md);border-left:4px solid var(--brand-accent);transition:transform .4s var(--ease-out),box-shadow .4s;}
+        .goal:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);background:#fff;}
+        .goal h4{font-size:16px;font-weight:800;color:var(--brand-primary);margin-bottom:8px;}
+        .goal p{font-size:14px;color:var(--body);line-height:1.65;}
+        .syllabus{list-style:none;}
+        .sy-row{display:flex;gap:16px;margin-bottom:13px;background:#fff;border:1px solid var(--line);padding:16px 20px;border-radius:var(--radius-md);transition:transform .4s var(--ease-out),box-shadow .4s,border-color .4s;}
+        .sy-row:hover{border-color:var(--brand-primary);box-shadow:var(--shadow-sm);transform:translateX(4px);}
+        .sy-w{font-weight:800;color:var(--brand-primary);background:#ecfdf5;padding:7px 12px;border-radius:8px;font-size:14px;min-width:84px;text-align:center;height:fit-content;}
+        .sy-info h4{font-size:15.5px;font-weight:800;margin-bottom:5px;color:var(--ink);}
+        .sy-info p{font-size:14px;color:var(--body);line-height:1.6;}
+        /* sidebar */
+        .sidebar{position:sticky;top:96px;height:fit-content;}
+        .info-card{background:var(--paper);border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-lg);border-top:4px solid var(--brand-accent);border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+        .info-list{list-style:none;margin-bottom:26px;}
+        .info-list li{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+        .info-list li i{color:var(--brand-primary);font-size:18px;margin-top:2px;width:22px;text-align:center;}
+        .info-list .lab{color:var(--muted);font-size:13px;display:block;margin-bottom:2px;}
+        .info-list .val{font-weight:800;color:var(--ink);font-size:15px;}
+        .info-list .val.warm{color:var(--brand-accent-deep);}
+        .btn-block{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--brand-primary);color:#fff;padding:16px;border-radius:var(--radius-md);font-size:16px;font-weight:800;text-decoration:none;transition:transform .4s var(--ease-out),box-shadow .4s,background .4s;box-shadow:0 8px 18px rgba(6,78,59,.22);margin-bottom:12px;}
+        .btn-block:hover{background:var(--brand-primary-hover);transform:translateY(-3px);box-shadow:0 12px 24px rgba(6,78,59,.3);}
+        .btn-outline{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:var(--brand-primary);border:2px solid var(--brand-primary);padding:14px;border-radius:var(--radius-md);font-size:16px;font-weight:800;text-decoration:none;transition:all .35s var(--ease-out);}
+        .btn-outline:hover{background:#f0fdf4;transform:translateY(-2px);}
+        .btn-block:focus-visible,.btn-outline:focus-visible{outline:3px solid var(--brand-accent);outline-offset:2px;}
+        .fineprint{text-align:center;font-size:12px;color:var(--muted);margin-top:16px;line-height:1.6;}
+        /* footer */
+        footer{background:#0f172a;color:#cbd5e1;padding:76px 56px 38px;margin-top:0;}
+        .footer-content{display:flex;justify-content:space-between;align-items:flex-start;max-width:1240px;margin:0 auto;padding-bottom:38px;border-bottom:1px solid #334155;gap:40px;flex-wrap:wrap;}
+        .footer-info h3{font-size:23px;margin-bottom:22px;color:#fff;font-weight:700;}
+        .footer-info p{font-size:16px;line-height:1.8;color:#94a3b8;display:flex;align-items:center;gap:14px;margin-bottom:13px;}
+        .footer-social{display:flex;gap:16px;}
+        .footer-social a{color:#fff;background:#1e293b;width:46px;height:46px;display:flex;justify-content:center;align-items:center;border-radius:50%;text-decoration:none;transition:all .4s var(--ease-out);font-size:19px;}
+        .footer-social a:hover{background:var(--brand-accent-deep);color:#0f172a;transform:translateY(-4px);}
+        .footer-bottom{text-align:center;padding-top:36px;font-size:14px;color:#64748b;}
+        .footer-bottom a{color:#64748b;text-decoration:none;font-weight:600;transition:color .3s;}
+        .footer-bottom a:hover{color:#fff;}
+        /* responsive */
+        @media(max-width:900px){
+            header{padding:14px 22px;background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;animation:none;transform:none;}
+            .menu-toggle{display:block;position:relative;z-index:1001;}
+            nav{position:fixed;inset:0;width:100%;height:100%;background:#fff;z-index:1000;padding:84px 30px 34px;overflow-y:auto;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateY(-10px);transition:opacity .3s ease,transform .4s var(--ease-out),visibility .4s;}
+            nav.open{opacity:1;visibility:visible;transform:translateY(0);}
+            nav>ul{flex-direction:column;align-items:stretch;gap:2px;width:100%;}
+            nav>ul>li{width:100%;border-bottom:1px solid var(--line);}
+            nav>ul>li:last-child{border-bottom:none;}
+            nav>ul>li>a{display:block;padding:16px 4px;font-size:18px;}
+            nav>ul>li>a::after{display:none;}
+            .dropdown-menu{display:flex;position:static;transform:none;box-shadow:none;background:var(--mist);margin:6px 0 10px;padding:6px 0;border-radius:var(--radius-sm);min-width:0;border:none;}
+            .dropdown-menu li a{text-align:left;padding:12px 18px;}
+            .nav-cta{display:inline-block;margin-top:16px;text-align:center;}
+            .layout{grid-template-columns:1fr;}
+            .sidebar{position:static;}
+            .content-card{padding:30px 24px;}
+            .course-header h1{font-size:1.9rem;}
+            footer{padding:56px 24px 30px;}
+            .footer-content{flex-direction:column;align-items:center;text-align:center;}
+            .footer-info p{justify-content:center;}
+        }
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}.reveal{opacity:1 !important;transform:none !important;}html{scroll-behavior:auto;}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <a href="index.html" aria-label="布魯卡美語 首頁">
+            <svg width="234" height="68" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><g id="broca-star"><path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/></g></defs>
+                <use href="#broca-star" transform="translate(88, 12) scale(0.9) rotate(-15)"/><use href="#broca-star" transform="translate(85, 23) scale(0.8) rotate(15)"/><use href="#broca-star" transform="translate(97, 16) scale(0.4) rotate(-5)"/><use href="#broca-star" transform="translate(105, 11) scale(0.7) rotate(-15)"/><use href="#broca-star" transform="translate(108, 20) scale(0.6) rotate(15)"/>
+                <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+                <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+                <text x="92" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B" letter-spacing="1">BROCA ENGLISH</text>
+            </svg>
+        </a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav"><i class="fa-solid fa-bars"></i></button>
+    <nav id="primaryNav">
+        <ul>
+            <li><a href="index.html">首頁</a></li>
+            <li><a href="about.html">關於我們</a></li>
+            <li class="dropdown">
+                <a href="courses.html" class="active">課程介紹 <i class="fa-solid fa-angle-down" style="font-size: 12px; margin-left: 4px;"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="course-details.html?id=halfday">半日美語課程</a></li>
+                    <li><a href="course-details.html?id=kids">兒童美語課程</a></li>
+                    <li><a href="course-details.html?id=junior">國中美語課程</a></li>
+                    <li><a href="course-details.html?id=gept">全民英檢課程</a></li>
+                    <li><a href="course-details.html?id=conversation">英文會話課程</a></li>
+                    <li><a href="course-details.html?id=kindergarten">幼兒美語課程</a></li>
+                    <li><a href="course-details.html?id=senior">高中美語課程</a></li>
+                    <li><a href="course-details.html?id=tutor">國小安親課程</a></li>
+                </ul>
+            </li>
+            <li><a href="learning.html">學習中心</a></li>
+            <li><a href="info.html#news">最新消息</a></li>
+            <li><a href="info.html#calendar">家長行事曆</a></li>
+            <li><a href="info.html#honor">榮譽榜</a></li>
+            <li><a href="info.html#contact">聯絡我們</a></li>
+            <li><a href="info.html#registration" class="nav-cta" data-enrollment-link>線上報名</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="course-header">
+    <div class="ch-glow1"></div><div class="ch-glow2"></div>
+    <div class="ch-inner">
+        <a href="courses.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> 返回課程總覽</a>
+        <span class="badge-tag" id="c-series">兒童美語系列</span>
+        <h1 id="c-title">兒童美語 · 基礎班 C2A</h1>
+        <p class="desc" id="c-desc"></p>
+    </div>
+</section>
+
+<main class="layout">
+    <section class="content-card reveal">
+        <h2 class="sec-title"><i class="fa-solid fa-book-open-reader"></i> 課程特色介紹</h2>
+        <p class="intro" id="c-intro"></p>
+        <h2 class="sec-title"><i class="fa-solid fa-bullseye"></i> 三大學習目標</h2>
+        <div class="goals" id="c-goals"></div>
+        <h2 class="sec-title"><i class="fa-solid fa-list-check"></i> 課程大綱預覽</h2>
+        <ul class="syllabus" id="c-syllabus"></ul>
+    </section>
+
+    <aside class="sidebar">
+        <div class="info-card reveal">
+            <ul class="info-list">
+                <li><i class="fa-regular fa-clock"></i><div><span class="lab">上課時間</span><span class="val" id="c-time"></span></div></li>
+                <li><i class="fa-solid fa-users"></i><div><span class="lab">招生對象</span><span class="val" id="c-target"></span></div></li>
+                <li><i class="fa-solid fa-circle-check"></i><div><span class="lab">班級狀態</span><span class="val warm" id="c-status"></span></div></li>
+                <li><i class="fa-solid fa-layer-group"></i><div><span class="lab">課程型態</span><span class="val" id="c-format"></span></div></li>
+            </ul>
+            <a href="info.html#registration" class="btn-block" data-enrollment-link><i class="fa-solid fa-pen-to-square"></i> 填寫線上報名表</a>
+            <a href="info.html#contact" class="btn-outline"><i class="fa-solid fa-comments"></i> 電話 / 粉專諮詢</a>
+            <p class="fineprint">※ 實際班級、時段與名額依現場安排為準，歡迎先聯絡確認。</p>
+        </div>
+    </aside>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-info">
+            <h3>布魯卡美語 Broca English</h3>
+            <p><i class="fa-solid fa-location-dot"></i> 高雄市路竹區國昌路309號</p>
+            <p><i class="fa-solid fa-phone"></i> (07) 697-8690</p>
+        </div>
+        <div class="footer-social">
+            <a href="https://www.facebook.com/BrocaEnglish/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://maps.google.com/?q=高雄市路竹區國昌路309號" target="_blank" rel="noopener" aria-label="Google Maps"><i class="fa-solid fa-map-location-dot"></i></a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 布魯卡美語 Broca English. All rights reserved.
+            <span style="margin: 0 8px; color: #334155;">|</span>
+            <a href="login.html"><i class="fa-solid fa-lock" style="font-size: 11px; margin-right: 4px; opacity: .7;"></i>管理端登入</a>
+        </p>
+    </div>
+</footer>
+
+<script>
+    /* ===== Course content (edit these freely) ===== */
+    const COURSES = {
+        kindergarten: {
+            series: "幼兒美語系列", title: "幼兒美語 · 小一銜接 K3A",
+            desc: "專為幼兒園大班至小一新生設計，在遊戲與兒歌中自然啟蒙，奠定自然發音與開口自信。",
+            intro: "在布魯卡的幼兒課程裡，學習從「玩」開始。我們以歌謠、律動與大量圖像情境，帶孩子自然熟悉英語的聲音與節奏，並從自然發音（Phonics）扎根，讓孩子在升上小學前，就擁有敢開口、聽得懂的語言基礎。",
+            goals: [["自然發音啟蒙","認識字母與發音規則，建立拼讀直覺。"],["聽力與語感","透過兒歌與指令活動，培養敏銳的英語耳朵。"],["開口自信","在零壓力的遊戲情境中，敢說、樂於說。"]],
+            syllabus: [["1–2 週","Hello! ABC","字母與招呼語，律動歌謠暖身。"],["3–4 週","Colors & Shapes","顏色與形狀，動手做中學單字。"],["5–6 週","My Favorite Things","食物與玩具主題，簡單問答練習。"],["7–8 週","Phonics Fun","自然發音入門與成果同樂會。"]],
+            info: { time:"依班級時段安排", target:"幼兒園大班～小一", status:"招生中 / 歡迎洽詢", format:"小班啟蒙 / 遊戲互動" }
+        },
+        kids: {
+            series: "兒童美語系列", title: "兒童美語 · 基礎班 C2A",
+            desc: "專為國小低中年級設計，從單字累積到基礎句型架構，結合生活主題讓英文學以致用，打下堅實的雙語基礎。",
+            intro: "在布魯卡美語的 C2A 基礎班中，我們相信語言的學習不該是死背硬記。我們採用全方位沉浸式教學，結合生動的互動任務與扎實的文法整理。在這裡，孩子將學會如何用完整的英文句子表達自己的想法，並透過主題式情境模擬（如：超市購物、校園生活），讓英文成為帶得走的實用工具。",
+            goals: [["發音與聽力","熟練自然發音拼讀規則，能聽懂日常課堂指令。"],["字彙與句型","累積 300+ 基礎生活單字，正確使用現在簡單式造句。"],["開口說自信","透過角色扮演與小組發表，自信地用英文進行日常對話。"]],
+            syllabus: [["1–2 週","Greetings & Introductions","問候與自我介紹，掌握 Be 動詞用法。"],["3–4 週","My Family & Home","家人與家庭，There is / are 句型。"],["5–6 週","Daily Routines","日常作息，現在簡單式描述一天。"],["7–8 週","Midterm Review & Project","期中複習與全英文微型發表。"]],
+            info: { time:"依程度與班級安排", target:"國小一、二年級", status:"招生中 / 歡迎洽詢", format:"分級小班 / 主題互動" }
+        },
+        halfday: {
+            series: "半日美語系列", title: "半日美語 · 全美語沉浸",
+            desc: "沉浸式半日全美語環境，讓孩子在大量聽說互動中建立英語思考邏輯，銜接國際課程。",
+            intro: "半日班提供更完整、更密集的全美語環境。孩子在半天的時間裡，從生活作息、主題探索到讀寫練習，全程以英語進行，讓語言不只是「科目」，而是日常溝通的工具，逐步養成用英語思考的習慣。",
+            goals: [["全美語環境","長時間沉浸，自然建立語感與反應力。"],["主題式學習","跨領域主題探索，連結真實生活。"],["讀寫並進","從句型到段落，扎實累積讀寫能力。"]],
+            syllabus: [["第 1 月","Morning Circle","全美語作息與主題暖身。"],["第 2 月","Theme Projects","主題探索與口語發表。"],["第 3 月","Reading Time","分級讀本與閱讀理解。"],["第 4 月","Show & Tell","成果發表與寫作練習。"]],
+            info: { time:"請洽詢確認", target:"幼兒園～國小低年級", status:"採小班預約制", format:"半日沉浸 / 主題探索" }
+        },
+        gept: {
+            series: "檢定課程系列", title: "全民英檢 · 初/中級班",
+            desc: "針對 GEPT 全民英檢題型精準拆解，從聽讀到口說寫作系統化訓練，循序漸進考取證照。",
+            intro: "本課程依 GEPT 初級與中級的測驗架構設計，逐一拆解題型與應試技巧。除了大量模擬演練，更著重真正的英語實力養成，讓孩子不只會考試，更能在檢定中自然展現聽說讀寫的綜合能力。",
+            goals: [["題型攻略","熟悉各大題型與作答策略，穩定拿分。"],["聽讀強化","大量聽力與閱讀訓練，提升速度與正確率。"],["口說寫作","針對二階口說與寫作，實戰演練與批改。"]],
+            syllabus: [["階段一","Listening","聽力題型與情境用語。"],["階段二","Reading","閱讀理解與字彙文法。"],["階段三","Writing","寫作架構與常見題型。"],["階段四","Speaking & Mock","口說技巧與全真模擬考。"]],
+            info: { time:"依檢定級數安排", target:"國小高年級～國中", status:"依程度分班", format:"檢定訓練 / 模擬演練" }
+        },
+        junior: {
+            series: "國中課程系列", title: "國中美語 · 國中先修專班",
+            desc: "銜接國中課業，系統化精進文法與單字量，搭配段考題型演練，輕鬆面對國中英語。",
+            intro: "國中先修專班幫助孩子在升上國中前，提前掌握國中英語的文法系統與單字量。課程對齊學校進度與段考方向，從文法觀念、題型演練到複習策略，讓孩子在國中英語的起跑點上，就站得又穩又前面。",
+            goals: [["文法系統","建立完整時態與句型觀念，融會貫通。"],["單字擴充","依國中 2000 單字分級記憶與應用。"],["段考實戰","對齊學校題型，演練與檢討並重。"]],
+            syllabus: [["單元一","Tenses","時態總整理與應用。"],["單元二","Sentence Patterns","重要句型與句型轉換. "],["單元三","Vocabulary","主題單字與常用片語。"],["單元四","Exam Practice","段考題型演練與複習。"]],
+            info: { time:"依年級與班級安排", target:"國小六年級～國中", status:"招生中 / 歡迎洽詢", format:"國中銜接 / 文法閱讀" }
+        },
+        conversation: {
+            series: "會話課程系列", title: "英文會話 · 全美語情境實戰",
+            desc: "以情境式互動為核心，讓孩子在真實對話中累積反應力，不再害怕、自信開口說英文。",
+            intro: "會話課完全以「開口」為目標。我們設計貼近生活的情境（點餐、旅遊、校園、興趣分享），安排大量互動與角色扮演，讓孩子把學過的單字句型真正「用出來」，把英語變成自然的反射，而不只是課本上的文字。",
+            goals: [["即時反應","在情境互動中培養聽說的即時反應力。"],["道地表達","學習生活化、道地的口語用法。"],["自信溝通","從敢說到樂於說，建立溝通自信。"]],
+            syllabus: [["主題一","Daily Life","日常對話與問答。"],["主題二","Eating Out","點餐與餐廳情境。"],["主題三","Travel","旅遊與問路情境。"],["主題四","My Interests","興趣分享與小組討論。"]],
+            info: { time:"請洽詢確認", target:"國小中年級以上", status:"小班互動制", format:"情境會話 / 口說練習" }
+        },
+        tutor: {
+            series: "安親課輔系列", title: "國小安親 · A～F 課輔班",
+            desc: "課業輔導與美語學習雙管齊下，每日協助掌握學校進度，讓家長下班後享受純粹的親子時光。",
+            intro: "布魯卡安親不只是「把功課寫完」，更重視學習態度與習慣的養成。依各校進度每日指導功課、訂正錯誤，並在考前帶領重點複習；結合美語學習，讓孩子在安全、規律的環境中穩定成長，家長最安心。",
+            goals: [["作業指導","每日功課指導與訂正，紮實完成。"],["考前複習","國語、數學單元重點複習與演練。"],["習慣養成","培養自主、專注的學習好習慣。"]],
+            syllabus: [["每日","功課指導","完成並訂正當日學校作業。"],["每週","單元演練","國數重點練習與小測驗。"],["考前","重點複習","段考範圍系統複習。"],["彈性","美語時間","銜接美語課程與分級閱讀。"]],
+            info: { time:"週一至週五 放學後", target:"國小一～六年級", status:"A～F 分齡編班", format:"安親課輔 / 美語銜接" }
+        },
+        senior: {
+            series: "高中課程系列", title: "高中美語 · 學測進階閱讀",
+            desc: "深入閱讀與寫作訓練，擴充學術字彙與長文理解力，備戰學測並與國際接軌。",
+            intro: "高中課程著重「深度」與「廣度」。透過大量長篇閱讀、學術字彙與寫作訓練，帶孩子跨越國高中之間的落差，培養面對學測與未來原文學習所需的閱讀理解、邏輯與表達能力。",
+            goals: [["長文閱讀","提升長篇與學術文章的理解與速度。"],["學術字彙","擴充進階字彙與片語，靈活運用。"],["寫作表達","從句構到篇章，練習有條理的英文寫作。"]],
+            syllabus: [["單元一","Reading Skills","長文閱讀策略與題型。"],["單元二","Academic Vocab","學術字彙與用法。"],["單元三","Grammar in Use","進階文法與句構。"],["單元四","Essay Writing","學測寫作與批改。"]],
+            info: { time:"依程度與班級安排", target:"國中九年級～高中", status:"招生中 / 歡迎洽詢", format:"升學閱讀 / 寫作訓練" }
+        }
+    };
+
+    (function () {
+        const params = new URLSearchParams(location.search);
+        let id = params.get('id');
+        if (!COURSES[id]) id = 'kids';
+        const c = COURSES[id];
+
+        document.title = c.title + " | 布魯卡美語 Broca English";
+        const set = (elId, txt) => { const el = document.getElementById(elId); if (el) el.textContent = txt; };
+        set('c-series', c.series); set('c-title', c.title); set('c-desc', c.desc); set('c-intro', c.intro);
+        set('c-time', c.info.time); set('c-target', c.info.target); set('c-status', c.info.status); set('c-format', c.info.format);
+
+        document.getElementById('c-goals').innerHTML = c.goals.map(g =>
+            `<div class="goal"><h4>${g[0]}</h4><p>${g[1]}</p></div>`).join('');
+        document.getElementById('c-syllabus').innerHTML = c.syllabus.map(s =>
+            `<li class="sy-row"><div class="sy-w">${s[0]}</div><div class="sy-info"><h4>${s[1]}</h4><p>${s[2]}</p></div></li>`).join('');
+    })();
+
+    /* mobile nav */
+    (function () {
+        const toggle = document.getElementById('menuToggle');
+        const nav = document.getElementById('primaryNav');
+        function setOpen(open) {
+            nav.classList.toggle('open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
+            toggle.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+        toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+        nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+            if (window.innerWidth <= 900 && !a.parentElement.classList.contains('dropdown')) setOpen(false);
+        }));
+        window.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+        window.addEventListener('resize', () => { if (window.innerWidth > 900) setOpen(false); });
+    })();
+
+    /* reveal */
+    document.addEventListener('DOMContentLoaded', () => {
+        const obs = new IntersectionObserver((entries, o) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); o.unobserve(e.target); } });
+        }, { threshold: 0.08 });
+        document.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = (i * 0.1) + 's'; obs.observe(el); });
+    });
+</script>
+<script src="public-config.js"></script>
+</body>
+</html>
+
+

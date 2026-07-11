@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家長資訊中心 | 布魯卡美語 Broca English</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="public-polish.css">
+  <script src="public-config.js" defer></script>
+  <script src="public-polish.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">
+    <a href="index.html" aria-label="布魯卡美語 首頁">
+      <svg width="234" height="68" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><g id="broca-star"><path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/></g></defs>
+        <use href="#broca-star" transform="translate(88, 12) scale(0.9) rotate(-15)"/><use href="#broca-star" transform="translate(85, 23) scale(0.8) rotate(15)"/><use href="#broca-star" transform="translate(97, 16) scale(0.4) rotate(-5)"/><use href="#broca-star" transform="translate(105, 11) scale(0.7) rotate(-15)"/><use href="#broca-star" transform="translate(108, 20) scale(0.6) rotate(15)"/>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B" letter-spacing="1">BROCA ENGLISH</text>
+      </svg>
+    </a>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <nav class="site-nav" id="primaryNav">
+    <ul>
+      <li><a href="index.html">首頁</a></li>
+      <li><a href="about.html">關於我們</a></li>
+      <li class="dropdown">
+        <a href="courses.html">課程介紹 <i class="fa-solid fa-angle-down" style="font-size:12px;"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="course-details.html?id=halfday">半日美語課程</a></li>
+          <li><a href="course-details.html?id=kids">兒童美語課程</a></li>
+          <li><a href="course-details.html?id=junior">國中美語課程</a></li>
+          <li><a href="course-details.html?id=gept">全民英檢課程</a></li>
+          <li><a href="course-details.html?id=conversation">英文會話課程</a></li>
+          <li><a href="course-details.html?id=kindergarten">幼兒美語課程</a></li>
+          <li><a href="course-details.html?id=senior">高中美語課程</a></li>
+          <li><a href="course-details.html?id=tutor">國小安親課程</a></li>
+        </ul>
+      </li>
+      <li><a href="learning.html">學習中心</a></li>
+      <li><a href="info.html#news" class="active">最新消息</a></li>
+      <li><a href="info.html#calendar">家長行事曆</a></li>
+      <li><a href="info.html#honor">榮譽榜</a></li>
+      <li><a href="info.html#contact">聯絡我們</a></li>
+      <li><a href="info.html#registration" class="nav-cta" data-enrollment-link>線上報名</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="page-hero info-hero">
+    <div class="page-hero-inner">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">Parent Information Center</span>
+        <h1>家長資訊中心</h1>
+        <p>公告、放假提醒、榮譽成果、常用入口與預約方式集中整理。讓家長不只第一次報名會來，也能在學期中快速確認重要資訊。</p>
+        <div class="hero-actions">
+          <a href="info.html#registration" class="btn btn-primary" data-enrollment-link><i class="fa-solid fa-pen-to-square"></i> 線上報名</a>
+          <a href="#calendar" class="btn btn-quiet"><i class="fa-regular fa-calendar-days"></i> 查看行事曆</a>
+          <a href="#contact" class="btn btn-quiet"><i class="fa-solid fa-location-dot"></i> 聯絡我們</a>
+        </div>
+      </div>
+      <div class="hero-panel info-hero-panel reveal" data-info-hero-card>
+        <div class="info-hero-screen">
+          <span class="screen-kicker">Broca Family Hub</span>
+          <span class="screen-icon"><i class="fa-solid fa-calendar-check"></i></span>
+          <h2>公告、行事曆、報名，一頁確認。</h2>
+          <p>暑期營隊、國定假日與重要公告會整理在這裡，家長不用到處找。</p>
+        </div>
+        <div class="info-quick-grid">
+          <a href="#news" class="info-quick-card">
+            <i class="fa-regular fa-newspaper"></i>
+            <strong>最新消息</strong>
+            <span>招生公告與活動提醒</span>
+          </a>
+          <a href="#calendar" class="info-quick-card">
+            <i class="fa-regular fa-calendar-days"></i>
+            <strong>家長行事曆</strong>
+            <span>國定假日與補假</span>
+          </a>
+          <a href="#honor" class="info-quick-card">
+            <i class="fa-solid fa-medal"></i>
+            <strong>榮譽榜</strong>
+            <span>成果紀錄與表現</span>
+          </a>
+          <a href="info.html#registration" class="info-quick-card info-quick-card-accent" data-enrollment-link>
+            <i class="fa-solid fa-pen-to-square"></i>
+            <strong>線上報名</strong>
+            <span>填寫資料或先聯絡</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-shell" aria-label="資訊中心">
+    <aside class="info-sidebar reveal">
+      <h2>資訊中心</h2>
+      <button class="info-tab active" type="button" data-info-tab="news"><i class="fa-regular fa-newspaper"></i> 最新消息</button>
+      <button class="info-tab" type="button" data-info-tab="calendar"><i class="fa-regular fa-calendar-days"></i> 家長行事曆</button>
+      <button class="info-tab" type="button" data-info-tab="honor"><i class="fa-solid fa-medal"></i> 榮譽榜</button>
+      <button class="info-tab" type="button" data-info-tab="faq"><i class="fa-regular fa-circle-question"></i> 常見問題</button>
+      <button class="info-tab" type="button" data-info-tab="registration"><i class="fa-solid fa-pen-to-square"></i> 線上報名</button>
+      <button class="info-tab" type="button" data-info-tab="contact"><i class="fa-solid fa-phone-volume"></i> 聯絡預約</button>
+    </aside>
+
+    <div class="info-content">
+      <section id="news" class="info-pane active reveal">
+        <div class="pane-card">
+          <div class="pane-head">
+            <h2>最新消息</h2>
+            <p>活動、招生、課程異動與重要提醒會放在這裡。點擊公告可查看完整內容。</p>
+          </div>
+          <div class="pane-body" id="newsDynamicContent"></div>
+        </div>
+      </section>
+
+      <section id="calendar" class="info-pane reveal">
+        <div class="pane-card parent-calendar-panel">
+          <div class="pane-head">
+            <span class="badge">Family Calendar</span>
+            <h2>台灣國定假日</h2>
+            <p>依行政院人事行政總處 115 / 116 年政府行政機關辦公日曆整理，僅列出有假日備註的放假日與補假。</p>
+          </div>
+          <div class="pane-body">
+            <div class="calendar-overview">
+              <article class="calendar-next-card" id="nextFamilyEvent">
+                <span class="mini-label">Next Holiday</span>
+                <h3>載入下一個國定假日中</h3>
+                <p>正在整理官方放假日。</p>
+              </article>
+              <div class="calendar-source-card">
+                <i class="fa-solid fa-building-columns"></i>
+                <div>
+                  <strong>官方資料來源</strong>
+                  <span>依「中華民國政府行政機關辦公日曆表」公開資料為準，包含 2026 與 2027 年資料。</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="calendar-command">
+              <div>
+                <span class="mini-label">Quick View</span>
+                <h3 id="calendarViewTitle">接下來的國定假日</h3>
+                <p id="calendarViewMeta">先顯示近期重點，家長不用一次滑完整份年曆。</p>
+              </div>
+              <div class="calendar-controls" aria-label="切換國定假日年份">
+                <button class="calendar-filter active" type="button" data-calendar-year="upcoming">接下來</button>
+                <button class="calendar-filter" type="button" data-calendar-year="2026">2026</button>
+                <button class="calendar-filter" type="button" data-calendar-year="2027">2027</button>
+                <select id="calendarMonthFilter" aria-label="選擇月份">
+                  <option value="all">全年</option>
+                  <option value="01">1 月</option>
+                  <option value="02">2 月</option>
+                  <option value="03">3 月</option>
+                  <option value="04">4 月</option>
+                  <option value="05">5 月</option>
+                  <option value="06">6 月</option>
+                  <option value="07">7 月</option>
+                  <option value="08">8 月</option>
+                  <option value="09">9 月</option>
+                  <option value="10">10 月</option>
+                  <option value="11">11 月</option>
+                  <option value="12">12 月</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="calendar-list-head">
+              <div>
+                <h3>2026 / 2027 國定假日與補假</h3>
+                <p>以下依官方 CSV 中「是否放假」與「備註」欄位整理，並依年份分段顯示。</p>
+              </div>
+              <span>115-116 年</span>
+            </div>
+            <div class="calendar-event-list" id="familyCalendarEvents"></div>
+
+            <div class="source-note">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>此區只顯示政府行事曆的國定假日與補假；補習班實際上課或停課安排，仍以布魯卡公告為準。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="honor" class="info-pane reveal">
+        <div class="pane-card">
+          <div class="pane-head">
+            <h2>榮譽榜</h2>
+            <p>孩子的檢定成果、段考進步與學習表現，會在資料確認後整理公開。</p>
+          </div>
+          <div class="pane-body">
+            <div class="empty-state">
+              <i class="fa-solid fa-award"></i>
+              <h3>成果紀錄準備中</h3>
+              <p>檢定通過、段考進步與優良學習表現，會在資料確認後陸續整理公開。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="info-pane reveal">
+        <div class="pane-card">
+          <div class="pane-head">
+            <h2>常見問題</h2>
+            <p>先放家長最常問的基礎資訊，未來可再依實際諮詢內容補充。</p>
+          </div>
+          <div class="pane-body">
+            <div class="qa-list">
+              <article class="qa-card">
+                <h3>孩子適合從哪一個課程開始？</h3>
+                <p>會依年級、程度、學習目標與可上課時間初步安排。若不確定，可以先聯絡我們了解目前可銜接的班級。</p>
+              </article>
+              <article class="qa-card">
+                <h3>是否同時有美語與安親課輔？</h3>
+                <p>有。部分學生會依需求同時安排美語課程與課業輔導，實際內容需依孩子年級與班級時段確認。</p>
+              </article>
+              <article class="qa-card">
+                <h3>可以預約參觀或了解課程嗎？</h3>
+                <p>可以。現階段建議透過電話或粉絲專頁先聯絡，我們會協助確認適合的時間與課程方向。</p>
+              </article>
+              <article class="qa-card">
+                <h3>國定假日或補班日，布魯卡一定跟政府行事曆一樣嗎？</h3>
+                <p>政府行事曆可作為初步參考，但實際上課、停課、補課仍以布魯卡公告為準。遇到連假、補班日或學校活動週，櫃台會再確認班級安排。</p>
+              </article>
+              <article class="qa-card">
+                <h3>颱風天或高雄停班停課怎麼確認？</h3>
+                <p>原則上依高雄市政府公告與補習班通知處理。若有臨時異動，會優先透過現有聯絡方式通知家長。</p>
+              </article>
+              <article class="qa-card">
+                <h3>之後網站會有請假或接送通知嗎？</h3>
+                <p>會列入後台整合。第一階段先完成公告、報名與聯絡入口；後續再把請假、點名、接送與 LINE 通知接到後台流程。</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="registration" class="info-pane reveal">
+        <div class="pane-card registration-panel">
+          <div class="pane-head">
+            <span class="badge">Enrollment</span>
+            <h2>預約諮詢</h2>
+            <p>留下孩子的年級、英文程度與方便聯絡的時間，我們會協助確認合適的課程、試聽或課輔安排。</p>
+          </div>
+          <div class="pane-body">
+            <div class="registration-layout">
+              <div class="registration-copy">
+                <h3>填寫孩子資料、想了解的課程與方便聯絡時間。</h3>
+                <p data-enrollment-helper>表單建置中，請先透過電話或粉絲專頁預約。</p>
+              </div>
+              <div class="registration-actions">
+                <a href="info.html#contact" class="btn btn-primary registration-button" data-enrollment-link data-fallback-href="info.html#contact">
+                  <i class="fa-solid fa-pen-to-square"></i> 填寫線上報名表
+                </a>
+                <a href="info.html#contact" class="btn btn-quiet"><i class="fa-solid fa-phone"></i> 先聯絡預約</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="info-pane reveal">
+        <div class="pane-card">
+          <div class="pane-head">
+            <h2>聯絡我們 / 預約體驗</h2>
+            <p>可透過電話或粉絲專頁預約參觀、了解課程與確認適合時段。</p>
+          </div>
+          <div class="pane-body">
+            <div class="note-box">
+              <i class="fa-solid fa-circle-info" style="margin-right:8px;"></i>
+              歡迎先聯絡我們確認孩子適合的課程、班級時段與銜接方式。
+            </div>
+            <div class="contact-grid">
+              <a href="tel:076978690" class="contact-card">
+                <span class="contact-icon"><i class="fa-solid fa-phone"></i></span>
+                <span class="contact-text">
+                  <h3>電話洽詢</h3>
+                  <p>(07) 697-8690</p>
+                </span>
+              </a>
+              <a href="https://www.facebook.com/BrocaEnglish/" target="_blank" rel="noopener" class="contact-card">
+                <span class="contact-icon"><i class="fa-brands fa-facebook-messenger"></i></span>
+                <span class="contact-text">
+                  <h3>粉絲專頁</h3>
+                  <p>私訊 Broca English</p>
+                </span>
+              </a>
+              <a href="https://maps.google.com/?q=高雄市路竹區國昌路309號" target="_blank" rel="noopener" class="contact-card">
+                <span class="contact-icon"><i class="fa-solid fa-location-dot"></i></span>
+                <span class="contact-text">
+                  <h3>校址</h3>
+                  <p>高雄市路竹區國昌路309號</p>
+                </span>
+              </a>
+              <a href="courses.html" class="contact-card">
+                <span class="contact-icon"><i class="fa-solid fa-book-open-reader"></i></span>
+                <span class="contact-text">
+                  <h3>課程總覽</h3>
+                  <p>先查看目前課程分類</p>
+                </span>
+              </a>
+            </div>
+            <div class="map-card">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3676.4009795900943!2d120.25259251049151!3d22.861641422228967!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x346e0d4a310f38fd%3A0x1aea37296f83a456!2z5biD6a2v5Y2h576O6Kqe6KOc57-S54-tIEJyb2NhIEVuZ2xpc2ggU2Nob29s!5e0!3m2!1sen!2stw!4v1780981678724!5m2!1sen!2stw" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="布魯卡美語 Google 地圖"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-content">
+    <div class="footer-info">
+      <h3>布魯卡美語 Broca English</h3>
+      <p><i class="fa-solid fa-location-dot"></i> 高雄市路竹區國昌路309號</p>
+      <p><i class="fa-solid fa-phone"></i> (07) 697-8690</p>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/BrocaEnglish/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://maps.google.com/?q=高雄市路竹區國昌路309號" target="_blank" rel="noopener" aria-label="Google Maps"><i class="fa-solid fa-map-location-dot"></i></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 布魯卡美語 Broca English. All rights reserved.
+      <span style="margin:0 8px;color:#334155;">|</span>
+      <a href="login.html"><i class="fa-solid fa-lock" style="font-size:11px;margin-right:4px;opacity:.7;"></i>管理端登入</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>

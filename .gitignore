@@ -1,0 +1,42 @@
+# IDE and operating-system files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Maven and build output
+target/
+.m2/
+.m2-local/
+*.jar
+
+# Runtime databases and working files
+data/
+work/
+*.db
+*.mv.db
+*.trace.db
+*.log
+
+# Imported/exported operational data
+*.xlsx
+*.xls
+*.csv
+exports/
+backups/
+
+# Credentials, browser sessions, and local overrides
+.env
+.env.*
+!.env.example
+*cookie*.txt
+*cookies*.txt
+application-local.properties
+application-production.properties
+secrets/
+
+# Temporary files
+*.tmp
+*.bak
+~*
+

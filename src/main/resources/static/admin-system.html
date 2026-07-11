@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統健康檢查 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #2563eb;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 16px 36px rgba(15, 23, 42, 0.09);
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        html { min-height: 100%; background: var(--bg-admin); }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: auto; }
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: visible; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .refresh-btn, .detail-link {
+            border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; transition: var(--transition-smooth);
+        }
+        .refresh-btn { min-height: 40px; padding: 0 14px; border-radius: 10px; background: var(--brand-primary); color: white; box-shadow: 0 12px 24px rgba(6, 78, 59, 0.16); }
+        .refresh-btn:hover { background: var(--sidebar-hover); transform: translateY(-1px); }
+        .content-area { flex: 1; width: 100%; max-width: 1680px; margin: 0 auto; padding: 24px 30px 38px; }
+
+        .health-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); gap: 16px; margin-bottom: 16px; }
+        .hero-panel, .status-panel, .metric-card, .check-card, .detail-panel {
+            background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+        }
+        .hero-panel { padding: 24px; display: flex; justify-content: space-between; align-items: center; gap: 18px; overflow: hidden; position: relative; }
+        .hero-panel::after { content: ""; position: absolute; right: -90px; top: -120px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255, 206, 0, 0.16); pointer-events: none; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--brand-primary); font-size: 12px; font-weight: 950; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+        .hero-panel h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.08; letter-spacing: 0; font-weight: 950; margin-bottom: 12px; }
+        .hero-panel p { max-width: 760px; color: var(--text-muted); font-size: 14px; line-height: 1.8; font-weight: 760; }
+        .status-pill-lg { min-width: 132px; border-radius: 18px; padding: 18px; background: #0f172a; color: #ffffff; text-align: center; position: relative; z-index: 1; }
+        .status-pill-lg span { display: block; color: #cbd5e1; font-size: 12px; font-weight: 900; margin-bottom: 8px; }
+        .status-pill-lg strong { color: var(--brand-accent); font-size: 25px; font-weight: 950; line-height: 1.2; }
+
+        .status-panel { padding: 18px; display: grid; align-content: space-between; gap: 14px; }
+        .status-panel h2 { font-size: 16px; font-weight: 950; display: flex; align-items: center; gap: 8px; }
+        .readiness-meter { min-height: 130px; border-radius: 16px; background: linear-gradient(135deg, #ecfdf5, #f8fafc 54%, #fff7ed); border: 1px solid #dbe5ee; padding: 18px; display: grid; gap: 8px; }
+        .readiness-meter strong { font-size: 38px; color: var(--brand-primary); line-height: 1; }
+        .readiness-meter span { color: var(--text-muted); font-size: 12px; font-weight: 900; line-height: 1.55; }
+        .health-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .health-tag { border-radius: 999px; padding: 6px 9px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 11px; font-weight: 900; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .metric-card { padding: 17px; min-width: 0; }
+        .metric-card strong { display: block; font-size: 27px; font-weight: 950; color: var(--brand-primary); margin-bottom: 6px; }
+        .metric-card span { display: block; color: var(--text-muted); font-size: 12px; font-weight: 900; line-height: 1.45; }
+
+        .checks-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .check-card { padding: 16px; display: grid; gap: 10px; min-height: 170px; border-top: 4px solid #cbd5e1; }
+        .check-card.ready { border-top-color: var(--success); }
+        .check-card.review { border-top-color: var(--warning); }
+        .check-card.action { border-top-color: var(--danger); }
+        .check-card.draft { border-top-color: #94a3b8; }
+        .check-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+        .check-title { font-size: 14px; font-weight: 950; color: var(--text-main); line-height: 1.4; }
+        .check-status { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 8px; font-size: 10px; font-weight: 950; white-space: nowrap; }
+        .check-status.ready { background: #dcfce7; color: #166534; }
+        .check-status.review { background: #fef3c7; color: #92400e; }
+        .check-status.action { background: #fee2e2; color: #991b1b; }
+        .check-status.draft { background: #eef2f7; color: #475569; }
+        .check-value { font-size: 22px; color: var(--brand-primary); font-weight: 950; line-height: 1.2; overflow-wrap: anywhere; }
+        .check-detail { color: var(--text-muted); font-size: 12px; font-weight: 760; line-height: 1.62; }
+        .detail-link { width: fit-content; border-radius: 8px; padding: 7px 10px; background: #f8fafc; color: var(--brand-primary); border: 1px solid #dbe5ee; text-decoration: none; font-size: 11px; }
+        .detail-link:hover { background: #ecfdf5; border-color: #a7f3d0; }
+
+        .details-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .detail-panel { padding: 18px; min-width: 0; }
+        .detail-panel h2 { font-size: 15px; font-weight: 950; display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
+        .detail-list { display: grid; gap: 10px; }
+        .detail-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid #edf2f7; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row span { color: var(--text-muted); font-size: 12px; font-weight: 900; line-height: 1.5; }
+        .detail-row strong { color: var(--text-main); font-size: 12px; font-weight: 950; text-align: right; overflow-wrap: anywhere; min-width: 0; }
+        .empty-state { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--text-muted); font-weight: 850; text-align: center; }
+        .empty-state i { font-size: 34px; color: #cbd5e1; }
+
+        @media (max-width: 1280px) {
+            .checks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 960px) {
+            body { display: block; min-height: 100vh; overflow: auto; }
+            .sidebar { display: none; }
+            .main-wrapper { min-height: 100vh; }
+            .topbar { min-height: auto; padding: 16px; flex-direction: column; align-items: stretch; }
+            .topbar-right { justify-content: space-between; flex-wrap: wrap; }
+            .content-area { padding: 16px; }
+            .health-hero { grid-template-columns: 1fr; }
+            .hero-panel { flex-direction: column; align-items: stretch; }
+            .status-pill-lg { width: 100%; }
+            .metrics-grid, .checks-grid { grid-template-columns: 1fr; }
+            .detail-row { align-items: flex-start; flex-direction: column; gap: 4px; }
+            .detail-row strong { text-align: left; }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-admin-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="admin-system.html" class="nav-link active"><i class="fa-solid fa-shield-halved"></i> 系統健康檢查</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-line.html" class="nav-link"><i class="fa-brands fa-line"></i> LINE 整合中心</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-shield-halved" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>系統健康檢查</div>
+                <div class="topbar-subtitle" id="generatedAt">讀取系統狀態中...</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="refresh-btn" type="button" onclick="loadHealth()"><i class="fa-solid fa-rotate-right"></i> 重新檢查</button>
+        </div>
+    </header>
+
+    <div class="content-area" id="healthContent">
+        <div class="empty-state">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            正在讀取系統健康狀態...
+        </div>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    const healthContent = document.getElementById('healthContent');
+    const generatedAt = document.getElementById('generatedAt');
+
+    document.addEventListener('DOMContentLoaded', loadHealth);
+
+    async function loadHealth() {
+        healthContent.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>正在讀取系統健康狀態...</div>`;
+        try {
+            const response = await fetch('/api/admin/system-health', { credentials: 'same-origin' });
+            if (response.status === 401 || response.status === 403) {
+                healthContent.innerHTML = `<div class="empty-state"><i class="fa-solid fa-lock"></i>請使用主任帳號登入後查看系統健康檢查。</div>`;
+                return;
+            }
+            if (!response.ok) throw new Error(`HTTP_${response.status}`);
+            renderHealth(await response.json());
+        } catch (error) {
+            generatedAt.textContent = '系統狀態讀取失敗';
+            healthContent.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>無法讀取健康檢查 API。請確認 Spring Boot 後端正在執行。</div>`;
+        }
+    }
+
+    function renderHealth(data) {
+        const runtime = data.runtime || {};
+        const summary = data.summary || {};
+        const line = data.line || {};
+        const currentImport = data.currentImport || {};
+        const checks = data.checks || [];
+        generatedAt.dataset.generatedAt = runtime.generatedAt || '';
+        generatedAt.textContent = `最後檢查：${runtime.generatedAt || '--'}`;
+
+        healthContent.innerHTML = `
+            <section class="health-hero">
+                <div class="hero-panel">
+                    <div>
+                        <span class="eyebrow"><i class="fa-solid fa-signal"></i> SYSTEM READINESS</span>
+                        <h1 data-overall-status>${escapeHtml(data.overallLabel || '檢查中')}</h1>
+                        <p>目前系統狀態由資料庫、課表批次、學生分班、LINE 憑證、薪資資料與執行環境共同判斷。這裡顯示的是後台正式可用程度，不會修改任何資料。</p>
+                    </div>
+                    <div class="status-pill-lg">
+                        <span>${escapeHtml(statusText(data.overallStatus))}</span>
+                        <strong data-ready-ratio>${escapeHtml(data.readyCount ?? 0)}/${escapeHtml(checks.length || 0)}</strong>
+                    </div>
+                </div>
+                <aside class="status-panel">
+                    <h2><i class="fa-solid fa-gauge-high" style="color: var(--brand-primary);"></i> 上線摘要</h2>
+                    <div class="readiness-meter">
+                        <strong data-meter-value>${escapeHtml(data.attentionCount ?? 0)}</strong>
+                        <span>項目需要注意。` + (data.attentionCount ? `請先看下方狀態卡。` : `目前核心項目都已就緒。`) + `</span>
+                    </div>
+                    <div class="health-tags">
+                        <span class="health-tag">${escapeHtml(runtime.databaseMode || '--')}</span>
+                        <span class="health-tag">${escapeHtml(runtime.activeProfiles || 'default')}</span>
+                        <span class="health-tag">${escapeHtml(runtime.timeZone || '--')}</span>
+                    </div>
+                </aside>
+            </section>
+
+            <section class="metrics-grid">
+                <article class="metric-card"><strong data-metric="students">${summary.activeStudents || 0}</strong><span>在籍學生</span></article>
+                <article class="metric-card"><strong data-metric="classes">${summary.activeClasses || 0}</strong><span>啟用班級</span></article>
+                <article class="metric-card"><strong data-metric="line-coverage">${line.coveragePercent || 0}%</strong><span>家長 LINE 覆蓋率</span></article>
+                <article class="metric-card"><strong data-metric="payroll">${money(summary.currentMonthPayroll)}</strong><span>本月薪資估算</span></article>
+            </section>
+
+            <section class="checks-grid">
+                ${checks.map(renderCheckCard).join('')}
+            </section>
+
+            <section class="details-grid">
+                <article class="detail-panel">
+                    <h2><i class="fa-solid fa-server" style="color: var(--brand-primary);"></i> 執行環境</h2>
+                    <div class="detail-list">
+                        ${detailRow('應用程式', runtime.applicationName)}
+                        ${detailRow('Profiles', runtime.activeProfiles)}
+                        ${detailRow('資料庫', runtime.databaseProduct)}
+                        ${detailRow('模式', runtime.databaseMode)}
+                        ${detailRow('Java', runtime.javaVersion)}
+                        ${detailRow('系統', runtime.osName)}
+                        ${detailRow('資料庫 URL', runtime.databaseUrl)}
+                    </div>
+                </article>
+                <article class="detail-panel">
+                    <h2><i class="fa-solid fa-file-excel" style="color: var(--brand-primary);"></i> 現行課表批次</h2>
+                    <div class="detail-list">
+                        ${detailRow('批次', currentImport.hasImport ? `#${currentImport.batchId}` : '尚未匯入')}
+                        ${detailRow('檔案', currentImport.fileName || '-')}
+                        ${detailRow('工作表', currentImport.sheetName || '-')}
+                        ${detailRow('資料範圍', currentImport.dateRange || '-')}
+                        ${detailRow('課程筆數', currentImport.totalLessons || 0)}
+                        ${detailRow('學生同步', currentImport.rosterSyncRequested ? `${currentImport.rosterStudentCount || 0} 位 / ${currentImport.rosterClassCount || 0} 班` : '未同步')}
+                    </div>
+                </article>
+                <article class="detail-panel">
+                    <h2><i class="fa-brands fa-line" style="color: var(--brand-primary);"></i> LINE 與資料完整度</h2>
+                    <div class="detail-list">
+                        ${detailRow('推播模式', line.mode || '-')}
+                        ${detailRow('Token', line.channelAccessTokenConfigured ? '已設定' : '未設定')}
+                        ${detailRow('Secret', line.channelSecretConfigured ? '已設定' : '未設定')}
+                        ${detailRow('LIFF', line.liffConfigured ? '已設定' : '未設定')}
+                        ${detailRow('已有 LINE ID', line.linkedStudents || 0)}
+                        ${detailRow('待補 LINE ID', line.missingLineStudents || 0)}
+                    </div>
+                </article>
+            </section>
+        `;
+    }
+
+    function renderCheckCard(check) {
+        const status = String(check.status || 'DRAFT').toLowerCase();
+        return `
+            <article class="check-card ${status}">
+                <div class="check-top">
+                    <div class="check-title">${escapeHtml(check.label)}</div>
+                    <span class="check-status ${status}">${statusIcon(check.status)} ${escapeHtml(statusText(check.status))}</span>
+                </div>
+                <div class="check-value">${escapeHtml(check.value || '-')}</div>
+                <div class="check-detail">${escapeHtml(check.detail || '')}</div>
+                ${check.actionHref ? `<a class="detail-link" href="${escapeHtml(check.actionHref)}">${escapeHtml(check.actionLabel || '查看')}</a>` : ''}
+            </article>
+        `;
+    }
+
+    function detailRow(label, value) {
+        return `<div class="detail-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value || '-')}</strong></div>`;
+    }
+
+    function statusText(status) {
+        if (status === 'READY') return '正常';
+        if (status === 'REVIEW') return '待確認';
+        if (status === 'ACTION') return '需處理';
+        return '草稿';
+    }
+
+    function statusIcon(status) {
+        if (status === 'READY') return '<i class="fa-solid fa-check"></i>';
+        if (status === 'REVIEW') return '<i class="fa-solid fa-circle-exclamation"></i>';
+        if (status === 'ACTION') return '<i class="fa-solid fa-triangle-exclamation"></i>';
+        return '<i class="fa-regular fa-clock"></i>';
+    }
+
+    function money(value) {
+        return Number(value || 0).toLocaleString('zh-TW', {
+            style: 'currency',
+            currency: 'TWD',
+            maximumFractionDigits: 0
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+</body>
+</html>

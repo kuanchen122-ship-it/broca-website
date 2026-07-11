@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理系統登入 | 布魯卡美語 Broca English</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Core Variables & Design Tokens (Admin Theme) --- */
+        :root {
+            --bg-main: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --brand-primary: #064E3B;
+            --brand-primary-light: #10b981;
+            --brand-accent: #FFCE00;
+            --brand-accent-hover: #F59E0B;
+
+            --card-bg: rgba(30, 41, 59, 0.45);
+            --radius-lg: 32px;
+            --radius-md: 16px;
+            --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(6, 78, 59, 0.15);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-premium: all 0.5s var(--ease-out-expo);
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* --- Basic Reset --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', Arial, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+
+        /* --- ADVANCED AURORA KEYFRAMES --- */
+        @keyframes drift1 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(5vw, -5vh) scale(1.2); } 100% { transform: translate(0, 0) scale(1); } }
+        @keyframes drift2 { 0% { transform: translate(0, 0) scale(1.1); } 50% { transform: translate(-6vw, 4vh) scale(0.85); } 100% { transform: translate(0, 0) scale(1.1); } }
+        @keyframes cardIntro { from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(10px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+
+        /* --- Tech Aurora Background --- */
+        .aurora-1 { position: absolute; top: -20%; left: -10%; width: 55vw; height: 55vw; background: radial-gradient(circle, rgba(6, 78, 59, 0.4) 0%, rgba(15, 23, 42, 0) 70%); filter: blur(80px); animation: drift1 22s infinite ease-in-out; z-index: 1; }
+        .aurora-2 { position: absolute; bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0) 70%); filter: blur(90px); animation: drift2 26s infinite ease-in-out; z-index: 1; }
+        .aurora-3 { position: absolute; top: 30%; right: 20%; width: 40vw; height: 40vw; background: radial-gradient(circle, rgba(255, 206, 0, 0.06) 0%, rgba(15, 23, 42, 0) 70%); filter: blur(70px); animation: drift1 30s infinite alternate-reverse ease-in-out; z-index: 1; }
+
+        /* --- PREMIUM Login Container --- */
+        .login-card {
+            position: relative; z-index: 10; width: 100%; max-width: 480px; padding: 60px 45px;
+            background: var(--card-bg); backdrop-filter: blur(30px) saturate(120%); -webkit-backdrop-filter: blur(30px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-premium);
+            animation: cardIntro 1.2s var(--ease-out-expo) forwards;
+        }
+        .login-card:hover { border-color: rgba(16, 185, 129, 0.2); }
+
+        .brand-header { text-align: center; margin-bottom: 45px; }
+        .brand-header svg { filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+        .system-title { font-size: 16px; color: var(--text-muted); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin-top: 15px; margin-left: 4px; }
+
+
+        /* --- Input Form Elements --- */
+        .form-group { margin-bottom: 25px; position: relative; }
+        .form-label { display: block; font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; padding-left: 6px; letter-spacing: 0.5px; }
+
+        .input-wrapper { position: relative; width: 100%; }
+        .input-wrapper i.input-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 18px; transition: var(--transition-smooth); }
+
+        .form-control {
+            width: 100%; padding: 16px 20px 16px 54px; font-size: 16px; background: rgba(15, 23, 42, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius-md);
+            color: #fff; font-weight: 500; transition: var(--transition-premium); outline: none;
+        }
+        .form-control:focus {
+            border-color: var(--brand-primary-light); background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .form-control:focus ~ i.input-icon { color: var(--brand-primary-light); transform: translateY(-50%) scale(1.05); }
+
+        .password-toggle { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #475569; cursor: pointer; transition: color 0.3s; padding: 5px; }
+        .password-toggle:hover { color: var(--text-main); }
+
+        /* --- Utilities Layer --- */
+        .form-utils { display: flex; justify-content: space-between; align-items: center; margin-top: -5px; margin-bottom: 35px; padding: 0 4px; font-size: 14px; }
+        .remember-me { display: flex; align-items: center; gap: 8px; color: var(--text-muted); cursor: pointer; font-weight: 600; user-select: none; }
+        .remember-me input { display: none; }
+        .checkbox-box { width: 18px; height: 18px; border: 1.5px solid #475569; border-radius: 4px; display: inline-block; position: relative; transition: var(--transition-smooth); }
+        .remember-me input:checked ~ .checkbox-box { background: var(--brand-primary-light); border-color: var(--brand-primary-light); }
+        .remember-me input:checked ~ .checkbox-box::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #0f172a; font-size: 12px; font-weight: 900; }
+
+        .security-note { color: var(--text-muted); font-weight: 650; display: inline-flex; align-items: center; gap: 7px; }
+        .security-note i { color: var(--brand-accent); }
+        .forgot-password { color: var(--brand-primary-light); text-decoration: none; font-weight: 700; transition: color 0.3s; background: none; border: none; cursor: pointer; font-size: 14px; font-family: inherit; }
+        .forgot-password:hover { color: #34d399; text-decoration: underline; }
+
+        /* --- Security Submit Button --- */
+        .submit-btn {
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--brand-primary-light) 0%, var(--brand-primary) 100%);
+            border: none; border-radius: 50px; color: #ffffff; font-size: 16px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 8px 25px rgba(6, 78, 59, 0.3); transition: var(--transition-bounce); letter-spacing: 2px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(6, 78, 59, 0.45); filter: brightness(1.05); }
+
+        .login-message {
+            display: none; margin-bottom: 22px; padding: 14px 16px; border-radius: var(--radius-md);
+            font-size: 14px; font-weight: 700; line-height: 1.5;
+        }
+        .login-message.error { display: block; color: #fecaca; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(248, 113, 113, 0.22); }
+        .login-message.success { display: block; color: #bbf7d0; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.22); }
+        .login-message.info { display: block; color: #d1fae5; background: rgba(16, 185, 129, 0.10); border: 1px solid rgba(52, 211, 153, 0.18); }
+
+        .back-home { display: block; text-align: center; margin-top: 30px; font-size: 14px; color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .back-home:hover { color: var(--text-main); }
+
+        body {
+            width: 100%;
+            overflow-x: hidden;
+            padding: 24px;
+            background: #0d1b17;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(180deg, rgba(0,0,0,.76), transparent 82%);
+        }
+
+        .aurora-1, .aurora-2, .aurora-3 { display: none; }
+
+        .login-card {
+            max-width: 440px;
+            padding: 46px 40px 38px;
+            border-radius: 20px;
+            background: rgba(255,255,255,.055);
+            border-color: rgba(255,255,255,.1);
+            box-shadow: 0 28px 72px -34px rgba(0,0,0,.78);
+            animation-duration: .58s;
+        }
+
+        .brand-header { margin-bottom: 34px; }
+        .system-title { margin-left: 0; letter-spacing: 0; font-size: 15px; }
+        .form-control { border-radius: 12px; transition: border-color .22s ease, background .22s ease, box-shadow .22s ease; }
+        .password-toggle { border: 0; background: transparent; font-size: 16px; }
+        .submit-btn {
+            min-height: 52px;
+            border-radius: 12px;
+            background: #0b7354;
+            letter-spacing: 0;
+            transition: transform .24s var(--ease-out-expo), background .24s ease, box-shadow .24s ease;
+        }
+        .submit-btn:hover { background: #0a6349; transform: translateY(-2px); }
+
+        :focus-visible { outline: 3px solid rgba(255,206,0,.78); outline-offset: 3px; }
+
+        @media (max-width: 560px) {
+            body { overflow-y: auto; padding: 16px; align-items: flex-start; }
+            .login-card { width: 100%; padding: 34px 22px 28px; border-radius: 16px; margin: 18px auto; }
+            .brand-header svg { width: min(220px, 100%); }
+            .form-utils { align-items: flex-start; flex-direction: column; gap: 12px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="aurora-1"></div>
+<div class="aurora-2"></div>
+<div class="aurora-3"></div>
+
+<main class="login-card">
+    <div class="brand-header">
+        <svg width="220" height="75" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+            <defs>
+                <g id="broca-star">
+                    <path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/>
+                </g>
+            </defs>
+            <use href="#broca-star" transform="translate(124, 12) scale(0.9) rotate(-15)"/>
+            <use href="#broca-star" transform="translate(121, 23) scale(0.8) rotate(15)"/>
+            <use href="#broca-star" transform="translate(133, 16) scale(0.4) rotate(-5)"/>
+            <use href="#broca-star" transform="translate(141, 11) scale(0.7) rotate(-15)"/>
+            <use href="#broca-star" transform="translate(144, 20) scale(0.6) rotate(15)"/>
+
+            <text x="130" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+            <text x="130" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+            <text x="130" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#f8fafc" letter-spacing="1">BROCA ENGLISH</text>
+        </svg>
+        <h1 class="system-title">後台管理系統</h1>
+    </div>
+
+    <div class="login-message" id="loginMessage"></div>
+
+    <form action="/login" method="post">
+        <div class="form-group">
+            <label class="form-label" for="username">帳號</label>
+            <div class="input-wrapper">
+                <input type="text" id="username" name="username" class="form-control" placeholder="請輸入帳號" required autocomplete="username">
+                <i class="fa-solid fa-user-shield input-icon"></i>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">密碼</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" name="password" class="form-control" placeholder="請輸入密碼" required autocomplete="current-password">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="顯示密碼"><i class="fa-regular fa-eye-slash"></i></button>
+            </div>
+        </div>
+
+        <div class="form-utils">
+            <span class="security-note"><i class="fa-solid fa-lock"></i> 教職員專用</span>
+            <button type="button" class="forgot-password" onclick="showLoginHint()">忘記密碼？</button>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> 登入系統
+        </button>
+    </form>
+
+    <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left-long" style="margin-right: 6px;"></i> 返回首頁</a>
+</main>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.querySelector('.password-toggle');
+        const toggleIcon = toggleButton.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+            toggleButton.setAttribute('aria-label', '隱藏密碼');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+            toggleButton.setAttribute('aria-label', '顯示密碼');
+        }
+    }
+
+    function showLoginHint() {
+        message.className = 'login-message info';
+        message.textContent = '請洽主任或系統管理員協助重設密碼。';
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const message = document.getElementById('loginMessage');
+    if (params.has('error')) {
+        message.className = 'login-message error';
+        message.textContent = '帳號或密碼不正確，請重新確認後再試一次。';
+    } else if (params.has('logout')) {
+        message.className = 'login-message success';
+        message.textContent = '您已安全登出後台系統。';
+    }
+</script>
+</body>
+</html>

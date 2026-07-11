@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>學習中心 | 布魯卡美語 Broca English</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="public-polish.css">
+  <script src="public-config.js" defer></script>
+  <script src="public-polish.js" defer></script>
+  <style>
+    .learning-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 72px 24px 46px;
+      background:
+        linear-gradient(120deg, rgba(247,249,248,.96) 0%, rgba(247,249,248,.88) 42%, rgba(247,249,248,.72) 100%),
+        radial-gradient(circle at 82% 28%, rgba(255,206,0,.12), transparent 28%),
+        var(--bg-main);
+    }
+
+    .learning-hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+      gap: 34px;
+      align-items: stretch;
+    }
+
+    .learning-copy {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px;
+      border-radius: 30px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(227,236,232,.92);
+      box-shadow: var(--shadow-md);
+    }
+
+    .learning-copy h1 {
+      max-width: 720px;
+      margin: 12px 0 18px;
+      color: var(--ink);
+      font-size: 3.9rem;
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .learning-copy p {
+      max-width: 620px;
+      color: var(--body);
+      font-size: 1.05rem;
+      line-height: 1.9;
+      font-weight: 650;
+    }
+
+    .learning-panel {
+      min-height: 430px;
+      padding: 26px;
+      border-radius: 30px;
+      background: #0f2f26;
+      color: #fff;
+      box-shadow: 0 28px 70px rgba(6,78,59,.22);
+      display: grid;
+      align-content: stretch;
+    }
+
+    .learning-device {
+      height: 100%;
+      min-height: 350px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 24px;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04)),
+        linear-gradient(135deg, rgba(255,206,0,.12), transparent 42%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .device-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .device-top span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .device-word {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.12);
+      margin-bottom: 12px;
+    }
+
+    .device-word strong {
+      display: block;
+      color: var(--brand-accent);
+      font-size: 2rem;
+      margin-bottom: 7px;
+    }
+
+    .device-word small {
+      color: rgba(255,255,255,.72);
+      line-height: 1.65;
+      font-weight: 700;
+    }
+
+    .device-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .device-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .device-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      border-radius: 999px;
+      background: rgba(255,206,0,.16);
+      color: var(--brand-accent);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .device-row strong {
+      display: block;
+      color: #fff;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .device-row small {
+      display: block;
+      color: rgba(255,255,255,.68);
+      line-height: 1.55;
+      font-weight: 720;
+    }
+
+    .learning-live {
+      padding: 22px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+    }
+
+    .learning-live-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .learning-live-count {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .learning-live-count strong {
+      color: var(--brand-accent);
+      font-size: clamp(3.4rem, 6vw, 5.4rem);
+      line-height: .92;
+      font-weight: 900;
+    }
+
+    .learning-live-count span {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    .learning-live p {
+      margin-top: 14px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      font-weight: 720;
+      line-height: 1.65;
+    }
+
+    .device-class-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .device-class-chip {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .learning-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 34px 24px 110px;
+    }
+
+    .learning-toolbar {
+      position: sticky;
+      top: 92px;
+      z-index: 12;
+      display: grid;
+      grid-template-columns: minmax(170px, 220px) minmax(160px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      margin-bottom: 22px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(18px);
+    }
+
+    .learning-input,
+    .learning-select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+      color: var(--ink);
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 800;
+      outline: none;
+    }
+
+    .learning-input:focus,
+    .learning-select:focus {
+      border-color: var(--brand-primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(6,78,59,.08);
+    }
+
+    .learning-button {
+      min-height: 46px;
+      border: 0;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      background: var(--brand-primary);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .22s var(--ease-out), background .22s;
+    }
+
+    .learning-button:hover {
+      background: var(--brand-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .learning-button.secondary {
+      background: #fff;
+      color: var(--brand-primary);
+      border: 1px solid var(--line);
+    }
+
+    .learning-status {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-size: 13px;
+      font-weight: 820;
+      line-height: 1.65;
+      display: none;
+    }
+
+    .learning-status.schedule {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .learning-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .learning-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .learning-card-head {
+      padding: 22px 24px;
+      background:
+        linear-gradient(135deg, rgba(6,78,59,.96), rgba(15,118,110,.94)),
+        var(--brand-primary);
+      color: #fff;
+    }
+
+    .learning-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .learning-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.9);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .learning-card h2 {
+      font-size: 2rem;
+      line-height: 1.25;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .learning-card-head p {
+      color: rgba(255,255,255,.76);
+      font-size: 13px;
+      font-weight: 760;
+      line-height: 1.7;
+    }
+
+    .learning-card-body {
+      padding: 22px 24px 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .vocab-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .vocab-card {
+      min-height: 112px;
+      padding: 15px;
+      border: 1px solid #e4ede9;
+      border-radius: 17px;
+      background: #fff;
+    }
+
+    .vocab-card strong {
+      display: block;
+      color: var(--brand-primary);
+      font-size: 1.15rem;
+      margin-bottom: 7px;
+      word-break: break-word;
+    }
+
+    .vocab-card span {
+      display: block;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 850;
+    }
+
+    .vocab-card small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 7px;
+    }
+
+    .learning-note-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .learning-note {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid #e8edf2;
+      background: #f8fafc;
+    }
+
+    .learning-note h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .learning-note h3 i {
+      color: var(--brand-primary);
+    }
+
+    .learning-note p {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.75;
+      font-weight: 720;
+      white-space: pre-wrap;
+    }
+
+    .learning-empty {
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px dashed var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,.72);
+      color: var(--muted);
+    }
+
+    .learning-empty i {
+      color: #cbd5e1;
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
+
+    .learning-empty h2 {
+      color: var(--ink);
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .learning-empty p {
+      max-width: 520px;
+      line-height: 1.75;
+      font-weight: 720;
+    }
+
+    @media (max-width: 980px) {
+      .learning-hero-inner,
+      .learning-note-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .learning-copy {
+        min-height: auto;
+        padding: 34px 28px;
+      }
+
+      .learning-copy h1 {
+        font-size: 2.55rem;
+      }
+
+      .learning-toolbar {
+        position: static;
+        grid-template-columns: 1fr;
+      }
+
+      .vocab-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .learning-hero {
+        padding: 42px 18px 30px;
+      }
+
+      .learning-shell {
+        padding: 22px 18px 80px;
+      }
+
+      .vocab-list {
+        grid-template-columns: 1fr;
+      }
+
+      .learning-card h2 {
+        font-size: 1.45rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">
+    <a href="index.html" aria-label="布魯卡美語首頁">
+      <svg width="234" height="68" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <g id="broca-star"><path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/></g>
+        </defs>
+        <use href="#broca-star" transform="translate(88, 12) scale(0.9) rotate(-15)"/>
+        <use href="#broca-star" transform="translate(85, 23) scale(0.8) rotate(15)"/>
+        <use href="#broca-star" transform="translate(105, 11) scale(0.7) rotate(-15)"/>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', 'Microsoft JhengHei', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', 'Microsoft JhengHei', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B" letter-spacing="1">BROCA ENGLISH</text>
+      </svg>
+    </a>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <nav class="site-nav" id="primaryNav">
+    <ul>
+      <li><a href="index.html">首頁</a></li>
+      <li><a href="about.html">關於我們</a></li>
+      <li class="dropdown">
+        <a href="courses.html">課程總覽 <i class="fa-solid fa-angle-down" style="font-size:12px;"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="course-details.html?id=halfday">幼兒小一銜接</a></li>
+          <li><a href="course-details.html?id=kids">兒童美語</a></li>
+          <li><a href="course-details.html?id=junior">國中先修</a></li>
+          <li><a href="course-details.html?id=gept">GEPT 檢定</a></li>
+          <li><a href="course-details.html?id=conversation">口說會話</a></li>
+          <li><a href="course-details.html?id=tutor">安親課輔</a></li>
+        </ul>
+      </li>
+      <li><a href="learning.html" class="active">學習中心</a></li>
+      <li><a href="info.html#calendar">家長行事曆</a></li>
+      <li><a href="info.html#honor">榮譽榜</a></li>
+      <li><a href="info.html#contact">聯絡我們</a></li>
+      <li><a href="info.html#registration" class="nav-cta" data-enrollment-link>線上報名</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="learning-hero">
+    <div class="learning-hero-inner">
+      <div class="learning-copy reveal">
+        <span class="eyebrow">Learning Center</span>
+        <h1>每天看得見的英文累積</h1>
+        <p>今日單字、句型與作業提醒會整理在這裡。學生可以快速複習，家長也能清楚知道孩子今天正在練習什麼。</p>
+      </div>
+      <div class="learning-panel reveal" aria-hidden="true">
+        <div class="learning-device">
+          <div>
+            <div class="device-top">
+              <span><i class="fa-solid fa-calendar-day"></i> 今日學習</span>
+              <span><i class="fa-solid fa-layer-group"></i> 依班級整理</span>
+            </div>
+            <div class="learning-live">
+              <div class="learning-live-kicker">
+                <span id="heroDateLabel">今日學習</span>
+                <span id="heroSourceLabel">讀取中</span>
+              </div>
+              <div class="learning-live-count">
+                <strong id="heroWordCount">0</strong>
+                <span>個單字</span>
+              </div>
+              <p id="heroSummaryText">正在整理今日已核准的學習內容。</p>
+            </div>
+            <div class="device-class-list" id="heroClassList">
+              <span class="device-class-chip">讀取中</span>
+            </div>
+          </div>
+          <div class="device-top" style="margin:0;">
+            <span><i class="fa-solid fa-check"></i> 課表核准後同步</span>
+            <span id="heroClassCount"><i class="fa-solid fa-layer-group"></i> 0 個班級</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="learning-shell">
+    <div class="learning-toolbar reveal">
+      <input class="learning-input" type="date" id="learningDate">
+      <select class="learning-select" id="classFilter">
+        <option value="">全部班級</option>
+      </select>
+      <button class="learning-button" type="button" id="loadLearningBtn"><i class="fa-solid fa-magnifying-glass"></i> 查看</button>
+      <button class="learning-button secondary" type="button" id="todayBtn"><i class="fa-regular fa-calendar-check"></i> 今天</button>
+    </div>
+
+    <div class="learning-status" id="learningStatus"></div>
+    <div class="learning-grid" id="learningGrid"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-logo">Broca English</div>
+    <div class="footer-info">
+      <p><i class="fa-solid fa-location-dot"></i> 高雄市路竹區國昌路309號</p>
+      <p><i class="fa-solid fa-phone"></i> 07-697-8690</p>
+      <p><i class="fa-solid fa-user-lock"></i> <a href="login.html">管理端登入</a></p>
+    </div>
+  </div>
+  <p class="copyright">&copy; 2026 Broca English. All Rights Reserved.</p>
+</footer>
+
+<script>
+  const state = {
+    classLabels: [],
+    posts: []
+  };
+
+  const els = {
+    date: document.getElementById('learningDate'),
+    classFilter: document.getElementById('classFilter'),
+    loadBtn: document.getElementById('loadLearningBtn'),
+    todayBtn: document.getElementById('todayBtn'),
+    status: document.getElementById('learningStatus'),
+    grid: document.getElementById('learningGrid'),
+    heroDateLabel: document.getElementById('heroDateLabel'),
+    heroSourceLabel: document.getElementById('heroSourceLabel'),
+    heroWordCount: document.getElementById('heroWordCount'),
+    heroSummaryText: document.getElementById('heroSummaryText'),
+    heroClassList: document.getElementById('heroClassList'),
+    heroClassCount: document.getElementById('heroClassCount')
+  };
+
+  function today() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
+  }
+
+  function formatDate(value) {
+    if (!value) return '';
+    const date = new Date(`${value}T00:00:00`);
+    return new Intl.DateTimeFormat('zh-TW', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    }).format(date);
+  }
+
+  async function fetchLearning() {
+    const params = new URLSearchParams();
+    if (els.date.value) params.set('date', els.date.value);
+    if (els.classFilter.value) params.set('classLabel', els.classFilter.value);
+    els.loadBtn.disabled = true;
+    try {
+      const response = await fetch(`/api/public/learning-posts?${params.toString()}`, { credentials: 'same-origin' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      state.posts = data.posts || [];
+      state.classLabels = data.classLabels || [];
+      renderClassFilter();
+      renderStatus(data);
+      renderHeroSummary(data);
+      renderPosts(data);
+    } catch (error) {
+      els.status.style.display = 'block';
+      els.status.textContent = '目前無法讀取學習內容，請稍後再試。';
+      els.grid.innerHTML = '';
+    } finally {
+      els.loadBtn.disabled = false;
+    }
+  }
+
+  function renderClassFilter() {
+    const current = els.classFilter.value;
+    els.classFilter.innerHTML = '<option value="">全部班級</option>' + state.classLabels.map(label =>
+      `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`
+    ).join('');
+    if (state.classLabels.includes(current)) els.classFilter.value = current;
+  }
+
+  function renderStatus(data) {
+    els.status.classList.remove('schedule');
+    if (data.usingLatestFallback) {
+      els.status.style.display = 'block';
+      els.status.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${formatDate(data.requestedDate)} 尚未發布內容，已先顯示 ${formatDate(data.displayDate)} 的最新學習內容。`;
+      return;
+    }
+    if (data.includesApprovedSchedule && state.posts.length) {
+      els.status.classList.add('schedule');
+      els.status.style.display = 'block';
+      els.status.innerHTML = '<i class="fa-solid fa-circle-check"></i> 本日內容已由主任核准課表同步整理。';
+      return;
+    }
+    els.status.style.display = 'none';
+    els.status.textContent = '';
+  }
+
+  function renderHeroSummary(data) {
+    const classes = [...new Set(state.posts.map(post => post.classLabel).filter(Boolean))];
+    const wordCount = state.posts.reduce((total, post) => total + (post.vocabulary?.length || 0), 0);
+    els.heroDateLabel.textContent = formatDate(data.displayDate || data.requestedDate || els.date.value);
+    els.heroSourceLabel.textContent = data.includesApprovedSchedule
+      ? '主任核准課表'
+      : state.posts.length ? '老師發布內容' : '尚無更新';
+    els.heroWordCount.textContent = String(wordCount);
+    els.heroSummaryText.textContent = state.posts.length
+      ? `已整理 ${classes.length} 個班級的單字、句型與作業提醒。`
+      : '本日目前沒有可公開的學習內容。';
+    els.heroClassCount.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${classes.length} 個班級`;
+    els.heroClassList.innerHTML = classes.length
+      ? classes.slice(0, 10).map(label => `<span class="device-class-chip">${escapeHtml(label)}</span>`).join('')
+      : '<span class="device-class-chip">尚無班級更新</span>';
+  }
+
+  function renderPosts(data) {
+    if (!state.posts.length) {
+      els.grid.innerHTML = `
+        <div class="learning-empty">
+          <i class="fa-regular fa-calendar"></i>
+          <h2>本日尚無學習內容</h2>
+          <p>目前沒有已發布或主任核准的單字、句型與作業提醒。可以切換日期或班級查看其他內容。</p>
+        </div>
+      `;
+      return;
+    }
+
+    els.grid.innerHTML = state.posts.map(post => `
+      <article class="learning-card reveal is-visible">
+        <div class="learning-card-head">
+          <div class="learning-meta">
+            <span class="learning-pill"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(post.lessonDate))}</span>
+            <span class="learning-pill"><i class="fa-solid fa-users"></i> ${escapeHtml(post.classLabel)}</span>
+            <span class="learning-pill"><i class="fa-solid fa-book"></i> ${escapeHtml(post.categoryLabel)}</span>
+            ${post.scheduleDerived ? '<span class="learning-pill"><i class="fa-solid fa-circle-check"></i> 主任核准課表</span>' : ''}
+          </div>
+          <h2>${escapeHtml(post.title)}</h2>
+          <p>${post.scheduleDerived ? '內容已從核准課表整理，可依照老師安排複習。' : post.pinned ? '本內容已置頂，建議優先複習。' : '請依照老師課堂安排完成複習。'}</p>
+        </div>
+        <div class="learning-card-body">
+          ${post.vocabulary?.length ? `
+            <div class="vocab-list">
+              ${post.vocabulary.map(item => `
+                <div class="vocab-card">
+                  <strong>${escapeHtml(item.word)}</strong>
+                  <span>${escapeHtml(item.meaning || ' ')}</span>
+                  ${item.example ? `<small>${escapeHtml(item.example)}</small>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${(post.sentencePattern || post.homeworkNote) ? `
+            <div class="learning-note-grid">
+              ${post.sentencePattern ? `
+                <div class="learning-note">
+                  <h3><i class="fa-solid fa-language"></i> 今日句型</h3>
+                  <p>${escapeHtml(post.sentencePattern)}</p>
+                </div>
+              ` : ''}
+              ${post.homeworkNote ? `
+                <div class="learning-note">
+                  <h3><i class="fa-solid fa-list-check"></i> 作業提醒</h3>
+                  <p>${escapeHtml(post.homeworkNote)}</p>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      </article>
+    `).join('');
+  }
+
+  els.date.value = today();
+  els.loadBtn.addEventListener('click', fetchLearning);
+  els.classFilter.addEventListener('change', fetchLearning);
+  els.todayBtn.addEventListener('click', () => {
+    els.date.value = today();
+    fetchLearning();
+  });
+
+  fetchLearning();
+</script>
+</body>
+</html>

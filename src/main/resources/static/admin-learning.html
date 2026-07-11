@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學習內容 | Broca English</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --brand-primary: #064E3B;
+            --brand-hover: #047857;
+            --brand-accent: #FFCE00;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --soft: #f8fafc;
+            --paper: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow: 0 18px 48px rgba(15, 23, 42, .08);
+            --smooth: all .22s ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Helvetica Neue", "Microsoft JhengHei", sans-serif; letter-spacing: 0; }
+        body { min-height: 100vh; display: flex; background: var(--bg-admin); color: var(--ink); overflow: auto; }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        button:disabled { opacity: .55; cursor: not-allowed; }
+
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background: var(--sidebar-bg); color: #fff; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,.1); text-align: center; }
+        .sidebar-header h2 { color: var(--brand-accent); font-size: 22px; font-weight: 900; margin-bottom: 5px; }
+        .sidebar-header p { color: #a7f3d0; font-size: 12px; letter-spacing: 2px; }
+        .nav-menu { flex: 1; overflow-y: auto; padding: 20px 0; list-style: none; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: 10px; font-weight: 700; transition: var(--smooth); white-space: nowrap; }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,.1); }
+        .logout-btn { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 12px; border-radius: 10px; background: rgba(239,68,68,.12); color: #fca5a5; text-decoration: none; font-weight: 850; }
+
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { min-height: 72px; position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 0 30px; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-weight: 950; font-size: 18px; }
+        .topbar-left i { color: var(--brand-primary); }
+        .topbar-subtitle { color: var(--muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+        .content-area { width: 100%; max-width: 1720px; margin: 0 auto; padding: 24px 28px 36px; }
+
+        .intro-grid { display: grid; grid-template-columns: minmax(420px, 1.2fr) repeat(4, minmax(130px, .45fr)); gap: 14px; margin-bottom: 16px; }
+        .panel, .stat-card, .editor-panel, .preview-panel, .list-panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+        .panel { padding: 24px; }
+        .panel h1 { font-size: 28px; font-weight: 950; margin-bottom: 9px; }
+        .panel p { max-width: 760px; color: var(--muted); line-height: 1.75; font-weight: 760; font-size: 14px; }
+        .route-chip { display: inline-flex; align-items: center; gap: 7px; margin-top: 15px; padding: 7px 11px; border-radius: 999px; background: #ecfdf5; color: #047857; font-size: 12px; font-weight: 950; }
+        .stat-card { min-height: 130px; padding: 18px; display: flex; flex-direction: column; justify-content: center; }
+        .stat-card strong { display: block; color: var(--brand-primary); font-size: 30px; margin-bottom: 8px; }
+        .stat-card span { color: var(--muted); font-size: 12px; line-height: 1.45; font-weight: 900; }
+        .stat-card.warning strong { color: var(--warning); }
+        .stat-card.success strong { color: var(--success); }
+
+        .workspace-grid { display: grid; grid-template-columns: minmax(440px, .85fr) minmax(520px, 1.15fr); gap: 16px; align-items: start; }
+        .editor-panel, .preview-panel, .list-panel { overflow: hidden; }
+        .panel-head { min-height: 70px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff, #fbfdff); }
+        .panel-head h2 { font-size: 18px; font-weight: 950; }
+        .panel-head p { color: var(--muted); font-size: 12px; font-weight: 820; line-height: 1.55; margin-top: 3px; }
+        .editor-body, .preview-body, .list-body { padding: 18px 20px 20px; }
+
+        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .field { display: grid; gap: 7px; margin-bottom: 12px; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { color: #334155; font-size: 12px; font-weight: 950; }
+        .input, .select, .textarea { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: #f8fafc; color: var(--ink); outline: none; transition: var(--smooth); font-weight: 760; }
+        .input, .select { min-height: 44px; padding: 10px 12px; }
+        .textarea { min-height: 108px; padding: 12px; resize: vertical; line-height: 1.65; }
+        .textarea.vocab { min-height: 190px; font-family: "Consolas", "Microsoft JhengHei", monospace; font-size: 13px; }
+        .input:focus, .select:focus, .textarea:focus { background: #fff; border-color: rgba(6,78,59,.58); box-shadow: 0 0 0 4px rgba(6,78,59,.08); }
+        .hint { color: var(--muted); font-size: 11px; font-weight: 760; line-height: 1.55; }
+        .schedule-helper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 9px; align-items: center; }
+        .schedule-helper .select { background: #fff; }
+        .schedule-note { margin-top: 7px; color: var(--muted); font-size: 11px; font-weight: 760; line-height: 1.55; }
+        .toggle-line { display: flex; align-items: center; gap: 8px; padding: 10px 0 4px; color: #334155; font-size: 13px; font-weight: 900; }
+        .toggle-line input { width: 18px; height: 18px; accent-color: var(--brand-primary); }
+
+        .button-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+        .btn { min-height: 42px; border: 0; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; font-size: 13px; font-weight: 950; text-decoration: none; transition: var(--smooth); white-space: nowrap; }
+        .btn.primary { background: var(--brand-primary); color: #fff; }
+        .btn.primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+        .btn.gold { background: var(--brand-accent); color: #1a1a1a; }
+        .btn.soft { background: #fff; color: #475569; border: 1px solid var(--line); }
+        .btn.soft:hover { color: var(--brand-primary); border-color: rgba(6,78,59,.28); background: #ecfdf5; }
+        .btn.danger { background: #fff7f7; color: #b91c1c; border: 1px solid #fecaca; }
+
+        .preview-card { border-radius: 22px; border: 1px solid #dfe9e5; background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%); box-shadow: var(--shadow); overflow: hidden; }
+        .preview-cover { padding: 22px; color: #fff; background: linear-gradient(135deg, #064E3B 0%, #0f766e 100%); }
+        .preview-cover .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 13px; }
+        .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 950; }
+        .pill.light { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.22); color: #fff; }
+        .pill.status { background: #fef3c7; color: #92400e; }
+        .pill.published { background: #dcfce7; color: #166534; }
+        .preview-cover h3 { font-size: 26px; line-height: 1.25; margin-bottom: 8px; }
+        .preview-cover p { color: rgba(255,255,255,.82); font-weight: 760; line-height: 1.65; font-size: 13px; }
+        .preview-content { padding: 20px 22px 22px; display: grid; gap: 16px; }
+        .vocab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .word-card { min-height: 92px; border: 1px solid #e5eee9; border-radius: 15px; padding: 13px; background: #fff; }
+        .word-card strong { display: block; color: var(--brand-primary); font-size: 17px; margin-bottom: 6px; word-break: break-word; }
+        .word-card span { color: #475569; font-size: 13px; font-weight: 850; line-height: 1.45; }
+        .word-card small { display: block; color: var(--muted); font-size: 12px; line-height: 1.55; margin-top: 6px; }
+        .note-block { border-radius: 15px; background: #f8fafc; border: 1px solid #e8edf2; padding: 14px; }
+        .note-block h4 { display: flex; align-items: center; gap: 8px; color: #1f2937; font-size: 13px; font-weight: 950; margin-bottom: 8px; }
+        .note-block p { color: #475569; line-height: 1.72; font-size: 13px; font-weight: 760; white-space: pre-wrap; }
+
+        .filters { display: grid; grid-template-columns: minmax(140px, 190px) minmax(150px, 1fr) minmax(130px, 170px) auto; gap: 10px; margin-bottom: 14px; }
+        .post-list { display: grid; gap: 10px; }
+        .post-row { border: 1px solid var(--line); border-radius: 15px; background: #fff; padding: 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+        .post-row:hover { border-color: rgba(6,78,59,.25); box-shadow: 0 10px 24px rgba(15,23,42,.05); }
+        .post-row h3 { font-size: 15px; line-height: 1.45; margin-bottom: 5px; }
+        .post-row p { color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.55; }
+        .row-actions { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+        .empty { min-height: 260px; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; font-weight: 850; line-height: 1.7; padding: 28px; }
+
+        @media (max-width: 1360px) {
+            .intro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .intro-grid .panel { grid-column: 1 / -1; }
+            .workspace-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            body { display: block; }
+            .sidebar { display: none; }
+            .topbar { position: static; min-height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+            .topbar-right, .btn { width: 100%; }
+            .content-area { padding: 16px; }
+            .intro-grid, .field-grid, .filters, .vocab-grid, .post-row, .schedule-helper { grid-template-columns: 1fr; }
+            .row-actions { justify-content: stretch; }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-teacher-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-learning.html" class="nav-link active"><i class="fa-solid fa-book-open-reader"></i> 學習內容</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <div>
+                <div>學習內容管理</div>
+                <div class="topbar-subtitle">發布今日單字、句型與作業提醒到前台學習中心</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a class="btn soft" href="learning.html" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> 查看前台</a>
+            <button class="btn primary" type="button" id="refreshBtn"><i class="fa-solid fa-rotate-right"></i> 重新整理</button>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="intro-grid">
+            <div class="panel">
+                <h1>每日學習發布台</h1>
+                <p>主任核准的課表會自動整理可公開的單字、句型與作業；老師也能在這裡補充、修改或另外發布內容。</p>
+                <span class="route-chip"><i class="fa-solid fa-link"></i> 核准課表自動連動</span>
+            </div>
+            <div class="stat-card">
+                <strong id="todayCount">0</strong>
+                <span>今日手動發布</span>
+            </div>
+            <div class="stat-card success">
+                <strong id="publishedCount">0</strong>
+                <span>手動發布總數</span>
+            </div>
+            <div class="stat-card warning">
+                <strong id="draftCount">0</strong>
+                <span>草稿待確認</span>
+            </div>
+            <div class="stat-card">
+                <strong id="latestDate">-</strong>
+                <span>最近發布日期</span>
+            </div>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="editor-panel">
+                <div class="panel-head">
+                    <div>
+                        <h2 id="editorTitle">新增學習內容</h2>
+                        <p>建議單字格式：英文、中文、例句三欄，可直接從 Excel 複製貼上。</p>
+                    </div>
+                    <button class="btn soft" type="button" id="newBtn"><i class="fa-solid fa-plus"></i> 新增</button>
+                </div>
+                <div class="editor-body">
+                    <form id="learningForm">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="lessonDate">日期</label>
+                                <input class="input" type="date" id="lessonDate" required>
+                            </div>
+                            <div class="field">
+                                <label for="classLabel">班級</label>
+                                <input class="input" id="classLabel" list="classOptions" placeholder="例如 C2A / K3A" required>
+                                <datalist id="classOptions"></datalist>
+                            </div>
+                            <div class="field">
+                                <label for="category">分類</label>
+                                <select class="select" id="category">
+                                    <option value="VOCABULARY">今日單字</option>
+                                    <option value="GRAMMAR">句型文法</option>
+                                    <option value="PHONICS">發音練習</option>
+                                    <option value="READING">閱讀進度</option>
+                                    <option value="EXAM">測驗準備</option>
+                                    <option value="GENERAL">一般學習</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="status">狀態</label>
+                                <select class="select" id="status">
+                                    <option value="DRAFT">草稿</option>
+                                    <option value="PUBLISHED">已發布</option>
+                                    <option value="ARCHIVED">封存</option>
+                                </select>
+                            </div>
+                            <div class="field full">
+                                <label for="title">標題</label>
+                                <input class="input" id="title" placeholder="例如 C2A 今日單字與句型" required>
+                            </div>
+                            <div class="field full">
+                                <label for="scheduleLessonSelect">從課表帶入</label>
+                                <div class="schedule-helper">
+                                    <select class="select" id="scheduleLessonSelect">
+                                        <option value="">先選日期後讀取課表</option>
+                                    </select>
+                                    <button class="btn soft" type="button" id="loadScheduleBtn"><i class="fa-solid fa-calendar-day"></i> 讀取課表</button>
+                                    <button class="btn primary" type="button" id="applyScheduleBtn"><i class="fa-solid fa-file-import"></i> 帶入</button>
+                                </div>
+                                <div class="schedule-note" id="scheduleHint">正在讀取目前日期的數位課表。</div>
+                            </div>
+                            <div class="field full">
+                                <label for="vocabularyText">今日單字</label>
+                                <textarea class="textarea vocab" id="vocabularyText" placeholder="black	黑色的&#10;blue	藍色的&#10;green	綠色的"></textarea>
+                                <div class="hint">可從 Excel 直接貼上；支援 tab、兩個空白，或 word - 中文意思。</div>
+                            </div>
+                            <div class="field full">
+                                <label for="sentencePattern">今日句型</label>
+                                <textarea class="textarea" id="sentencePattern" placeholder="Today we practiced: I am going to... / I have to..."></textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="homeworkNote">作業 / 背誦提醒</label>
+                                <textarea class="textarea" id="homeworkNote" placeholder="請完成 workbook p.18-19，並複習今日 8 個單字。"></textarea>
+                            </div>
+                            <div class="field full">
+                                <label for="teacherNote">內部備註</label>
+                                <textarea class="textarea" id="teacherNote" placeholder="此欄只在後台顯示，不會出現在前台。"></textarea>
+                            </div>
+                        </div>
+                        <label class="toggle-line">
+                            <input type="checkbox" id="pinned">
+                            置頂顯示
+                        </label>
+                        <div class="button-row">
+                            <button class="btn primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                            <button class="btn gold" type="button" id="publishBtn"><i class="fa-solid fa-paper-plane"></i> 儲存並發布</button>
+                            <button class="btn danger" type="button" id="deleteBtn" hidden><i class="fa-solid fa-trash"></i> 刪除</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="panel-head">
+                    <div>
+                        <h2>前台預覽</h2>
+                        <p>學生與家長看到的主要內容會接近這張卡片。</p>
+                    </div>
+                </div>
+                <div class="preview-body">
+                    <div class="preview-card" id="previewCard"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="list-panel" style="margin-top:16px;">
+            <div class="panel-head">
+                <div>
+                    <h2>內容列表</h2>
+                    <p>可快速編輯、發布、封存或刪除既有內容。</p>
+                </div>
+            </div>
+            <div class="list-body">
+                <div class="filters">
+                    <input class="input" type="date" id="filterDate">
+                    <input class="input" id="filterClass" placeholder="搜尋班級">
+                    <select class="select" id="filterStatus">
+                        <option value="ALL">所有狀態</option>
+                        <option value="PUBLISHED">已發布</option>
+                        <option value="DRAFT">草稿</option>
+                        <option value="ARCHIVED">封存</option>
+                    </select>
+                    <button class="btn soft" type="button" id="clearFilterBtn"><i class="fa-solid fa-xmark"></i> 清除</button>
+                </div>
+                <div class="post-list" id="postList"></div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    const state = {
+        posts: [],
+        classLabels: [],
+        scheduleLessons: [],
+        editingId: null
+    };
+
+    const els = {
+        form: document.getElementById('learningForm'),
+        editorTitle: document.getElementById('editorTitle'),
+        lessonDate: document.getElementById('lessonDate'),
+        classLabel: document.getElementById('classLabel'),
+        category: document.getElementById('category'),
+        status: document.getElementById('status'),
+        title: document.getElementById('title'),
+        vocabularyText: document.getElementById('vocabularyText'),
+        sentencePattern: document.getElementById('sentencePattern'),
+        homeworkNote: document.getElementById('homeworkNote'),
+        teacherNote: document.getElementById('teacherNote'),
+        pinned: document.getElementById('pinned'),
+        previewCard: document.getElementById('previewCard'),
+        postList: document.getElementById('postList'),
+        classOptions: document.getElementById('classOptions'),
+        filterDate: document.getElementById('filterDate'),
+        filterClass: document.getElementById('filterClass'),
+        filterStatus: document.getElementById('filterStatus'),
+        deleteBtn: document.getElementById('deleteBtn'),
+        todayCount: document.getElementById('todayCount'),
+        publishedCount: document.getElementById('publishedCount'),
+        draftCount: document.getElementById('draftCount'),
+        latestDate: document.getElementById('latestDate'),
+        scheduleLessonSelect: document.getElementById('scheduleLessonSelect'),
+        scheduleHint: document.getElementById('scheduleHint')
+    };
+
+    function today() {
+        return window.BrocaAdmin.localDateValue();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[char]));
+    }
+
+    function notify(message, type = 'info') {
+        if (window.BrocaAdmin?.notify) {
+            window.BrocaAdmin.notify(message, type);
+            return;
+        }
+        alert(message);
+    }
+
+    async function apiJson(url, options = {}) {
+        const response = await fetch(url, {
+            credentials: 'same-origin',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            }
+        });
+        if (!response.ok) {
+            let message = `HTTP ${response.status}`;
+            try {
+                const error = await response.json();
+                message = error.message || error.error || message;
+            } catch (_) {}
+            throw new Error(message);
+        }
+        return response.json();
+    }
+
+    function payload(statusOverride) {
+        return {
+            lessonDate: els.lessonDate.value,
+            classLabel: els.classLabel.value,
+            category: els.category.value,
+            title: els.title.value,
+            vocabularyText: els.vocabularyText.value,
+            sentencePattern: els.sentencePattern.value,
+            homeworkNote: els.homeworkNote.value,
+            teacherNote: els.teacherNote.value,
+            status: statusOverride || els.status.value,
+            pinned: els.pinned.checked
+        };
+    }
+
+    function parseVocabulary(value) {
+        return String(value || '').split(/\r?\n/)
+            .map(line => line.trim().replace(/^[\-•*\d.、\s]+/, '').trim())
+            .filter(Boolean)
+            .slice(0, 80)
+            .map(line => {
+                let cells = line.split(/\t+/);
+                if (cells.length === 1) cells = line.split(/\s{2,}/);
+                let word = (cells[0] || '').trim();
+                let meaning = (cells[1] || '').trim();
+                let example = cells.slice(2).join(' ').trim();
+                if (!meaning && word.includes(' - ')) {
+                    const parts = word.split(/\s+-\s+/);
+                    word = parts[0] || '';
+                    meaning = parts[1] || '';
+                    example = parts.slice(2).join(' ');
+                }
+                if (!meaning && /[:：]/.test(word)) {
+                    const parts = word.split(/\s*[:：]\s*/);
+                    word = parts[0] || '';
+                    meaning = parts.slice(1).join('：');
+                }
+                return { word, meaning, example };
+            });
+    }
+
+    function categoryFromContent(content) {
+        const text = String(content || '').toLowerCase();
+        if (/spelling|vocabulary|單字/.test(text)) return 'VOCABULARY';
+        if (/phonics|sound|digraph|diphthong/.test(text)) return 'PHONICS';
+        if (/grammar|azar|句型|文法/.test(text)) return 'GRAMMAR';
+        if (/reading|reader|fluency|comprehension/.test(text)) return 'READING';
+        if (/quiz|exam|test|測驗|考試/.test(text)) return 'EXAM';
+        return 'GENERAL';
+    }
+
+    function extractVocabularyFromSchedule(content) {
+        const text = String(content || '').replace(/\s+/g, ' ').trim();
+        const items = [];
+        const pattern = /(?:^|\s)\d{1,2}[.)、]\s*([A-Za-z][A-Za-z'’-]*(?:\s+[A-Za-z][A-Za-z'’-]*){0,2})\s+([\u4e00-\u9fff][\u4e00-\u9fff（）()、，,；;：:*＊\s]{0,32}?)(?=\s+\d{1,2}[.)、]|\s*$)/g;
+        let match;
+        while ((match = pattern.exec(text)) && items.length < 40) {
+            const word = match[1].trim();
+            const meaning = match[2].replace(/[\s*＊,，、;；]+$/, '').trim();
+            if (word && meaning) items.push(`${word}\t${meaning}`);
+        }
+        return items.join('\n');
+    }
+
+    function extractHomeworkFromSchedule(content) {
+        const text = String(content || '').replace(/\s+/g, ' ').trim();
+        if (!text) return '';
+        const homeworkMatch = text.match(/(?:📝\s*)?Homework\s*(.+)$/i);
+        if (homeworkMatch?.[1]) return homeworkMatch[1].trim();
+        const chineseMatch = text.match(/(?:作業|回家功課)\s*[:：]?\s*(.+)$/);
+        if (chineseMatch?.[1]) return chineseMatch[1].trim();
+        return text.length > 900 ? `${text.slice(0, 900).trim()}...` : text;
+    }
+
+    function scheduleOptionText(lesson) {
+        const teacher = lesson.teacherNames ? ` · ${lesson.teacherNames}` : '';
+        const approval = lesson.approvalLabel ? ` · ${lesson.approvalLabel}` : '';
+        const summary = lesson.contentSummary ? ` · ${lesson.contentSummary.slice(0, 56)}` : '';
+        return `${lesson.classLabel || '未命名班級'}${teacher}${approval}${summary}`;
+    }
+
+    function renderScheduleOptions() {
+        if (!state.scheduleLessons.length) {
+            els.scheduleLessonSelect.innerHTML = '<option value="">先選日期後讀取課表</option>';
+            return;
+        }
+        els.scheduleLessonSelect.innerHTML = '<option value="">選擇一筆課表內容</option>' + state.scheduleLessons.map((lesson, index) =>
+            `<option value="${index}">${escapeHtml(scheduleOptionText(lesson))}</option>`
+        ).join('');
+    }
+
+    async function loadScheduleLessons() {
+        const date = els.lessonDate.value || today();
+        const data = await apiJson(`/api/admin/syllabus-import/schedule?date=${encodeURIComponent(date)}`, { headers: {} });
+        state.scheduleLessons = data.lessons || [];
+        renderScheduleOptions();
+        if (!data.hasImport) {
+            els.scheduleHint.textContent = '尚未匯入課表，請先到數位互動課表匯入 Excel。';
+            return;
+        }
+        if (!state.scheduleLessons.length) {
+            els.scheduleHint.textContent = `${date} 目前沒有課表內容。`;
+            return;
+        }
+        els.scheduleHint.textContent = `已讀取 ${data.displayDate || date} 的 ${state.scheduleLessons.length} 筆課表內容。`;
+    }
+
+    function applyScheduleLesson() {
+        const index = Number(els.scheduleLessonSelect.value);
+        const lesson = state.scheduleLessons[index];
+        if (!lesson) {
+            notify('請先選擇一筆課表內容。', 'warning');
+            return;
+        }
+        const content = lesson.content || lesson.contentSummary || '';
+        const vocabularyText = extractVocabularyFromSchedule(content);
+        els.lessonDate.value = lesson.lessonDate || els.lessonDate.value || today();
+        els.classLabel.value = lesson.classLabel || '';
+        els.category.value = categoryFromContent(content);
+        els.title.value = `${lesson.classLabel || ''} 今日學習重點`.trim();
+        els.vocabularyText.value = vocabularyText;
+        els.homeworkNote.value = extractHomeworkFromSchedule(content);
+        els.teacherNote.value = [
+            lesson.sourceCell ? `來源：${lesson.sourceCell}` : '',
+            lesson.teacherNames ? `老師：${lesson.teacherNames}` : '',
+            content ? `課表原文：${content}` : ''
+        ].filter(Boolean).join('\n\n');
+        if (!vocabularyText) {
+            notify('已帶入課表內容；這筆課表沒有可直接拆成單字卡的完整單字列。', 'info');
+        } else {
+            notify('已從課表帶入單字與提醒。', 'success');
+        }
+        renderPreview();
+    }
+
+    function renderPreview() {
+        const data = payload();
+        const vocab = parseVocabulary(data.vocabularyText);
+        const statusClass = data.status === 'PUBLISHED' ? 'published' : 'status';
+        const statusLabel = data.status === 'PUBLISHED' ? '已發布' : data.status === 'ARCHIVED' ? '已封存' : '草稿';
+        els.previewCard.innerHTML = `
+            <div class="preview-cover">
+                <div class="meta">
+                    <span class="pill light">${escapeHtml(data.lessonDate || '選擇日期')}</span>
+                    <span class="pill light">${escapeHtml(data.classLabel || '班級')}</span>
+                    <span class="pill ${statusClass}">${statusLabel}</span>
+                </div>
+                <h3>${escapeHtml(data.title || '今日學習內容')}</h3>
+                <p>${data.pinned ? '置頂內容會優先顯示。' : '發布後，學生與家長可在前台學習中心查看。'}</p>
+            </div>
+            <div class="preview-content">
+                ${vocab.length ? `
+                    <div class="vocab-grid">
+                        ${vocab.map(item => `
+                            <div class="word-card">
+                                <strong>${escapeHtml(item.word)}</strong>
+                                <span>${escapeHtml(item.meaning || ' ')}</span>
+                                ${item.example ? `<small>${escapeHtml(item.example)}</small>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : `<div class="empty">貼上單字後，這裡會即時變成前台單字卡。</div>`}
+                ${data.sentencePattern ? `<div class="note-block"><h4><i class="fa-solid fa-language"></i> 今日句型</h4><p>${escapeHtml(data.sentencePattern)}</p></div>` : ''}
+                ${data.homeworkNote ? `<div class="note-block"><h4><i class="fa-solid fa-list-check"></i> 作業提醒</h4><p>${escapeHtml(data.homeworkNote)}</p></div>` : ''}
+            </div>
+        `;
+    }
+
+    function resetForm() {
+        state.editingId = null;
+        els.editorTitle.textContent = '新增學習內容';
+        els.lessonDate.value = today();
+        els.classLabel.value = '';
+        els.category.value = 'VOCABULARY';
+        els.status.value = 'DRAFT';
+        els.title.value = '';
+        els.vocabularyText.value = '';
+        els.sentencePattern.value = '';
+        els.homeworkNote.value = '';
+        els.teacherNote.value = '';
+        els.pinned.checked = false;
+        els.deleteBtn.hidden = true;
+        state.scheduleLessons = [];
+        renderScheduleOptions();
+        els.scheduleHint.textContent = '選擇日期後會讀取數位課表；主任核准內容會同步到前台，也可在這裡建立手動版本。';
+        renderPreview();
+    }
+
+    function fillForm(post) {
+        state.editingId = post.id;
+        els.editorTitle.textContent = `編輯：${post.classLabel} ${post.lessonDate}`;
+        els.lessonDate.value = post.lessonDate || today();
+        els.classLabel.value = post.classLabel || '';
+        els.category.value = post.category || 'VOCABULARY';
+        els.status.value = post.status || 'DRAFT';
+        els.title.value = post.title || '';
+        els.vocabularyText.value = post.vocabularyText || '';
+        els.sentencePattern.value = post.sentencePattern || '';
+        els.homeworkNote.value = post.homeworkNote || '';
+        els.teacherNote.value = post.teacherNote || '';
+        els.pinned.checked = !!post.pinned;
+        els.deleteBtn.hidden = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        renderPreview();
+    }
+
+    async function save(statusOverride) {
+        const body = payload(statusOverride);
+        const url = state.editingId ? `/api/admin/learning-posts/${encodeURIComponent(state.editingId)}` : '/api/admin/learning-posts';
+        const method = state.editingId ? 'PUT' : 'POST';
+        const saved = await apiJson(url, { method, body: JSON.stringify(body) });
+        state.editingId = saved.id;
+        notify(statusOverride === 'PUBLISHED' ? '已發布到前台學習中心。' : '學習內容已儲存。', 'success');
+        await loadPosts();
+        fillForm(saved);
+    }
+
+    async function updateStatus(postId, status) {
+        await apiJson(`/api/admin/learning-posts/${encodeURIComponent(postId)}/status`, {
+            method: 'POST',
+            body: JSON.stringify({ status })
+        });
+        notify(status === 'PUBLISHED' ? '已發布。' : status === 'ARCHIVED' ? '已封存。' : '已改回草稿。', 'success');
+        await loadPosts();
+    }
+
+    async function deletePost(postId = state.editingId) {
+        if (!postId) return;
+        if (!confirm('確定要刪除這筆學習內容嗎？刪除後前台也不會再顯示。')) return;
+        await apiJson(`/api/admin/learning-posts/${encodeURIComponent(postId)}`, { method: 'DELETE' });
+        notify('學習內容已刪除。', 'success');
+        resetForm();
+        await loadPosts();
+    }
+
+    function renderClassOptions() {
+        els.classOptions.innerHTML = state.classLabels.map(label =>
+            `<option value="${escapeHtml(label)}"></option>`
+        ).join('');
+    }
+
+    function renderSummary(summary = {}) {
+        els.todayCount.textContent = summary.todayPublishedCount ?? 0;
+        els.publishedCount.textContent = summary.publishedCount ?? 0;
+        els.draftCount.textContent = summary.draftCount ?? 0;
+        els.latestDate.textContent = summary.latestPublishedDate ? summary.latestPublishedDate.slice(5).replace('-', '/') : '-';
+    }
+
+    function renderPosts() {
+        if (!state.posts.length) {
+            els.postList.innerHTML = '<div class="empty">目前沒有符合條件的學習內容。</div>';
+            return;
+        }
+        els.postList.innerHTML = state.posts.map(post => `
+            <article class="post-row">
+                <div>
+                    <div style="display:flex; gap:7px; flex-wrap:wrap; margin-bottom:8px;">
+                        <span class="pill light" style="background:#ecfdf5;color:#047857;border:1px solid #bbf7d0;">${escapeHtml(post.lessonDate)}</span>
+                        <span class="pill light" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;">${escapeHtml(post.classLabel)}</span>
+                        <span class="pill ${post.status === 'PUBLISHED' ? 'published' : 'status'}">${escapeHtml(post.statusLabel)}</span>
+                    </div>
+                    <h3>${escapeHtml(post.title)}</h3>
+                    <p>${escapeHtml(post.categoryLabel)} · ${post.vocabulary?.length || 0} 個單字 · 更新 ${escapeHtml(post.updatedAt || '-')}</p>
+                </div>
+                <div class="row-actions">
+                    <button class="btn soft" type="button" data-action="edit" data-id="${post.id}"><i class="fa-solid fa-pen"></i> 編輯</button>
+                    ${post.status !== 'PUBLISHED' ? `<button class="btn gold" type="button" data-action="publish" data-id="${post.id}"><i class="fa-solid fa-paper-plane"></i> 發布</button>` : `<button class="btn soft" type="button" data-action="draft" data-id="${post.id}"><i class="fa-solid fa-file"></i> 草稿</button>`}
+                    <button class="btn soft" type="button" data-action="archive" data-id="${post.id}"><i class="fa-solid fa-box-archive"></i> 封存</button>
+                    <button class="btn danger" type="button" data-action="delete" data-id="${post.id}"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </article>
+        `).join('');
+    }
+
+    async function loadPosts() {
+        const params = new URLSearchParams();
+        if (els.filterDate.value) params.set('date', els.filterDate.value);
+        if (els.filterClass.value.trim()) params.set('classLabel', els.filterClass.value.trim());
+        if (els.filterStatus.value && els.filterStatus.value !== 'ALL') params.set('status', els.filterStatus.value);
+        const data = await apiJson(`/api/admin/learning-posts?${params.toString()}`, { headers: {} });
+        state.posts = data.posts || [];
+        state.classLabels = data.classLabels || [];
+        renderSummary(data.summary);
+        renderClassOptions();
+        renderPosts();
+    }
+
+    els.form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            await save();
+        } catch (error) {
+            notify(error.message || '儲存失敗。', 'danger');
+        }
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', async () => {
+        try {
+            await save('PUBLISHED');
+        } catch (error) {
+            notify(error.message || '發布失敗。', 'danger');
+        }
+    });
+
+    document.getElementById('newBtn').addEventListener('click', resetForm);
+    document.getElementById('loadScheduleBtn').addEventListener('click', () => loadScheduleLessons().catch(error => notify(error.message || '課表讀取失敗。', 'danger')));
+    document.getElementById('applyScheduleBtn').addEventListener('click', applyScheduleLesson);
+    document.getElementById('refreshBtn').addEventListener('click', () => loadPosts().catch(error => notify(error.message, 'danger')));
+    document.getElementById('clearFilterBtn').addEventListener('click', () => {
+        els.filterDate.value = '';
+        els.filterClass.value = '';
+        els.filterStatus.value = 'ALL';
+        loadPosts().catch(error => notify(error.message, 'danger'));
+    });
+    els.deleteBtn.addEventListener('click', () => deletePost().catch(error => notify(error.message, 'danger')));
+
+    ['input', 'change'].forEach(eventName => {
+        ['lessonDate', 'classLabel', 'category', 'status', 'title', 'vocabularyText', 'sentencePattern', 'homeworkNote', 'pinned'].forEach(id => {
+            document.getElementById(id).addEventListener(eventName, renderPreview);
+        });
+    });
+    ['filterDate', 'filterClass', 'filterStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => loadPosts().catch(error => notify(error.message, 'danger')));
+    });
+    els.filterClass.addEventListener('input', () => {
+        window.clearTimeout(els.filterClass._timer);
+        els.filterClass._timer = window.setTimeout(() => loadPosts().catch(error => notify(error.message, 'danger')), 280);
+    });
+
+    els.postList.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const postId = Number(button.dataset.id);
+        const post = state.posts.find(item => Number(item.id) === postId);
+        try {
+            if (button.dataset.action === 'edit' && post) fillForm(post);
+            if (button.dataset.action === 'publish') await updateStatus(postId, 'PUBLISHED');
+            if (button.dataset.action === 'draft') await updateStatus(postId, 'DRAFT');
+            if (button.dataset.action === 'archive') await updateStatus(postId, 'ARCHIVED');
+            if (button.dataset.action === 'delete') await deletePost(postId);
+        } catch (error) {
+            notify(error.message || '操作失敗。', 'danger');
+        }
+    });
+
+    resetForm();
+    Promise.all([loadPosts(), loadScheduleLessons()])
+        .catch(error => notify(error.message || '載入失敗。', 'danger'));
+</script>
+</body>
+</html>

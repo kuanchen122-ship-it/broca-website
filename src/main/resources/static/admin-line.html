@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE 整合中心 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: hidden; }
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; list-style: none; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+        .main-wrapper { flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-accent); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .user-info strong { display: block; font-size: 13px; }
+        .user-info span { color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .content-area { flex: 1; overflow-y: auto; padding: 26px 30px 36px; }
+
+        .line-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(300px, .75fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .line-hero-main,
+        .line-panel,
+        .line-card {
+            border: 1px solid rgba(226, 232, 240, .95);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+        }
+
+        .line-hero-main {
+            min-height: 264px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff;
+            background:
+                    radial-gradient(circle at 82% 12%, rgba(6, 199, 85, .32), transparent 32%),
+                    linear-gradient(135deg, rgba(6, 78, 59, .98), rgba(4, 120, 87, .9));
+        }
+
+        .line-hero-main::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                    linear-gradient(120deg, rgba(255, 255, 255, .11) 0 1px, transparent 1px 28px),
+                    linear-gradient(90deg, rgba(255, 206, 0, .16), transparent 44%);
+            opacity: .72;
+            pointer-events: none;
+        }
+
+        .line-hero-main > * { position: relative; z-index: 1; }
+        .line-hero-main h1 { max-width: 760px; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; font-weight: 950; margin-bottom: 12px; }
+        .line-hero-main p { max-width: 760px; color: rgba(255, 255, 255, .84); line-height: 1.78; font-weight: 750; }
+        .line-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+
+        .line-status-card {
+            padding: 20px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .line-status-pill {
+            width: fit-content;
+            min-height: 34px;
+            padding: 0 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+            font-weight: 950;
+            font-size: 12px;
+        }
+
+        .line-status-pill.pending {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .line-progress {
+            height: 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+
+        .line-progress span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #06c755, #FFCE00);
+            transition: width .35s ease;
+        }
+
+        .line-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .line-card {
+            min-height: 124px;
+            padding: 20px;
+        }
+
+        .line-card strong {
+            display: block;
+            color: var(--brand-primary);
+            font-size: 30px;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .line-card span {
+            display: block;
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 850;
+            line-height: 1.55;
+        }
+
+        .line-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(340px, .78fr);
+            gap: 18px;
+        }
+
+        .line-panel {
+            padding: 22px;
+        }
+
+        .line-panel h2 {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            font-size: 18px;
+            font-weight: 950;
+        }
+
+        .line-check-list,
+        .line-template-list,
+        .line-queue-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .line-check-item,
+        .line-template,
+        .line-queue-item {
+            padding: 15px;
+            display: flex;
+            gap: 13px;
+            align-items: flex-start;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+        }
+
+        .line-check-icon {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .line-check-icon.pending {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .line-check-icon.action {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .line-check-item strong,
+        .line-template strong,
+        .line-queue-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .line-check-item span,
+        .line-template span,
+        .line-queue-item span {
+            display: block;
+            color: var(--text-muted);
+            line-height: 1.65;
+            font-size: 13px;
+            font-weight: 760;
+        }
+
+        .line-template {
+            display: block;
+            background: #fff;
+        }
+
+        .line-template code {
+            display: block;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            white-space: normal;
+            line-height: 1.65;
+            color: #334155;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            font-family: '微軟正黑體', sans-serif;
+            font-weight: 800;
+        }
+
+        .line-notice {
+            margin-bottom: 18px;
+            padding: 16px 18px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            border-radius: 16px;
+            border: 1px solid #fde68a;
+            background: #fffbeb;
+            color: #92400e;
+            font-weight: 850;
+            line-height: 1.7;
+        }
+
+        .line-notice i { margin-top: 4px; }
+
+        @media (max-width: 1180px) {
+            .line-hero,
+            .line-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .line-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .line-stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .line-hero-main,
+            .line-panel,
+            .line-card {
+                border-radius: 14px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-admin-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-line.html" class="nav-link active"><i class="fa-brands fa-line"></i> LINE 整合中心</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-brands fa-line" style="color: #06c755;"></i>
+            <div>
+                <div>LINE 整合中心</div>
+                <div class="topbar-subtitle">家長通知、LIFF 點名與官方帳號串接狀態</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="avatar" data-user-initial>B</div>
+            <div class="user-info">
+                <strong data-user-name>系統管理員</strong>
+                <span data-user-role>教務主任</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="line-hero">
+            <div class="line-hero-main">
+                <div>
+                    <span class="admin-eyebrow"><i class="fa-brands fa-line"></i> LINE OPERATIONS</span>
+                    <h1>把點名、請假與家長通知接成一條清楚流程。</h1>
+                    <p>目前系統先進入草稿模式：家長 LINE ID、點名通知狀態與訊息模板都會整理出來；等 Channel Secret、Access Token 與 LIFF ID 完成後，再切換成正式推播。</p>
+                </div>
+                <div class="line-actions">
+                    <a class="admin-button primary" href="admin-contacts.html"><i class="fa-solid fa-address-book"></i> 補家長 LINE ID</a>
+                    <a class="admin-button secondary" href="admin-attendance.html"><i class="fa-solid fa-user-check"></i> 查看點名通知</a>
+                    <a class="admin-button secondary" href="mobile-rollcall.html"><i class="fa-solid fa-mobile-screen"></i> LIFF 手機點名</a>
+                </div>
+            </div>
+
+            <aside class="line-panel line-status-card">
+                <span class="line-status-pill pending" id="lineMode"><i class="fa-solid fa-circle-info"></i> 載入中</span>
+                <div>
+                    <h2 style="margin-bottom: 8px;">家長 LINE 覆蓋率</h2>
+                    <p style="color: var(--text-muted); line-height: 1.7; font-weight: 760;">用學生資料中的 parent_line_id 計算。兄弟姊妹共用同一個 LINE ID 會被保留並統計。</p>
+                </div>
+                <div class="line-progress" aria-label="家長 LINE 覆蓋率">
+                    <span id="lineCoverageBar"></span>
+                </div>
+                <strong id="lineCoverageText" style="font-size: 34px; color: var(--brand-primary);">--%</strong>
+            </aside>
+        </section>
+
+        <div class="line-notice">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>目前不會真的發送 LINE 訊息。正式推播會等官方帳號 Messaging API、Channel Secret、Channel Access Token、webhook 與家長綁定流程完成後再開啟。</span>
+        </div>
+
+        <section class="line-stat-grid">
+            <article class="line-card">
+                <strong id="linkedStudents">--</strong>
+                <span>已有 parent_line_id 的學生</span>
+            </article>
+            <article class="line-card">
+                <strong id="missingLineStudents">--</strong>
+                <span>仍缺 LINE ID 的學生</span>
+            </article>
+            <article class="line-card">
+                <strong id="distinctParentLineIds">--</strong>
+                <span>不重複家長 LINE ID</span>
+            </article>
+            <article class="line-card">
+                <strong id="requestedButNotConfigured">--</strong>
+                <span>點名時要求推播但尚未設定</span>
+            </article>
+        </section>
+
+        <section class="line-grid">
+            <div class="line-panel">
+                <h2><i class="fa-solid fa-list-check" style="color: var(--brand-primary);"></i> 串接檢查清單</h2>
+                <div class="line-check-list" id="workflowList"></div>
+            </div>
+
+            <div class="line-panel">
+                <h2><i class="fa-solid fa-sliders" style="color: var(--brand-primary);"></i> 設定狀態</h2>
+                <div class="line-queue-list">
+                    <div class="line-queue-item">
+                        <span class="line-check-icon pending" id="tokenIcon"><i class="fa-solid fa-key"></i></span>
+                        <div><strong>Channel Access Token</strong><span id="tokenStatus">讀取中</span></div>
+                    </div>
+                    <div class="line-queue-item">
+                        <span class="line-check-icon pending" id="secretIcon"><i class="fa-solid fa-shield-halved"></i></span>
+                        <div><strong>Channel Secret</strong><span id="secretStatus">讀取中</span></div>
+                    </div>
+                    <div class="line-queue-item">
+                        <span class="line-check-icon pending" id="liffIcon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                        <div><strong>LIFF Rollcall ID</strong><span id="liffStatus">讀取中</span></div>
+                    </div>
+                    <div class="line-queue-item">
+                        <span class="line-check-icon pending" id="sendIcon"><i class="fa-solid fa-paper-plane"></i></span>
+                        <div><strong>正式發送開關</strong><span id="sendStatus">讀取中</span></div>
+                    </div>
+                    <div class="line-queue-item">
+                        <span class="line-check-icon"><i class="fa-solid fa-link"></i></span>
+                        <div><strong>Webhook 預定路徑</strong><span id="webhookPath">/api/line/webhook</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="line-panel">
+                <h2><i class="fa-solid fa-inbox" style="color: var(--brand-primary);"></i> 點名通知狀態</h2>
+                <div class="line-queue-list" id="queueList"></div>
+            </div>
+
+            <div class="line-panel">
+                <h2><i class="fa-solid fa-message" style="color: var(--brand-primary);"></i> 訊息模板草稿</h2>
+                <div class="line-template-list" id="templateList"></div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', loadLineOverview);
+
+    async function loadLineOverview() {
+        try {
+            const response = await fetch('/api/admin/line/overview', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('line overview failed');
+            const data = await response.json();
+            renderOverview(data);
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('LINE 整合資料讀取失敗，請確認後端是否啟動。', 'danger');
+        }
+    }
+
+    function renderOverview(data) {
+        const config = data.config || {};
+        const audience = data.audience || {};
+        const queue = data.attendanceQueue || {};
+
+        const readyToSend = config.mode === 'READY_TO_SEND';
+        const readyForReview = config.mode === 'READY_FOR_REVIEW';
+        const mode = document.getElementById('lineMode');
+        mode.classList.toggle('pending', !readyToSend);
+        mode.innerHTML = readyToSend
+            ? '<i class="fa-solid fa-circle-check"></i> 正式發送已啟用'
+            : readyForReview
+                ? '<i class="fa-solid fa-shield-halved"></i> 憑證已填，仍在草稿'
+                : '<i class="fa-solid fa-pen-ruler"></i> 草稿模式';
+
+        const coverage = Number(audience.coveragePercent || 0);
+        document.getElementById('lineCoverageBar').style.width = `${Math.min(coverage, 100)}%`;
+        document.getElementById('lineCoverageText').textContent = `${coverage}%`;
+
+        setText('linkedStudents', audience.linkedStudents ?? '--');
+        setText('missingLineStudents', audience.missingLineStudents ?? '--');
+        setText('distinctParentLineIds', audience.distinctParentLineIds ?? '--');
+        setText('requestedButNotConfigured', queue.requestedButNotConfigured ?? '--');
+
+        renderConfig(config);
+        renderWorkflow(data.workflow || []);
+        renderQueue(queue);
+        renderTemplates(data.templates || []);
+    }
+
+    function renderConfig(config) {
+        setConfigRow('token', config.channelAccessTokenConfigured, '已填入 Channel Access Token', '尚未填入，暫不會發送 LINE 訊息');
+        setConfigRow('secret', config.channelSecretConfigured, '已填入 Channel Secret', '尚未填入，webhook 驗證尚未啟用');
+        setConfigRow('liff', config.liffIdConfigured, '已填入 LIFF ID', '尚未填入，手機點名仍以一般網頁開啟');
+        setConfigRow('send', config.sendingEnabled, 'sending-enabled=true，允許正式推播', 'sending-enabled=false，目前維持草稿預覽');
+        setText('webhookPath', config.webhookPath || '/api/line/webhook');
+    }
+
+    function setConfigRow(prefix, ready, readyText, pendingText) {
+        const icon = document.getElementById(`${prefix}Icon`);
+        icon.classList.toggle('pending', !ready);
+        icon.innerHTML = ready ? '<i class="fa-solid fa-check"></i>' : icon.innerHTML;
+        setText(`${prefix}Status`, ready ? readyText : pendingText);
+    }
+
+    function renderWorkflow(steps) {
+        const list = document.getElementById('workflowList');
+        list.innerHTML = steps.map((step) => {
+            const status = step.status || 'pending';
+            const icon = status === 'ready' ? 'fa-check' : (status === 'action' ? 'fa-person-circle-exclamation' : 'fa-hourglass-half');
+            return `
+                <div class="line-check-item">
+                    <span class="line-check-icon ${escapeHtml(status)}"><i class="fa-solid ${icon}"></i></span>
+                    <div>
+                        <strong>${escapeHtml(step.title)}</strong>
+                        <span>${escapeHtml(step.description)}</span>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function renderQueue(queue) {
+        const list = document.getElementById('queueList');
+        const rows = [
+            ['總點名紀錄', queue.totalAttendanceRecords],
+            ['尚未設定但曾要求發送', queue.requestedButNotConfigured],
+            ['待處理佇列', queue.pending],
+            ['已發送', queue.sent],
+            ['發送失敗', queue.failed],
+            ['未要求發送', queue.notRequested]
+        ];
+
+        list.innerHTML = rows.map(([label, value]) => `
+            <div class="line-queue-item">
+                <span class="line-check-icon"><i class="fa-solid fa-circle-dot"></i></span>
+                <div><strong>${escapeHtml(label)}</strong><span>${escapeHtml(value ?? 0)} 筆</span></div>
+            </div>
+        `).join('');
+    }
+
+    function renderTemplates(templates) {
+        const list = document.getElementById('templateList');
+        list.innerHTML = templates.map((template) => `
+            <article class="line-template">
+                <strong>${escapeHtml(template.title)}</strong>
+                <span>${escapeHtml(template.type)}</span>
+                <code>${escapeHtml(template.body)}</code>
+            </article>
+        `).join('');
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+</script>
+</body>
+</html>

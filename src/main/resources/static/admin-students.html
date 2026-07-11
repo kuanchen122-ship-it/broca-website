@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生資料中心 | 布魯卡美語行政系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --brand-primary: #064E3B;
+            --brand-accent: #FFCE00;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #2563eb;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+            --transition-smooth: all 0.22s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', 'Microsoft JhengHei', sans-serif; letter-spacing: 0; }
+        html { min-height: 100%; background: var(--bg-admin); }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: auto; }
+        button, input, select { font: inherit; }
+
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 900; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .content-area { flex: 1; width: 100%; max-width: 1680px; margin: 0 auto; padding: 22px 28px 34px; }
+        .panel, .stat-card, .class-panel, .students-panel { background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+        .overview { display: grid; grid-template-columns: minmax(320px, 1.25fr) minmax(520px, 0.75fr); gap: 14px; margin-bottom: 14px; }
+        .panel { padding: 18px; }
+        .page-title h1 { font-size: 22px; font-weight: 950; color: var(--text-main); margin-bottom: 8px; }
+        .page-title p { color: var(--text-muted); font-size: 13px; line-height: 1.7; font-weight: 750; max-width: 780px; }
+        .source-chip { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; padding: 7px 10px; border-radius: 999px; background: #ecfdf5; color: #047857; font-size: 12px; font-weight: 950; }
+        .stat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+        .stat-card { padding: 14px; min-height: 100px; min-width: 0; }
+        .stat-card strong { display: block; font-size: 25px; color: var(--brand-primary); margin-bottom: 6px; }
+        .stat-card span { color: var(--text-muted); font-size: 12px; font-weight: 900; line-height: 1.4; }
+        .stat-card.warning strong { color: var(--warning); }
+
+        .toolbar { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px) minmax(160px, 220px) auto auto; gap: 10px; align-items: center; padding: 14px; margin-bottom: 14px; background: var(--white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+        .health-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .health-card { min-height: 104px; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow-sm); }
+        .health-card strong { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 14px; font-weight: 950; margin-bottom: 8px; }
+        .health-card span { display: block; color: var(--text-muted); font-size: 12px; font-weight: 800; line-height: 1.55; }
+        .health-card.good strong i { color: var(--success); }
+        .health-card.warn strong i { color: var(--warning); }
+        .health-card.info strong i { color: var(--info); }
+        .search-input, .select-input { width: 100%; min-width: 0; min-height: 42px; border: 1px solid var(--border-color); border-radius: 10px; background: #f8fafc; color: var(--text-main); font-size: 13px; font-weight: 850; padding: 10px 12px; outline: none; }
+        .search-input:focus, .select-input:focus { border-color: var(--brand-primary); background: var(--white); }
+        .checkbox-pill { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 12px; font-weight: 900; cursor: pointer; background: #fff; }
+        .checkbox-pill input { accent-color: var(--brand-primary); }
+        .utility-btn, .primary-btn, .icon-btn, .danger-btn { border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 950; transition: var(--transition-smooth); }
+        .utility-btn { min-height: 42px; padding: 0 13px; border-radius: 10px; border: 1px solid var(--border-color); background: #fff; color: var(--text-muted); font-size: 13px; text-decoration: none; }
+        .utility-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); background: #ecfdf5; }
+        .primary-btn { min-height: 42px; padding: 0 15px; border-radius: 10px; background: var(--brand-primary); color: white; font-size: 13px; }
+        .primary-btn:hover { background: var(--sidebar-hover); transform: translateY(-1px); }
+        .danger-btn { min-height: 36px; padding: 0 12px; border-radius: 9px; background: #fee2e2; color: #991b1b; font-size: 12px; }
+        .danger-btn:hover { background: var(--danger); color: white; }
+        .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: #eef2f7; color: var(--text-muted); }
+        .icon-btn:hover { color: var(--brand-primary); background: #ecfdf5; }
+
+        .workspace { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 14px; align-items: start; }
+        .class-panel { overflow: hidden; }
+        .panel-header { padding: 16px 18px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fbfdff; }
+        .panel-header h2 { font-size: 16px; font-weight: 950; display: flex; align-items: center; gap: 8px; }
+        .panel-header span { font-size: 12px; color: var(--text-muted); font-weight: 850; }
+        .class-list { padding: 10px; display: grid; gap: 8px; max-height: calc(100vh - 350px); overflow: auto; }
+        .class-item { width: 100%; text-align: left; border: 1px solid var(--border-color); background: #fff; border-radius: 12px; padding: 12px; cursor: pointer; transition: var(--transition-smooth); }
+        .class-item:hover { border-color: #bbf7d0; background: #f0fdf4; }
+        .class-item.active { border-color: var(--brand-primary); background: #ecfdf5; box-shadow: inset 4px 0 0 var(--brand-primary); }
+        .class-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .class-code { font-size: 15px; font-weight: 950; color: var(--text-main); }
+        .class-count { border-radius: 999px; padding: 4px 8px; background: #eef2f7; color: #475569; font-size: 11px; font-weight: 950; }
+        .class-category { margin-top: 6px; color: var(--text-muted); font-size: 12px; font-weight: 850; }
+
+        .students-panel { overflow: hidden; min-width: 0; }
+        .table-wrap { overflow: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1080px; }
+        th { background: #f8fafc; padding: 13px 16px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-align: left; white-space: nowrap; font-weight: 950; }
+        td { padding: 14px 16px; border-bottom: 1px solid #edf2f7; vertical-align: middle; font-size: 13px; }
+        tr:hover td { background: #fbfdff; }
+        .student-cell { display: flex; align-items: center; gap: 12px; min-width: 230px; }
+        .avatar { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 12px; background: #ecfdf5; color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .student-name { font-size: 14px; font-weight: 950; color: var(--text-main); line-height: 1.35; }
+        .student-sub { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 2px; }
+        .meta-text { color: #334155; font-weight: 850; line-height: 1.55; }
+        .muted { color: var(--text-muted); }
+        .chip-list { display: flex; flex-wrap: wrap; gap: 6px; max-width: 360px; }
+        .class-chip, .source-badge, .contact-badge, .quality-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; font-size: 11px; font-weight: 950; white-space: nowrap; }
+        .class-chip { background: #eef2ff; color: #3730a3; }
+        .source-badge { background: #f1f5f9; color: #475569; }
+        .source-excel { background: #ecfdf5; color: #047857; }
+        .source-registration { background: #fef3c7; color: #92400e; }
+        .source-manual { background: #eff6ff; color: #1d4ed8; }
+        .contact-ready { background: #dcfce7; color: #166534; }
+        .contact-missing { background: #fef3c7; color: #92400e; }
+        .quality-good { background: #dcfce7; color: #166534; }
+        .quality-ok { background: #fef9c3; color: #854d0e; }
+        .quality-warn { background: #fee2e2; color: #991b1b; }
+        .missing-list { margin-top: 6px; color: var(--text-muted); font-size: 11px; font-weight: 800; line-height: 1.45; max-width: 220px; }
+        .row-actions { display: flex; gap: 8px; justify-content: flex-end; }
+        .empty-state { min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); font-weight: 850; padding: 42px 24px; }
+        .empty-state i { color: #cbd5e1; font-size: 38px; margin-bottom: 12px; }
+
+        .modal-overlay { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, 0.58); }
+        .modal-overlay.show { display: flex; }
+        .student-modal { width: min(980px, 100%); max-height: calc(100vh - 48px); background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .modal-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .modal-title .avatar { flex-shrink: 0; }
+        .modal-title h2 { font-size: 20px; font-weight: 950; color: var(--text-main); margin-bottom: 3px; }
+        .modal-title p { font-size: 12px; color: var(--text-muted); font-weight: 800; }
+        .modal-body { padding: 22px 24px; overflow: auto; }
+        .modal-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr); gap: 18px; }
+        .form-panel { border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; background: #fbfdff; }
+        .form-panel h3 { font-size: 14px; font-weight: 950; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .field { display: grid; gap: 6px; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { font-size: 12px; color: var(--text-muted); font-weight: 950; }
+        .field input, .field select { width: 100%; min-height: 40px; border: 1px solid var(--border-color); border-radius: 9px; background: #fff; padding: 9px 10px; color: var(--text-main); font-size: 13px; font-weight: 850; outline: none; }
+        .field input:focus, .field select:focus { border-color: var(--brand-primary); }
+        .active-check { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; color: #334155; margin-top: 12px; }
+        .active-check input { accent-color: var(--brand-primary); }
+        .enrollment-list { display: grid; gap: 8px; }
+        .enrollment-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 12px; background: #fff; }
+        .enrollment-row strong { display: block; font-size: 14px; }
+        .enrollment-row span { display: block; font-size: 12px; color: var(--text-muted); font-weight: 800; margin-top: 3px; }
+        .add-class-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 14px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .status-text { color: var(--text-muted); font-size: 13px; font-weight: 850; }
+
+        @media (max-width: 1180px) {
+            .overview, .workspace, .modal-grid { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+            .health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .class-list { max-height: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+            .toolbar { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+            .toolbar .utility-btn, .toolbar .checkbox-pill { width: 100%; }
+        }
+        @media (max-width: 760px) {
+            body { display: block; }
+            .sidebar { display: none; }
+            .topbar { min-height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+            .topbar-right { width: 100%; justify-content: stretch; }
+            .content-area { padding: 16px; }
+            .stat-grid, .toolbar, .field-grid, .add-class-row, .health-grid { grid-template-columns: 1fr; }
+            .utility-btn, .primary-btn, .checkbox-pill { width: 100%; }
+            .modal-overlay { padding: 12px; align-items: stretch; }
+            .student-modal { max-height: calc(100vh - 24px); }
+            .modal-footer { align-items: stretch; flex-direction: column; }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-admin-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link active"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-users-gear" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>學生資料中心</div>
+                <div class="topbar-subtitle">Reading Assignment 名單與分班資料</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="admin-schedule.html" class="utility-btn"><i class="fa-solid fa-file-excel"></i> 匯入課表 Excel</a>
+            <button class="primary-btn" type="button" onclick="loadDirectory()"><i class="fa-solid fa-rotate-right"></i> 重新整理</button>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="overview">
+            <div class="panel page-title">
+                <h1>學生、班級與分班總覽</h1>
+                <p>目前資料以課表 Excel 的 Reading Assignment 為主要來源，主任可在此補齊家長聯絡資訊並調整學生分班。</p>
+                <span class="source-chip"><i class="fa-solid fa-database"></i> 匯入同步 + 手動校正</span>
+            </div>
+            <div class="stat-grid">
+                <div class="stat-card"><strong id="statStudents">0</strong><span>啟用學生</span></div>
+                <div class="stat-card"><strong id="statClasses">0</strong><span>啟用班級</span></div>
+                <div class="stat-card"><strong id="statEnrollments">0</strong><span>有效分班</span></div>
+                <div class="stat-card warning"><strong id="statMissingLine">0</strong><span>缺 LINE ID</span></div>
+                <div class="stat-card warning"><strong id="statUnassigned">0</strong><span>未分班</span></div>
+                <div class="stat-card"><strong id="statMissingData">0</strong><span>需補資料</span></div>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <input class="search-input" id="studentSearch" type="search" placeholder="搜尋姓名、英文名、學號或學校" oninput="queueDirectoryLoad()">
+            <select class="select-input" id="classFilter" onchange="loadDirectory()">
+                <option value="">所有班級</option>
+            </select>
+            <select class="select-input" id="contactFilter" onchange="loadDirectory()">
+                <option value="">所有聯絡狀態</option>
+                <option value="missing-line">缺 LINE ID</option>
+                <option value="ready-line">LINE 已建立</option>
+                <option value="incomplete">需補資料</option>
+                <option value="unassigned">尚未分班</option>
+            </select>
+            <label class="checkbox-pill">
+                <input id="includeInactive" type="checkbox" onchange="loadDirectory()">
+                顯示停用
+            </label>
+            <button class="utility-btn" type="button" onclick="clearFilters()"><i class="fa-solid fa-filter-circle-xmark"></i> 清除篩選</button>
+        </section>
+
+        <section class="health-grid" aria-label="學生資料健康檢查">
+            <div class="health-card info">
+                <strong><i class="fa-solid fa-user-check"></i> 分班覆蓋</strong>
+                <span id="healthEnrollment">讀取中...</span>
+            </div>
+            <div class="health-card warn">
+                <strong><i class="fa-brands fa-line"></i> LINE 綁定</strong>
+                <span id="healthLine">讀取中...</span>
+            </div>
+            <div class="health-card good">
+                <strong><i class="fa-solid fa-file-excel"></i> 匯入來源</strong>
+                <span id="healthImport">讀取中...</span>
+            </div>
+            <div class="health-card info">
+                <strong><i class="fa-solid fa-route"></i> 下一步</strong>
+                <span id="healthNextAction">先補 LINE ID 與未分班學生，再進行點名與家長通知。</span>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <aside class="class-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-layer-group" style="color: var(--brand-primary);"></i> 班級</h2>
+                    <span id="classCountLabel">0 班</span>
+                </div>
+                <div class="class-list" id="classList">
+                    <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> 載入班級...</div>
+                </div>
+            </aside>
+
+            <section class="students-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2><i class="fa-solid fa-id-card" style="color: var(--brand-primary);"></i> 學生清單</h2>
+                        <span id="studentCountLabel">載入中...</span>
+                    </div>
+                    <button class="utility-btn" type="button" onclick="loadDirectory()"><i class="fa-solid fa-rotate"></i> 同步畫面</button>
+                </div>
+                <div class="table-wrap" id="studentTableWrap">
+                    <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> 載入學生資料...</div>
+                </div>
+            </section>
+        </section>
+    </div>
+</main>
+
+<div class="modal-overlay" id="studentModal" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
+    <div class="student-modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <div class="avatar" id="modalAvatar">學</div>
+                <div>
+                    <h2 id="studentModalTitle">學生資料</h2>
+                    <p id="studentModalMeta">-</p>
+                </div>
+            </div>
+            <button class="icon-btn" type="button" onclick="closeStudentModal()" aria-label="關閉"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-grid">
+                <section class="form-panel">
+                    <h3><i class="fa-solid fa-address-card" style="color: var(--brand-primary);"></i> 基本與家長聯絡</h3>
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="editChineseName">中文姓名</label>
+                            <input id="editChineseName" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editEnglishName">英文姓名</label>
+                            <input id="editEnglishName" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editSchool">學校</label>
+                            <input id="editSchool" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editGradeLevel">年級</label>
+                            <input id="editGradeLevel" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editParentName">家長姓名</label>
+                            <input id="editParentName" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editParentPhone">家長電話</label>
+                            <input id="editParentPhone" type="text">
+                        </div>
+                        <div class="field full">
+                            <label for="editParentLineId">家長 LINE ID</label>
+                            <input id="editParentLineId" type="text">
+                        </div>
+                        <div class="field full">
+                            <label for="editPickupNote">接送備註</label>
+                            <input id="editPickupNote" type="text" placeholder="例：自行接送、校車、固定由媽媽接">
+                        </div>
+                        <div class="field">
+                            <label for="editEmergencyContactName">緊急聯絡人</label>
+                            <input id="editEmergencyContactName" type="text">
+                        </div>
+                        <div class="field">
+                            <label for="editEmergencyContactPhone">緊急聯絡電話</label>
+                            <input id="editEmergencyContactPhone" type="text">
+                        </div>
+                    </div>
+                    <label class="active-check">
+                        <input id="editActive" type="checkbox">
+                        啟用學生資料
+                    </label>
+                </section>
+
+                <section class="form-panel">
+                    <h3><i class="fa-solid fa-user-group" style="color: var(--brand-primary);"></i> 目前分班</h3>
+                    <div class="enrollment-list" id="modalEnrollments"></div>
+                    <div class="add-class-row">
+                        <select class="select-input" id="addClassSelect">
+                            <option value="">選擇要加入的班級</option>
+                        </select>
+                        <button class="primary-btn" type="button" onclick="addSelectedClass()"><i class="fa-solid fa-plus"></i> 加入</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="status-text" id="modalStatus">資料尚未變更</div>
+            <button class="primary-btn" type="button" onclick="saveStudentProfile()"><i class="fa-solid fa-cloud-arrow-up"></i> 儲存學生資料</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        classes: [],
+        students: [],
+        summary: {},
+        selectedStudent: null,
+        searchTimer: null,
+        pendingStudentId: null
+    };
+
+    const studentSearch = document.getElementById('studentSearch');
+    const classFilter = document.getElementById('classFilter');
+    const contactFilter = document.getElementById('contactFilter');
+    const includeInactive = document.getElementById('includeInactive');
+    const classList = document.getElementById('classList');
+    const studentTableWrap = document.getElementById('studentTableWrap');
+    const studentModal = document.getElementById('studentModal');
+    const modalStatus = document.getElementById('modalStatus');
+
+    async function loadDirectory() {
+        clearTimeout(state.searchTimer);
+        studentTableWrap.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> 載入學生資料...</div>`;
+        try {
+            const params = new URLSearchParams();
+            if (studentSearch.value.trim()) params.set('q', studentSearch.value.trim());
+            if (classFilter.value) params.set('classId', classFilter.value);
+            if (contactFilter.value) params.set('contactStatus', contactFilter.value);
+            if (includeInactive.checked) params.set('includeInactive', 'true');
+
+            const response = await fetch(`/api/admin/students?${params.toString()}`, { credentials: 'same-origin' });
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/login.html';
+                return;
+            }
+            if (!response.ok) throw new Error(await readError(response));
+            const result = await response.json();
+            state.summary = result.summary || {};
+            state.classes = result.classes || [];
+            state.students = result.students || [];
+            renderSummary();
+            renderClassOptions();
+            renderClassList();
+            renderStudents();
+            openPendingStudent();
+        } catch (error) {
+            studentTableWrap.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>${escapeHtml(error.message || '學生資料載入失敗')}</div>`;
+        }
+    }
+
+    function queueDirectoryLoad() {
+        clearTimeout(state.searchTimer);
+        state.searchTimer = setTimeout(loadDirectory, 220);
+    }
+
+    function renderSummary() {
+        document.getElementById('statStudents').textContent = state.summary.activeStudents || 0;
+        document.getElementById('statClasses').textContent = state.summary.activeClasses || 0;
+        document.getElementById('statEnrollments').textContent = state.summary.activeEnrollments || 0;
+        document.getElementById('statMissingLine').textContent = state.summary.missingLineCount || 0;
+        document.getElementById('statUnassigned').textContent = state.summary.unassignedStudents || 0;
+        document.getElementById('statMissingData').textContent = state.summary.missingDataCount || 0;
+        renderHealthCards();
+    }
+
+    function renderHealthCards() {
+        const activeStudents = Number(state.summary.activeStudents || 0);
+        const activeEnrollments = Number(state.summary.activeEnrollments || 0);
+        const importedStudents = Number(state.summary.importedStudents || 0);
+        const missingLine = Number(state.summary.missingLineCount || 0);
+        const missingData = Number(state.summary.missingDataCount || 0);
+        const unassigned = Number(state.summary.unassignedStudents || 0);
+        const lineReady = Math.max(activeStudents - missingLine, 0);
+        const linePercent = activeStudents ? Math.round((lineReady * 100) / activeStudents) : 0;
+        const importPercent = activeStudents ? Math.round((importedStudents * 100) / activeStudents) : 0;
+
+        setText('healthEnrollment', activeStudents
+                ? `${activeEnrollments} 筆有效分班，${unassigned} 位學生尚未分班。若學生同時上美語與安親，分班數會高於學生數。`
+                : '尚未有啟用學生，請先從課表 Excel 匯入 Reading Assignment。');
+        setText('healthLine', `${lineReady}/${activeStudents} 位學生已有 LINE ID，覆蓋率 ${linePercent}%。缺資料可到家長聯絡資料補齊。`);
+        setText('healthImport', `${importedStudents}/${activeStudents} 位學生由 Excel 同步，匯入覆蓋率 ${importPercent}%。手動校正會保留在資料庫。`);
+        setText('healthNextAction', unassigned
+                ? `先處理 ${unassigned} 位未分班學生，再補 ${missingData} 位資料未完整學生。`
+                : missingLine
+                    ? `目前優先處理 ${missingLine} 位缺 LINE ID 的學生，完成後點名通知中心才會更完整。`
+                    : 'LINE ID 已補齊，可以進一步檢查接送備註與緊急聯絡人。');
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function renderClassOptions() {
+        const selectedClass = classFilter.value;
+        classFilter.innerHTML = `<option value="">所有班級</option>` + state.classes.map(item =>
+                `<option value="${item.id}">${escapeHtml(item.code)} (${item.activeStudentCount})</option>`
+        ).join('');
+        classFilter.value = selectedClass;
+
+        const assigned = new Set((state.selectedStudent?.classes || []).map(item => String(item.id)));
+        const addSelect = document.getElementById('addClassSelect');
+        addSelect.innerHTML = `<option value="">選擇要加入的班級</option>` + state.classes
+                .filter(item => !assigned.has(String(item.id)))
+                .map(item => `<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`)
+                .join('');
+    }
+
+    function renderClassList() {
+        document.getElementById('classCountLabel').textContent = `${state.classes.length} 班`;
+        if (!state.classes.length) {
+            classList.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i> 尚未建立班級資料</div>`;
+            return;
+        }
+        const current = classFilter.value;
+        classList.innerHTML = `
+            <button class="class-item ${current ? '' : 'active'}" type="button" onclick="selectClassFilter('')">
+                <div class="class-line"><span class="class-code">所有班級</span><span class="class-count">${state.summary.activeEnrollments || 0}</span></div>
+                <div class="class-category">全部有效分班</div>
+            </button>
+            ${state.classes.map(item => `
+                <button class="class-item ${String(item.id) === current ? 'active' : ''}" type="button" onclick="selectClassFilter('${item.id}')">
+                    <div class="class-line"><span class="class-code">${escapeHtml(item.code)}</span><span class="class-count">${item.activeStudentCount}</span></div>
+                    <div class="class-category">${escapeHtml(categoryLabel(item.category))}</div>
+                </button>
+            `).join('')}
+        `;
+    }
+
+    function renderStudents() {
+        document.getElementById('studentCountLabel').textContent = `顯示 ${state.students.length} 位學生`;
+        if (!state.students.length) {
+            studentTableWrap.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i> 沒有符合條件的學生</div>`;
+            return;
+        }
+
+        studentTableWrap.innerHTML = `
+            <table>
+                <thead>
+                <tr>
+                    <th>學生</th>
+                    <th>學校 / 年級</th>
+                    <th>目前班級</th>
+                    <th>家長聯絡</th>
+                    <th>資料完整度</th>
+                    <th>來源</th>
+                    <th style="text-align: right;">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                ${state.students.map(student => `
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="avatar">${escapeHtml(initialOf(student))}</div>
+                                <div>
+                                    <div class="student-name">${escapeHtml(student.chineseName || '-')}</div>
+                                    <div class="student-sub">${escapeHtml(student.englishName || '未填英文名')}｜${escapeHtml(student.studentNo || '-')}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="meta-text">${escapeHtml(student.school || '未填學校')}</div>
+                            <div class="student-sub">${escapeHtml(student.gradeLevel || '未填年級')}</div>
+                        </td>
+                        <td><div class="chip-list">${renderClassChips(student.classes)}</div></td>
+                        <td>
+                            ${renderContactBadge(student)}
+                            <div class="student-sub">${escapeHtml(student.parentPhone || '未填電話')}</div>
+                        </td>
+                        <td>${renderQualityBadge(student)}</td>
+                        <td>${renderSourceBadge(student.importSource)}</td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="utility-btn" type="button" onclick="openStudentModal(${student.id})"><i class="fa-solid fa-pen-to-square"></i> 編輯</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function selectClassFilter(classId) {
+        classFilter.value = classId;
+        loadDirectory();
+    }
+
+    function clearFilters() {
+        studentSearch.value = '';
+        classFilter.value = '';
+        contactFilter.value = '';
+        includeInactive.checked = false;
+        loadDirectory();
+    }
+
+    async function openStudentModal(studentId) {
+        try {
+            const response = await fetch(`/api/admin/students/${studentId}`, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error(await readError(response));
+            state.selectedStudent = await response.json();
+            fillStudentModal();
+            studentModal.classList.add('show');
+        } catch (error) {
+            window.BrocaAdmin?.notify?.(error.message || '學生資料讀取失敗', 'danger');
+        }
+    }
+
+    function fillStudentModal() {
+        const student = state.selectedStudent;
+        document.getElementById('modalAvatar').textContent = initialOf(student);
+        document.getElementById('studentModalTitle').textContent = student.chineseName || '學生資料';
+        document.getElementById('studentModalMeta').textContent = `${student.englishName || '未填英文名'}｜${student.studentNo || '-'}`;
+        document.getElementById('editChineseName').value = student.chineseName || '';
+        document.getElementById('editEnglishName').value = student.englishName || '';
+        document.getElementById('editSchool').value = student.school || '';
+        document.getElementById('editGradeLevel').value = student.gradeLevel || '';
+        document.getElementById('editParentName').value = student.parentName || '';
+        document.getElementById('editParentPhone').value = student.parentPhone || '';
+        document.getElementById('editParentLineId').value = student.parentLineId || '';
+        document.getElementById('editPickupNote').value = student.pickupNote || '';
+        document.getElementById('editEmergencyContactName').value = student.emergencyContactName || '';
+        document.getElementById('editEmergencyContactPhone').value = student.emergencyContactPhone || '';
+        document.getElementById('editActive').checked = student.active !== false;
+        modalStatus.textContent = student.missingFields?.length
+                ? `尚缺：${student.missingFields.join('、')}`
+                : '資料完整，尚未變更';
+        renderModalEnrollments();
+        renderClassOptions();
+    }
+
+    function renderModalEnrollments() {
+        const list = document.getElementById('modalEnrollments');
+        const classes = state.selectedStudent?.classes || [];
+        if (!classes.length) {
+            list.innerHTML = `<div class="empty-state" style="min-height: 140px;"><i class="fa-regular fa-folder-open"></i> 尚未分班</div>`;
+            return;
+        }
+        list.innerHTML = classes.map(item => `
+            <div class="enrollment-row">
+                <div>
+                    <strong>${escapeHtml(item.code)}</strong>
+                    <span>${escapeHtml(categoryLabel(item.category))}｜${item.activeStudentCount} 人</span>
+                </div>
+                <button class="danger-btn" type="button" onclick="removeStudentClass(${item.id}, '${escapeHtml(item.code)}')"><i class="fa-solid fa-user-minus"></i> 移出</button>
+            </div>
+        `).join('');
+    }
+
+    async function saveStudentProfile() {
+        if (!state.selectedStudent) return;
+        modalStatus.textContent = '儲存中...';
+        const payload = {
+            chineseName: document.getElementById('editChineseName').value.trim(),
+            englishName: document.getElementById('editEnglishName').value.trim(),
+            school: document.getElementById('editSchool').value.trim(),
+            gradeLevel: document.getElementById('editGradeLevel').value.trim(),
+            parentName: document.getElementById('editParentName').value.trim(),
+            parentPhone: document.getElementById('editParentPhone').value.trim(),
+            parentLineId: document.getElementById('editParentLineId').value.trim(),
+            pickupNote: document.getElementById('editPickupNote').value.trim(),
+            emergencyContactName: document.getElementById('editEmergencyContactName').value.trim(),
+            emergencyContactPhone: document.getElementById('editEmergencyContactPhone').value.trim(),
+            active: document.getElementById('editActive').checked
+        };
+        if (!payload.chineseName) {
+            modalStatus.textContent = '中文姓名不可空白';
+            return;
+        }
+        try {
+            const response = await fetch(`/api/admin/students/${state.selectedStudent.id}/profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error(await readError(response));
+            state.selectedStudent = await response.json();
+            fillStudentModal();
+            await loadDirectory();
+            modalStatus.textContent = '已儲存學生資料';
+        } catch (error) {
+            modalStatus.textContent = error.message || '儲存失敗';
+        }
+    }
+
+    async function addSelectedClass() {
+        if (!state.selectedStudent) return;
+        const classId = document.getElementById('addClassSelect').value;
+        if (!classId) {
+            modalStatus.textContent = '請選擇要加入的班級';
+            return;
+        }
+        modalStatus.textContent = '加入班級中...';
+        try {
+            const response = await fetch(`/api/admin/students/${state.selectedStudent.id}/enrollments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ classId: Number(classId) })
+            });
+            if (!response.ok) throw new Error(await readError(response));
+            state.selectedStudent = await response.json();
+            renderModalEnrollments();
+            renderClassOptions();
+            await loadDirectory();
+            modalStatus.textContent = '已加入班級';
+        } catch (error) {
+            modalStatus.textContent = error.message || '加入班級失敗';
+        }
+    }
+
+    async function removeStudentClass(classId, classCode) {
+        if (!state.selectedStudent) return;
+        if (!confirm(`確定要將 ${state.selectedStudent.chineseName || '此學生'} 移出 ${classCode}？`)) return;
+        modalStatus.textContent = '移出班級中...';
+        try {
+            const response = await fetch(`/api/admin/students/${state.selectedStudent.id}/enrollments/${classId}/remove`, {
+                method: 'POST',
+                credentials: 'same-origin'
+            });
+            if (!response.ok) throw new Error(await readError(response));
+            state.selectedStudent = await response.json();
+            renderModalEnrollments();
+            renderClassOptions();
+            await loadDirectory();
+            modalStatus.textContent = '已移出班級';
+        } catch (error) {
+            modalStatus.textContent = error.message || '移出班級失敗';
+        }
+    }
+
+    function closeStudentModal() {
+        studentModal.classList.remove('show');
+        state.selectedStudent = null;
+    }
+
+    function renderClassChips(classes) {
+        if (!classes || !classes.length) return `<span class="muted">尚未分班</span>`;
+        return classes.map(item => `<span class="class-chip"><i class="fa-solid fa-layer-group"></i>${escapeHtml(item.code)}</span>`).join('');
+    }
+
+    function renderContactBadge(student) {
+        if (student.parentLineId) {
+            return `<span class="contact-badge contact-ready"><i class="fa-brands fa-line"></i> LINE 已建立</span>`;
+        }
+        return `<span class="contact-badge contact-missing"><i class="fa-solid fa-triangle-exclamation"></i> 缺 LINE ID</span>`;
+    }
+
+    function renderQualityBadge(student) {
+        const score = Number(student.completionScore || 0);
+        const missing = Array.isArray(student.missingFields) ? student.missingFields : [];
+        const cls = score >= 100 ? 'quality-good' : score >= 70 ? 'quality-ok' : 'quality-warn';
+        const icon = score >= 100 ? 'fa-circle-check' : 'fa-list-check';
+        const missingText = missing.length ? `<div class="missing-list">缺：${escapeHtml(missing.slice(0, 4).join('、'))}${missing.length > 4 ? '...' : ''}</div>` : '';
+        return `<span class="quality-badge ${cls}"><i class="fa-solid ${icon}"></i>${escapeHtml(student.completionLabel || '需整理')} ${score}%</span>${missingText}`;
+    }
+
+    function renderSourceBadge(source) {
+        if (source === 'READING_ASSIGNMENT') {
+            return `<span class="source-badge source-excel"><i class="fa-solid fa-file-excel"></i> Excel</span>`;
+        }
+        if (source === 'REGISTRATION') {
+            return `<span class="source-badge source-registration"><i class="fa-solid fa-clipboard-list"></i> 招生</span>`;
+        }
+        return `<span class="source-badge source-manual"><i class="fa-solid fa-pen"></i> 手動</span>`;
+    }
+
+    function categoryLabel(category) {
+        const labels = {
+            ENGLISH: '美語班',
+            GEPT: 'GEPT',
+            KINDERGARTEN: '幼兒班',
+            JUNIOR: '國中班',
+            SENIOR: '高中班'
+        };
+        return labels[category] || category || '未分類';
+    }
+
+    function initialOf(student) {
+        const text = student?.chineseName || student?.englishName || '學';
+        return String(text).trim().charAt(0).toUpperCase() || '學';
+    }
+
+    function applyInitialParams() {
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get('q') || params.get('studentNo') || '';
+        if (query) studentSearch.value = query;
+        const contactStatus = params.get('contactStatus') || '';
+        if (contactStatus) contactFilter.value = contactStatus;
+        state.pendingStudentId = params.get('studentId');
+    }
+
+    function openPendingStudent() {
+        if (!state.pendingStudentId) return;
+        const studentId = Number(state.pendingStudentId);
+        state.pendingStudentId = null;
+        if (Number.isFinite(studentId)) {
+            openStudentModal(studentId);
+        }
+    }
+
+    async function readError(response) {
+        try {
+            const body = await response.json();
+            return body.detail || body.message || `操作失敗 (${response.status})`;
+        } catch (ignored) {
+            return `操作失敗 (${response.status})`;
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeStudentModal();
+    });
+
+    studentModal.addEventListener('click', event => {
+        if (event.target === studentModal) closeStudentModal();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyInitialParams();
+        loadDirectory();
+    });
+</script>
+<script src="admin-session.js"></script>
+</body>
+</html>

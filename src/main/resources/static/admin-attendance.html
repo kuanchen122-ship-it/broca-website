@@ -1,0 +1,692 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班級點名系統 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Core Variables --- */
+        :root {
+            --bg-admin: #f8fafc;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --transition-smooth: all 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { background-color: var(--bg-admin); color: var(--text-main); display: flex; min-height: 100vh; overflow: auto; }
+
+        /* --- 1. Sidebar --- */
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background-color: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; transition: var(--transition-smooth); }
+        .nav-link i { font-size: 18px; width: 30px; text-align: center; margin-right: 10px; }
+        .nav-link:hover { background-color: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background-color: rgba(0,0,0,0.15); color: var(--brand-accent); }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: #ef4444; color: var(--white); }
+
+        /* --- 2. Main Content --- */
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: visible; }
+
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); z-index: 10; flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 20px; font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .back-btn { display: flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-weight: 700; font-size: 14px; transition: var(--transition-smooth); padding: 8px 12px; border-radius: 6px; }
+        .back-btn:hover { background-color: #f1f5f9; color: var(--text-main); }
+
+        .session-date-input { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: var(--text-main); font-weight: 800; outline: none; }
+        .session-date-input:focus { border-color: var(--brand-primary); background: var(--white); }
+
+        .save-btn { display: flex; align-items: center; gap: 8px; background-color: var(--brand-primary); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; transition: var(--transition-smooth); }
+        .save-btn:hover { background-color: var(--sidebar-hover); transform: translateY(-2px); }
+
+        .content-area { flex: 1; width: 100%; max-width: 1680px; margin: 0 auto; padding: 26px 30px 36px; overflow: visible; }
+
+        .info-panel { background: var(--white); padding: 25px 30px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+        .class-meta h1 { font-size: 24px; font-weight: 800; color: var(--brand-primary); margin-bottom: 8px; }
+        .class-meta p { font-size: 14px; color: var(--text-muted); font-weight: 600; display: flex; gap: 20px; }
+        .class-meta i { margin-right: 6px; color: var(--text-muted); }
+        .class-picker-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        .class-select { min-width: 220px; min-height: 40px; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #f8fafc; color: var(--text-main); font-weight: 800; outline: none; }
+        .sync-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; background: #ecfdf5; color: var(--brand-primary); font-size: 12px; font-weight: 900; }
+
+        .attendance-stats { display: flex; gap: 15px; }
+        .stat-box { background: #f8fafc; padding: 10px 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color); min-width: 90px; }
+        .stat-box.total { border-bottom: 3px solid var(--brand-primary); }
+        .stat-box.present { border-bottom: 3px solid var(--success); }
+        .stat-box.late { border-bottom: 3px solid var(--warning); }
+        .stat-box.leave { border-bottom: 3px solid var(--info); }
+        .stat-box.absent { border-bottom: 3px solid var(--danger); }
+        .stat-num { font-size: 20px; font-weight: 800; }
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+
+        .attendance-command {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr) minmax(260px, 0.8fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .command-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 18px;
+            padding: 17px 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .command-card strong {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 950;
+            margin-bottom: 8px;
+        }
+
+        .command-card span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.6;
+        }
+
+        .progress-track {
+            height: 8px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e2e8f0;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--brand-primary), #10b981);
+            transition: width 0.24s ease;
+        }
+
+        .roll-call-container { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border-color); overflow-x: auto; overflow-y: hidden; margin-bottom: 25px; }
+        table { width: 100%; min-width: 920px; border-collapse: collapse; text-align: left; }
+        th { background-color: #f8fafc; padding: 18px 25px; font-size: 14px; color: var(--text-muted); border-bottom: 2px solid var(--border-color); }
+        td { padding: 15px 25px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        .empty-row td { padding: 42px 24px; text-align: center; color: var(--text-muted); font-weight: 800; line-height: 1.6; }
+
+        .student-cell { display: flex; align-items: center; gap: 15px; }
+        .student-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #64748b; font-size: 14px; }
+        .student-info h4 { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+        .student-info p { font-size: 12px; color: var(--text-muted); }
+
+        .status-toggles { display: flex; gap: 6px; flex-wrap: wrap; }
+        .toggle-btn { padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; border: 1px solid var(--border-color); background: var(--white); color: var(--text-muted); cursor: pointer; transition: var(--transition-smooth); }
+
+        .toggle-btn.active-present { background: var(--success); color: white; border-color: var(--success); }
+        .toggle-btn.active-late { background: var(--warning); color: white; border-color: var(--warning); }
+        .toggle-btn.active-leave { background: var(--info); color: white; border-color: var(--info); }
+        .toggle-btn.active-absent { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* SIMPLIFIED: Only arrival time for late state */
+        .late-details-box { display: flex; align-items: center; gap: 8px; margin-top: 8px; background: #fffbeb; padding: 6px 12px; border-radius: 6px; border: 1px solid #fde68a; width: fit-content; }
+        .late-details-box span { font-size: 12px; font-weight: 700; color: #b45309; }
+        .late-input { width: 75px; padding: 4px 8px; border: 1px solid #f59e0b; border-radius: 4px; font-size: 12px; font-weight: 700; outline: none; text-align: center; background: #fff; }
+
+        .note-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #f8fafc; }
+        .note-input:focus { border-color: var(--brand-primary); background: var(--white); }
+
+        .notify-wrapper { padding: 20px 30px; background: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 15px; min-width: 920px; }
+        .switch-container { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 700; }
+        .switch { position: relative; width: 44px; height: 24px; background-color: #cbd5e1; border-radius: 24px; transition: 0.3s; }
+        .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background-color: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .switch { background-color: #064E3B; }
+        input:checked + .switch::after { transform: translateX(20px); }
+        .switch-container input { display: none; }
+        .switch-container.disabled { cursor: not-allowed; color: var(--text-muted); }
+        .switch-container.disabled .switch { background-color: #e2e8f0; }
+
+        /* UPDATED: Live LINE Push Simulation */
+        .live-preview-panel { background: linear-gradient(135deg, #f8fafc, #eefcf4); border-radius: var(--radius-lg); padding: 20px 25px; border: 1px solid #cbd5e1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 430px); gap: 18px; align-items: start; }
+        .preview-title { font-size: 13px; font-weight: 900; color: #475569; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .preview-copy { color: var(--text-muted); font-size: 13px; font-weight: 750; line-height: 1.7; }
+        .line-mock-card { background: var(--white); border-radius: 14px; padding: 15px; border: 1px solid #dbe7df; max-width: 430px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06); }
+        .line-mock-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: var(--brand-primary); }
+        .line-mock-body { font-size: 13px; font-weight: 700; color: #334155; line-height: 1.75; background: #f1f5f9; padding: 12px 13px; border-radius: 10px; white-space: pre-line; }
+
+        @media (max-width: 1180px) {
+            .info-panel { align-items: stretch; flex-direction: column; }
+            .attendance-command { grid-template-columns: 1fr; }
+            .attendance-stats { width: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+            .live-preview-panel { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 860px) {
+            body { display: block; }
+            .sidebar { display: none; }
+            .topbar { min-height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+            .topbar-left { gap: 12px; }
+            .topbar-right { width: 100%; justify-content: stretch; }
+            .topbar-right > * { width: 100%; justify-content: center; }
+            .content-area { padding: 16px; }
+            .info-panel { padding: 18px; }
+            .class-picker-row { align-items: stretch; flex-direction: column; }
+            .class-select { width: 100%; min-width: 0; }
+            .class-meta p { flex-direction: column; gap: 8px; }
+            .attendance-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .line-mock-card { max-width: none; }
+        }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link active"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="mobile-rollcall.html" class="nav-link"><i class="fa-solid fa-mobile-screen"></i> 手機點名</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-user-check" style="color: var(--brand-primary);"></i> 點名管理表
+        </div>
+        <div class="topbar-right">
+            <input type="date" id="sessionDate" class="session-date-input" aria-label="點名日期">
+            <a href="admin-schedule.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> 返回課表</a>
+            <button class="save-btn" onclick="saveAttendance()">
+                <i class="fa-solid fa-cloud-arrow-up"></i> 儲存點名
+            </button>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+        <div class="info-panel">
+            <div class="class-meta">
+                <div class="class-picker-row">
+                    <select class="class-select" id="classSelect" onchange="loadRoster(this.value)">
+                        <option value="">讀取班級中...</option>
+                    </select>
+                    <span class="sync-badge"><i class="fa-solid fa-file-excel"></i> Reading Assignment 名單</span>
+                </div>
+                <h1 id="classTitle">班級點名系統 <span style="font-size: 12px; background: var(--warning); color: white; padding: 3px 8px; border-radius: 4px; vertical-align: middle;">點名中</span></h1>
+                <p id="classMetaLine">
+                    <span><i class="fa-solid fa-circle-info"></i> 請先匯入 Excel，系統會從 Reading Assignment 帶入學生名單</span>
+                </p>
+            </div>
+            <div class="attendance-stats">
+                <div class="stat-box total">
+                    <div class="stat-num" id="totalCount">0</div>
+                    <div class="stat-label">總名單</div>
+                </div>
+                <div class="stat-box present">
+                    <div class="stat-num" id="presentCount">0</div>
+                    <div class="stat-label">準時/實到</div>
+                </div>
+                <div class="stat-box late">
+                    <div class="stat-num" id="lateCount">0</div>
+                    <div class="stat-label">遲到</div>
+                </div>
+                <div class="stat-box leave">
+                    <div class="stat-num" id="leaveCount">0</div>
+                    <div class="stat-label">已請假</div>
+                </div>
+                <div class="stat-box absent">
+                    <div class="stat-num" id="absentCount">0</div>
+                    <div class="stat-label">缺曠課</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="attendance-command" aria-label="點名操作狀態">
+            <article class="command-card">
+                <strong><i class="fa-solid fa-list-check" style="color: var(--brand-primary);"></i> 點名完成度</strong>
+                <span id="attendanceProgressText">尚未載入班級名單。</span>
+                <div class="progress-track"><div class="progress-fill" id="attendanceProgressFill"></div></div>
+            </article>
+            <article class="command-card">
+                <strong><i class="fa-solid fa-database" style="color: var(--info);"></i> 名單來源</strong>
+                <span id="rosterSourceText">等待 Reading Assignment / 班級分發資料同步。</span>
+            </article>
+            <article class="command-card">
+                <strong><i class="fa-brands fa-line" style="color: #06c755;"></i> LINE 狀態</strong>
+                <span id="lineModeText">目前只保留通知草稿，不會正式推播。</span>
+            </article>
+        </section>
+
+        <div class="roll-call-container">
+            <table>
+                <thead>
+                <tr>
+                    <th width="8%">座號</th>
+                    <th width="25%">學生資訊</th>
+                    <th width="40%">出缺席狀態 與 抵達時間</th>
+                    <th width="27%">備註 / 聯絡事項</th>
+                </tr>
+                </thead>
+                <tbody id="attendanceRows">
+                <tr class="empty-row">
+                    <td colspan="4">正在讀取班級名單...<br>名單會由 Reading Assignment 匯入資料自動帶入。</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="notify-wrapper">
+                <label class="switch-container disabled" title="LINE Messaging API 尚未串接，目前只產生預覽文字。">
+                    <input type="checkbox" id="lineNotifyToggle" disabled>
+                    <div class="switch"></div>
+                    <span id="lineNotifyStatus">LINE 通知待串接，目前僅預覽</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="live-preview-panel">
+            <div>
+                <div class="preview-title"><i class="fa-brands fa-line" style="color: #06c755; font-size: 16px;"></i> LINE 官方帳號通知草稿預覽</div>
+                <div class="preview-copy">這裡會跟著點名狀態即時更新。正式接上 LINE Messaging API 前，系統只儲存點名與草稿狀態，不會發送給家長。</div>
+            </div>
+            <div class="line-mock-card">
+                <div class="line-mock-header"><i class="fa-solid fa-circle" style="font-size: 8px; color: #10b981;"></i> 布魯卡美語官方通知</div>
+                <div class="line-mock-body" id="linePreviewBody">【LINE 通知草稿】
+親愛的家長您好：
+選擇班級並調整學生出缺席後，這裡會顯示實際通知草稿。</div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    const classSelect = document.getElementById('classSelect');
+    const attendanceRows = document.getElementById('attendanceRows');
+    const classTitle = document.getElementById('classTitle');
+    const classMetaLine = document.getElementById('classMetaLine');
+    const totalCount = document.getElementById('totalCount');
+    const presentCount = document.getElementById('presentCount');
+    const lateCount = document.getElementById('lateCount');
+    const leaveCount = document.getElementById('leaveCount');
+    const absentCount = document.getElementById('absentCount');
+    const attendanceProgressText = document.getElementById('attendanceProgressText');
+    const attendanceProgressFill = document.getElementById('attendanceProgressFill');
+    const rosterSourceText = document.getElementById('rosterSourceText');
+    const lineModeText = document.getElementById('lineModeText');
+    const sessionDateInput = document.getElementById('sessionDate');
+    const lineNotifyToggle = document.getElementById('lineNotifyToggle');
+    const lineNotifyStatus = document.getElementById('lineNotifyStatus');
+    const linePreviewBody = document.getElementById('linePreviewBody');
+    const pageParams = new URLSearchParams(window.location.search);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        sessionDateInput.value = pageParams.get('date') || window.BrocaAdmin.localDateValue();
+        sessionDateInput.addEventListener('change', () => {
+            if (classSelect.value) loadRoster(classSelect.value);
+        });
+        attendanceRows.addEventListener('input', updateLinePreview);
+        loadClasses();
+        loadLineIntegrationStatus();
+    });
+
+    async function loadLineIntegrationStatus() {
+        try {
+            const response = await fetch('/api/admin/line/overview', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('line unavailable');
+            const data = await response.json();
+            const ready = data.config && data.config.mode === 'READY_TO_SEND';
+            const review = data.config && data.config.mode === 'READY_FOR_REVIEW';
+            lineNotifyToggle.disabled = !ready;
+            lineNotifyToggle.closest('.switch-container')?.classList.toggle('disabled', !ready);
+            lineNotifyStatus.textContent = ready
+                    ? 'LINE 通知可發送，儲存點名時同步推播'
+                    : review ? 'LINE 憑證已填，正式發送尚未啟用' : 'LINE 尚未設定 Token，目前僅預覽';
+            lineModeText.textContent = ready
+                    ? '正式推播已啟用；儲存時會依設定送出通知。'
+                    : review ? 'Token 與 Secret 已填寫，主任尚未開啟正式發送。' : '尚未設定 LINE Token，目前只顯示草稿預覽。';
+        } catch (error) {
+            lineNotifyToggle.disabled = true;
+            lineNotifyToggle.checked = false;
+            lineNotifyToggle.closest('.switch-container')?.classList.add('disabled');
+            lineNotifyStatus.textContent = 'LINE 由主任設定，目前僅預覽';
+            lineModeText.textContent = 'LINE 狀態由主任端設定；目前此頁只保留草稿預覽。';
+        }
+    }
+
+    async function loadClasses() {
+        try {
+            const response = await fetch('/api/admin/classes', { credentials: 'same-origin' });
+            if (response.status === 401 || response.status === 403) {
+                renderRosterMessage('登入狀態已失效，請重新登入後再使用點名系統。');
+                return;
+            }
+            if (!response.ok) {
+                renderRosterMessage(`無法讀取班級名單 (${response.status})。`);
+                return;
+            }
+
+            const classes = await response.json();
+            if (!classes.length) {
+                classSelect.innerHTML = '<option value="">尚無班級名單</option>';
+                renderRosterMessage('尚未匯入 Reading Assignment。請到數位互動課表匯入 Excel 後，學生名單會自動同步到這裡。');
+                return;
+            }
+
+            classSelect.innerHTML = classes.map(cls =>
+                    `<option value="${cls.id}">${escapeHtml(cls.code)} (${cls.activeStudentCount} 人)</option>`
+            ).join('');
+            const requestedClassId = pageParams.get('classId');
+            const selectedClass = classes.find(cls => String(cls.id) === String(requestedClassId)) || classes[0];
+            classSelect.value = selectedClass.id;
+            await loadRoster(selectedClass.id);
+        } catch (error) {
+            renderRosterMessage('目前沒有連到 Spring Boot 後端，所以無法讀取班級名單。');
+        }
+    }
+
+    async function loadRoster(classId) {
+        if (!classId) return;
+        renderRosterMessage('正在讀取學生名單...');
+
+        try {
+            const response = await fetch(`/api/admin/classes/${encodeURIComponent(classId)}/roster`, { credentials: 'same-origin' });
+            if (!response.ok) {
+                renderRosterMessage(`無法讀取學生名單 (${response.status})。`);
+                return;
+            }
+
+            const roster = await response.json();
+            classTitle.innerHTML = `${escapeHtml(roster.classCode || '班級')} 點名 <span style="font-size: 12px; background: var(--warning); color: white; padding: 3px 8px; border-radius: 4px; vertical-align: middle;">點名中</span>`;
+            classMetaLine.innerHTML = `
+                <span><i class="fa-solid fa-users"></i> 名單：${roster.activeStudentCount || 0} 人</span>
+                <span><i class="fa-solid fa-layer-group"></i> 類別：${escapeHtml(roster.category || '-')}</span>
+                <span><i class="fa-solid fa-database"></i> 來源：Reading Assignment</span>
+            `;
+            rosterSourceText.textContent = `${roster.classCode || '班級'} 已同步 ${roster.activeStudentCount || 0} 位學生，來源為 Reading Assignment / 班級分發資料。`;
+
+            if (!roster.students || roster.students.length === 0) {
+                renderRosterMessage('這個班級目前沒有啟用中的學生。');
+                return;
+            }
+
+            attendanceRows.innerHTML = roster.students.map((student, index) => renderStudentRow(student, index)).join('');
+            await loadAttendanceSession(roster.id);
+            updateStats();
+            updateLinePreview();
+        } catch (error) {
+            renderRosterMessage('讀取學生名單時發生錯誤。');
+        }
+    }
+
+    function renderStudentRow(student, index) {
+        const number = String(index + 1).padStart(2, '0');
+        const initial = (student.chineseName || student.englishName || '?').slice(0, 1);
+        const englishName = student.englishName ? ` / ${escapeHtml(student.englishName)}` : '';
+        const schoolGrade = [student.school, student.gradeLevel ? `${student.gradeLevel} 年級` : ''].filter(Boolean).join('・');
+        return `
+            <tr data-student-id="${student.id}" data-status="present" data-student-name="${escapeHtml(student.chineseName || student.englishName || '學生')}">
+                <td><span style="font-weight: 800; color: var(--text-muted);">${number}</span></td>
+                <td>
+                    <div class="student-cell">
+                        <div class="student-avatar">${escapeHtml(initial)}</div>
+                        <div class="student-info">
+                            <h4>${escapeHtml(student.chineseName || '')}${englishName}</h4>
+                            <p>${escapeHtml(student.studentNo || '')}${schoolGrade ? `｜${escapeHtml(schoolGrade)}` : ''}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="status-toggles">
+                        <button class="toggle-btn active-present" data-status-option="present" onclick="setAttendance(this, 'present')">準時</button>
+                        <button class="toggle-btn" data-status-option="late" onclick="setAttendance(this, 'late')">遲到</button>
+                        <button class="toggle-btn" data-status-option="leave" onclick="setAttendance(this, 'leave')">事/病假</button>
+                        <button class="toggle-btn" data-status-option="absent" onclick="setAttendance(this, 'absent')">曠課</button>
+                    </div>
+                    <div class="late-details-box" style="display: none;">
+                        <span>抵達時間:</span>
+                        <input type="text" class="late-input" placeholder="16:30">
+                    </div>
+                </td>
+                <td><input type="text" class="note-input" placeholder="選填..."></td>
+            </tr>
+        `;
+    }
+
+    async function loadAttendanceSession(classId) {
+        if (!classId || !sessionDateInput.value) return;
+        try {
+            const response = await fetch(`/api/admin/attendance/sessions?classId=${encodeURIComponent(classId)}&sessionDate=${encodeURIComponent(sessionDateInput.value)}`, { credentials: 'same-origin' });
+            if (!response.ok) return;
+
+            const session = await response.json();
+            (session.rows || []).forEach(row => {
+                const tr = attendanceRows.querySelector(`tr[data-student-id="${row.studentId}"]`);
+                if (!tr) return;
+
+                const status = normalizeClientStatus(row.status);
+                const button = tr.querySelector(`[data-status-option="${status}"]`);
+                if (button) setAttendance(button, status);
+
+                const lateInput = tr.querySelector('.late-input');
+                if (lateInput) lateInput.value = row.arrivalTime ? row.arrivalTime.slice(0, 5) : '';
+
+                const noteInput = tr.querySelector('.note-input');
+                if (noteInput) noteInput.value = row.note || '';
+            });
+        } catch (error) {
+            // Keep the roster usable even if no attendance has been saved for this day yet.
+        }
+    }
+
+    function renderRosterMessage(message) {
+        attendanceRows.innerHTML = `<tr class="empty-row"><td colspan="4">${escapeHtml(message)}</td></tr>`;
+        totalCount.textContent = '0';
+        presentCount.textContent = '0';
+        lateCount.textContent = '0';
+        leaveCount.textContent = '0';
+        absentCount.textContent = '0';
+        attendanceProgressText.textContent = '尚未載入可點名名單。';
+        attendanceProgressFill.style.width = '0%';
+        rosterSourceText.textContent = '等待 Reading Assignment / 班級分發資料同步。';
+        updateLinePreview();
+    }
+
+    function setAttendance(clickedBtn, status) {
+        const tr = clickedBtn.closest('tr');
+        const buttonGroup = tr.querySelectorAll('.toggle-btn');
+        const lateBox = tr.querySelector('.late-details-box');
+
+        buttonGroup.forEach(btn => { btn.className = 'toggle-btn'; });
+
+        if (status === 'present') clickedBtn.classList.add('active-present');
+        if (status === 'late') clickedBtn.classList.add('active-late');
+        if (status === 'leave') clickedBtn.classList.add('active-leave');
+        if (status === 'absent') clickedBtn.classList.add('active-absent');
+
+        tr.dataset.status = status;
+        if (status === 'late') {
+            lateBox.style.display = 'flex';
+        } else {
+            lateBox.style.display = 'none';
+            const lateInput = tr.querySelector('.late-input');
+            if (lateInput) lateInput.value = '';
+        }
+        updateStats();
+        updateLinePreview();
+    }
+
+    function updateStats() {
+        const rows = Array.from(attendanceRows.querySelectorAll('tr')).filter(row => !row.classList.contains('empty-row'));
+        const late = rows.filter(row => row.querySelector('.active-late')).length;
+        const present = rows.filter(row => row.querySelector('.active-present, .active-late')).length;
+        const leave = rows.filter(row => row.querySelector('.active-leave')).length;
+        const absent = rows.filter(row => row.querySelector('.active-absent')).length;
+        const total = rows.length;
+        totalCount.textContent = total;
+        presentCount.textContent = present;
+        lateCount.textContent = late;
+        leaveCount.textContent = leave;
+        absentCount.textContent = absent;
+        const reviewed = present + leave + absent;
+        const progress = total ? Math.round((reviewed / total) * 100) : 0;
+        attendanceProgressText.textContent = total
+                ? `${reviewed} / ${total} 位已有狀態，遲到 ${late} 位。儲存前請確認請假與缺曠名單。`
+                : '尚未載入班級名單。';
+        attendanceProgressFill.style.width = `${progress}%`;
+    }
+
+    async function saveAttendance() {
+        if (!classSelect.value) {
+            window.BrocaAdmin?.notify?.('請先選擇班級。', 'warning');
+            return;
+        }
+        if (!sessionDateInput.value) {
+            window.BrocaAdmin?.notify?.('請先選擇點名日期。', 'warning');
+            return;
+        }
+
+        const rows = Array.from(attendanceRows.querySelectorAll('tr[data-student-id]'));
+        if (!rows.length) {
+            window.BrocaAdmin?.notify?.('目前沒有可儲存的學生名單。', 'warning');
+            return;
+        }
+
+        const students = rows.map(row => ({
+            studentId: Number(row.dataset.studentId),
+            status: normalizeServerStatus(row.dataset.status || 'present'),
+            arrivalTime: row.querySelector('.late-input')?.value || '',
+            note: row.querySelector('.note-input')?.value || ''
+        }));
+
+        try {
+            const response = await fetch('/api/admin/attendance/sessions', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    classId: Number(classSelect.value),
+                    sessionDate: sessionDateInput.value,
+                    lineNotificationRequested: lineNotifyToggle.checked,
+                    students
+                })
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                window.BrocaAdmin?.notify?.('登入狀態已失效，請重新登入後再儲存點名。', 'danger');
+                return;
+            }
+            if (!response.ok) {
+                window.BrocaAdmin?.notify?.(`點名儲存失敗 (${response.status})，請稍後再試。`, 'danger');
+                return;
+            }
+
+            const result = await response.json();
+            window.BrocaAdmin?.notify?.(`${result.savedCount} 筆點名已儲存。LINE 通知尚未正式串接，所以目前不會發送給家長。`, 'success');
+            updateLinePreview();
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('目前沒有連到 Spring Boot 後端，所以無法儲存點名。', 'danger');
+        }
+    }
+
+    function updateLinePreview() {
+        const rows = Array.from(attendanceRows.querySelectorAll('tr[data-student-id]'));
+        if (!rows.length) {
+            linePreviewBody.textContent = '【LINE 通知草稿】\n親愛的家長您好：\n選擇班級並調整學生出缺席後，這裡會顯示實際通知草稿。';
+            return;
+        }
+
+        const priority = rows.find(row => row.dataset.status === 'late')
+                || rows.find(row => row.dataset.status === 'absent')
+                || rows.find(row => row.dataset.status === 'leave')
+                || rows[0];
+        const name = priority.dataset.studentName || '學生';
+        const status = priority.dataset.status || 'present';
+        const className = classSelect.options[classSelect.selectedIndex]?.textContent?.replace(/\s*\(\d+\s*人\)\s*$/, '') || '班級';
+        const arrivalTime = priority.querySelector('.late-input')?.value || '抵達時間';
+        const note = priority.querySelector('.note-input')?.value.trim();
+
+        let body = `【布魯卡美語點名通知】\n親愛的家長您好：\n`;
+        if (status === 'late') {
+            body += `您的孩子「${name}」今日 ${arrivalTime} 抵達 ${className}。`;
+        } else if (status === 'absent') {
+            body += `您的孩子「${name}」今日 ${className} 點名為未到。若已請假，老師會再協助確認紀錄。`;
+        } else if (status === 'leave') {
+            body += `您的孩子「${name}」今日 ${className} 已登記請假，系統已完成點名紀錄。`;
+        } else {
+            body += `您的孩子「${name}」今日 ${className} 已完成點名，謝謝您。`;
+        }
+        if (note) body += `\n老師備註：${note}`;
+        body += `\n\n目前為後台草稿預覽；正式串接 LINE 前不會發送。`;
+        linePreviewBody.textContent = body;
+    }
+
+    function normalizeClientStatus(status) {
+        const value = String(status || 'PRESENT').toUpperCase();
+        if (value === 'LATE') return 'late';
+        if (value === 'LEAVE') return 'leave';
+        if (value === 'ABSENT') return 'absent';
+        return 'present';
+    }
+
+    function normalizeServerStatus(status) {
+        const value = String(status || 'present').toLowerCase();
+        if (value === 'late') return 'LATE';
+        if (value === 'leave') return 'LEAVE';
+        if (value === 'absent') return 'ABSENT';
+        return 'PRESENT';
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+<script src="admin-session.js"></script>
+</body>
+</html>

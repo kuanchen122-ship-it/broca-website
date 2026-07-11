@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老師工作台 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: hidden; }
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+        .main-wrapper { flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-accent); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .user-info strong { display: block; font-size: 13px; }
+        .user-info span { color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .content-area { flex: 1; overflow-y: auto; padding: 26px 30px 36px; }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>TEACHER PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link active"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="mobile-rollcall.html" class="nav-link"><i class="fa-solid fa-mobile-screen"></i> 手機點名</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item" data-admin-only><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-chalkboard-user" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>老師工作台</div>
+                <div class="topbar-subtitle" id="currentDate">載入日期中...</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="avatar" data-user-initial>B</div>
+            <div class="user-info">
+                <strong data-user-name>教職員</strong>
+                <span data-user-role>授課老師</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="teacher-hero">
+            <span class="admin-eyebrow"><i class="fa-solid fa-circle-check"></i> TODAY READY</span>
+            <h1>上課前先確認課表，進教室後直接點名。</h1>
+            <p>這裡是老師每天最常用的入口。課表由 Excel 匯入，班級名單會同步到點名系統；目前 LINE 只保留通知草稿，正式串接後才會發送給家長。</p>
+            <div class="teacher-hero-actions">
+                <a class="admin-button primary" href="admin-attendance.html"><i class="fa-solid fa-user-check"></i> 開始班級點名</a>
+                <a class="admin-button secondary" href="admin-schedule.html"><i class="fa-solid fa-calendar-days"></i> 查看今日課表</a>
+                <a class="admin-button secondary" href="mobile-rollcall.html"><i class="fa-solid fa-mobile-screen"></i> 手機點名</a>
+            </div>
+        </section>
+
+        <section class="admin-metrics">
+            <article class="admin-metric">
+                <strong id="metricClasses">--</strong>
+                <span>已同步班級</span>
+            </article>
+            <article class="admin-metric">
+                <strong id="metricStudents">--</strong>
+                <span>名單人次</span>
+            </article>
+            <article class="admin-metric">
+                <strong id="metricEnrollments">--</strong>
+                <span>平均班級人數</span>
+            </article>
+            <article class="admin-metric">
+                <strong>草稿</strong>
+                <span>LINE 通知狀態</span>
+            </article>
+        </section>
+
+        <section class="teacher-quick-grid">
+            <a class="admin-action-card" href="admin-schedule.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-calendar-check"></i></span>
+                <h3>看今日課程</h3>
+                <p>快速確認班級、教材、老師註記與主任核准狀態。</p>
+            </a>
+            <a class="admin-action-card" href="admin-learning.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-book-open-reader"></i></span>
+                <h3>學習內容</h3>
+                <p>貼上今日單字、句型與作業提醒，發布到前台學習中心。</p>
+            </a>
+            <a class="admin-action-card" href="admin-attendance.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-clipboard-check"></i></span>
+                <h3>電腦版點名</h3>
+                <p>適合櫃台或教室電腦使用，可儲存出缺席與遲到時間。</p>
+            </a>
+            <a class="admin-action-card" href="mobile-rollcall.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                <h3>手機版點名</h3>
+                <p>大按鈕、單手操作、送出前再次確認，適合上課現場。</p>
+            </a>
+        </section>
+
+        <section class="teacher-grid">
+            <article class="teacher-card">
+                <h2><i class="fa-solid fa-layer-group" style="color: var(--brand-primary);"></i> 可點名班級</h2>
+                <div class="teacher-class-list" id="classList">
+                    <div class="readiness-item pending">
+                        <i class="fa-solid fa-spinner"></i>
+                        <div>
+                            <strong>正在讀取班級</strong>
+                            <span>請稍候，系統正在確認 Reading Assignment 匯入資料。</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="teacher-card">
+                <h2><i class="fa-solid fa-route" style="color: var(--brand-primary);"></i> 今日操作順序</h2>
+                <div class="admin-step-list">
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-1"></i>
+                        <div><strong>先看課表</strong><span>確認今天的班級、教材進度與老師註記。</span></div>
+                    </div>
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-2"></i>
+                        <div><strong>選班級點名</strong><span>學生名單由 Reading Assignment / 分班資料帶入。</span></div>
+                    </div>
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-3"></i>
+                        <div><strong>儲存點名</strong><span>準時、遲到、請假、曠課會寫入 attendance 表。</span></div>
+                    </div>
+                    <div class="admin-step pending">
+                        <i class="fa-solid fa-4"></i>
+                        <div><strong>LINE 待串接</strong><span>目前只顯示通知草稿，不會真的發送給家長。</span></div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
+        loadTeacherOverview();
+    });
+
+    async function loadTeacherOverview() {
+        await loadClasses();
+    }
+
+    async function loadClasses() {
+        const classList = document.getElementById('classList');
+        try {
+            const response = await fetch('/api/admin/classes', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('classes failed');
+            const classes = await response.json();
+            const rosterTotal = classes.reduce((total, item) => total + Number(item.activeStudentCount || 0), 0);
+            const averageRoster = classes.length ? Math.round(rosterTotal / classes.length) : 0;
+            document.getElementById('metricClasses').textContent = classes.length;
+            document.getElementById('metricStudents').textContent = rosterTotal;
+            document.getElementById('metricEnrollments').textContent = averageRoster;
+
+            if (!classes.length) {
+                classList.innerHTML = emptyState('尚未匯入班級', '請主任先到數位互動課表匯入 Excel，老師工作台就會出現可點名班級。');
+                return;
+            }
+
+            classList.innerHTML = classes.slice(0, 10).map((item) => `
+                <div class="teacher-class-card">
+                    <div>
+                        <strong>${escapeHtml(item.code || item.name || '班級')}</strong>
+                        <span>${escapeHtml(item.category || '課程')}・${item.activeStudentCount || 0} 人</span>
+                    </div>
+                    <a href="admin-attendance.html?classId=${encodeURIComponent(item.id)}"><i class="fa-solid fa-arrow-right"></i> 點名</a>
+                </div>
+            `).join('');
+        } catch (error) {
+            document.getElementById('metricClasses').textContent = '--';
+            document.getElementById('metricStudents').textContent = '--';
+            document.getElementById('metricEnrollments').textContent = '--';
+            classList.innerHTML = emptyState('目前連不到後端', '請確認 Spring Boot 已啟動，或稍後重新登入。');
+        }
+    }
+
+    function emptyState(title, desc) {
+        return `
+            <div class="readiness-item pending">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                    <strong>${escapeHtml(title)}</strong>
+                    <span>${escapeHtml(desc)}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+</body>
+</html>

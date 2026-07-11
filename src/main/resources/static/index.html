@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>布魯卡美語 Broca English</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --bg-main: #f7f9f8;
+      --paper: #ffffff;
+      --ink: #11241d;
+      --body: #4a5b53;
+      --muted: #8a9a92;
+      --brand-primary: #064E3B;
+      --brand-primary-hover: #047857;
+      --brand-soft: #0a6a4f;
+      --brand-accent: #FFCE00;
+      --brand-accent-deep: #F2B600;
+      --mist: #eef4f1;
+      --line: #e4ede9;
+
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 1px 2px rgba(16,36,29,.04), 0 4px 12px -6px rgba(16,36,29,.06);
+      --shadow-md: 0 10px 26px -12px rgba(6,78,59,.14), 0 4px 10px -6px rgba(6,78,59,.08);
+      --shadow-lg: 0 30px 60px -24px rgba(6,78,59,.18), 0 12px 24px -12px rgba(6,78,59,.10);
+
+      --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-cubic:  cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ============================================================
+       BASE
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Arial Rounded MT Bold', 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+      background: var(--bg-main); color: var(--ink);
+      overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { flex: 1; }
+    a { color: inherit; }
+
+    /* ============================================================
+       KEYFRAMES
+    ============================================================ */
+    @keyframes headerFade   { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp       { from { opacity:0; transform:translateY(22px);  } to { opacity:1; transform:translateY(0); } }
+    @keyframes heroImageSettle {
+      from { transform: translate3d(0, 0, 0) scale(1.065); filter: saturate(.9) contrast(.96); }
+      to   { transform: translate3d(var(--hero-shift-x, 0), var(--hero-shift-y, 0), 0) scale(1.025); filter: saturate(1) contrast(1); }
+    }
+
+    /* ============================================================
+       SCROLL REVEAL
+    ============================================================ */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       GOLD PROGRESS BAR
+    ============================================================ */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0;
+      background: linear-gradient(90deg, var(--brand-accent), var(--brand-accent-deep));
+      box-shadow: 0 0 8px rgba(242,182,0,.5);
+      z-index: 2000; transition: width .1s linear;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 56px;
+      background: rgba(247,249,248,.82);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 1000;
+      transition: padding .4s var(--ease-out), box-shadow .4s, background .4s;
+      animation: headerFade .42s var(--ease-out) forwards;
+    }
+    header.scrolled {
+      padding-top: 10px; padding-bottom: 10px;
+      background: rgba(247,249,248,.96);
+      box-shadow: 0 4px 20px rgba(16,36,29,.08);
+    }
+    .logo a { text-decoration: none; display: flex; align-items: center; padding-top: 4px; }
+
+    nav > ul { list-style: none; display: flex; gap: 36px; align-items: center; }
+    nav > ul > li > a {
+      text-decoration: none; color: var(--brand-primary); font-weight: 700;
+      font-size: 15px; position: relative; padding-bottom: 6px; transition: color 0.3s;
+    }
+    nav > ul > li > a::after {
+      content: ''; position: absolute; width: 0; height: 3px; bottom: -2px; left: 0;
+      background: var(--brand-accent); transition: width 0.3s var(--ease-cubic); border-radius: 4px;
+    }
+    nav > ul > li > a:hover::after,
+    nav > ul > li > a.active::after { width: 100%; }
+
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      list-style: none;
+      display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,.98); backdrop-filter: blur(10px); min-width: 210px;
+      box-shadow: 0 15px 40px rgba(16,36,29,.10); border-radius: var(--radius-md); overflow: hidden;
+      padding: 10px 0; margin-top: 18px; flex-direction: column; z-index: 1001; border: 1px solid var(--line);
+    }
+    .dropdown::before { content: ''; position: absolute; width: 100%; height: 25px; bottom: -25px; left: 0; }
+    .dropdown:hover .dropdown-menu { display: flex; animation: headerFade 0.3s ease forwards; }
+    .dropdown-menu li { width: 100%; }
+    .dropdown-menu li a {
+      padding: 12px 26px; display: block; color: var(--body); font-size: 14px;
+      font-weight: 600; text-align: center; text-decoration: none; transition: all .3s var(--ease-cubic);
+    }
+    .dropdown-menu li a:hover { background: #fffbeb; color: var(--brand-accent-deep); }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-accent-deep) 100%);
+      color: #1a1a1a !important; padding: 11px 24px; border-radius: 50px; font-weight: 800;
+      transition: all .4s var(--ease-out); box-shadow: 0 6px 14px rgba(242,182,0,.28);
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(242,182,0,.4); filter: brightness(1.03); }
+
+    .menu-toggle { display: none; background: none; border: none; font-size: 25px; color: var(--brand-primary); cursor: pointer; padding: 4px 8px; }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative; width: 100%; min-height: calc(100svh - 116px);
+      background: #f3f6f4; display: flex; align-items: center;
+      overflow: hidden; padding: 92px 24px 78px; isolation: isolate;
+      --hero-shift-x: 0px; --hero-shift-y: 0px;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: -20px; z-index: -2;
+      background-image:
+        linear-gradient(90deg, rgba(247,249,248,.98) 0%, rgba(247,249,248,.94) 32%, rgba(247,249,248,.62) 58%, rgba(247,249,248,.18) 82%, rgba(247,249,248,.08) 100%),
+        linear-gradient(180deg, rgba(247,249,248,.68) 0%, rgba(247,249,248,0) 28%, rgba(247,249,248,.86) 100%),
+        url("assets/images/broca-hero-classroom.png");
+      background-size: cover; background-position: center;
+      transform: translate3d(var(--hero-shift-x), var(--hero-shift-y), 0) scale(1.025);
+      transition: transform .8s var(--ease-out);
+      animation: heroImageSettle 1s var(--ease-out) both;
+      will-change: transform;
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: auto 0 0; height: 28%;
+      background: linear-gradient(180deg, rgba(247,249,248,0), var(--bg-main));
+      z-index: -1; pointer-events: none;
+    }
+    .hero-inner {
+      width: min(1240px, 100%); margin: 0 auto; position: relative; z-index: 2;
+    }
+    .hero-copy { max-width: 720px; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 12px; color: var(--brand-soft);
+      font-weight: 800; font-size: 12px; letter-spacing: 2px; margin-bottom: 22px;
+      opacity: 0; animation: fadeUp .68s var(--ease-out) .04s forwards;
+    }
+    .hero-eyebrow::before { content: ''; width: 36px; height: 2px; background: var(--brand-accent); border-radius: 2px; }
+
+    .hero h1 {
+      max-width: 760px; font-size: 4.25rem; color: var(--ink);
+      font-weight: 900; letter-spacing: 0; line-height: 1.08;
+      opacity: 0; animation: fadeUp .74s var(--ease-out) .11s forwards;
+    }
+    .hero .subtitle {
+      max-width: 620px; font-size: 1.18rem; color: var(--body);
+      margin: 26px 0 34px; font-weight: 650; line-height: 1.9; letter-spacing: 0;
+      opacity: 0; animation: fadeUp .74s var(--ease-out) .2s forwards;
+    }
+    .hero-actions {
+      display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp .74s var(--ease-out) .29s forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px; padding: 17px 40px;
+      background: linear-gradient(135deg, var(--brand-accent) 0%, var(--brand-accent-deep) 100%);
+      color: #1a1a1a; text-decoration: none; font-weight: 800; font-size: 16px; border-radius: 50px;
+      box-shadow: 0 14px 28px rgba(242,182,0,.26);
+      transition: transform .4s var(--ease-out), box-shadow .4s, filter .4s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px); box-shadow: 0 16px 34px rgba(242,182,0,.45); filter: brightness(1.04);
+    }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px; padding: 16px 30px;
+      color: var(--brand-primary); font-weight: 800; font-size: 16px; text-decoration: none;
+      border-radius: 50px; border: 1.5px solid var(--line); transition: all .35s var(--ease-out);
+    }
+    .btn-ghost:hover { border-color: var(--brand-primary); background: rgba(6,78,59,.04); }
+    .btn-ghost i { transition: transform .35s var(--ease-cubic); }
+    .btn-ghost:hover i { transform: translateX(4px); }
+    .hero-proof {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px;
+      opacity: 0; animation: fadeUp .74s var(--ease-out) .38s forwards;
+    }
+    .hero-proof span {
+      display: inline-flex; align-items: center; min-height: 38px; padding: 8px 13px;
+      border-radius: 999px; background: rgba(255,255,255,.68);
+      border: 1px solid rgba(6,78,59,.14); color: var(--brand-primary);
+      font-size: 13px; font-weight: 800; box-shadow: 0 8px 24px rgba(16,36,29,.06);
+    }
+
+    /* ============================================================
+       SECTIONS
+    ============================================================ */
+    .section { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+    .block { margin: 120px auto; }
+    .section-head { text-align: center; margin-bottom: 60px; }
+    .eyebrow {
+      display: inline-block; color: var(--brand-soft); font-weight: 800;
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px;
+    }
+
+    /* Section title with drawn gold underline */
+    .section-title {
+      font-size: 2.2rem; font-weight: 800; color: var(--ink); letter-spacing: 0;
+      position: relative; display: inline-block;
+    }
+    .section-title::after {
+      content: ''; position: absolute; left: 50%; bottom: -14px;
+      transform: translateX(-50%); height: 3px; width: 0;
+      background: linear-gradient(90deg, var(--brand-accent), var(--brand-accent-deep));
+      border-radius: 2px;
+      transition: width .7s var(--ease-out) .1s;
+    }
+    .section-head.is-visible .section-title::after { width: 52px; }
+
+    /* ============================================================
+       FEATURES
+    ============================================================ */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .feature {
+      background: var(--paper); padding: 50px 38px; border-radius: var(--radius-lg);
+      text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+      transition: transform .5s var(--ease-spring), box-shadow .5s var(--ease-out), border-color .5s;
+    }
+    .feature:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: transparent; }
+    .feature .ic {
+      width: 70px; height: 70px; border-radius: 18px; background: var(--mist);
+      color: var(--brand-primary); display: inline-flex; align-items: center;
+      justify-content: center; font-size: 28px; margin-bottom: 26px;
+      transition: background .5s var(--ease-out), color .5s, transform .5s var(--ease-spring);
+    }
+    .feature:hover .ic { background: var(--brand-accent); color: var(--brand-primary); transform: translateY(-4px); }
+    .feature h3 { font-size: 22px; margin-bottom: 14px; color: var(--ink); font-weight: 800; }
+    .feature p { font-size: 15.5px; color: var(--body); line-height: 1.8; }
+
+    /* ============================================================
+       VISION & MISSION
+    ============================================================ */
+    .vm { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+    .vm-card {
+      border-radius: var(--radius-lg); padding: 56px 50px; display: flex; flex-direction: column;
+      position: relative; overflow: hidden; box-shadow: var(--shadow-md);
+      transition: transform .5s var(--ease-out), box-shadow .5s;
+    }
+    .vm-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .vm-card::after {
+      content: ''; position: absolute; top: 0; right: -18%; width: 48%; height: 100%;
+      background: linear-gradient(115deg, transparent 18%, rgba(255,255,255,.16) 50%, transparent 78%);
+      transform: skewX(-14deg);
+    }
+    .vm-vision  { background: linear-gradient(135deg, var(--brand-primary) 0%, #0f766e 100%); color: #fff; }
+    .vm-mission { background: linear-gradient(135deg, var(--brand-accent-deep) 0%, var(--brand-accent) 100%); color: #1a1a1a; }
+    .vm-ic {
+      width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center;
+      justify-content: center; font-size: 26px; margin-bottom: 24px;
+      background: rgba(255,255,255,.18); position: relative; z-index: 1;
+    }
+    .vm-mission .vm-ic { background: rgba(0,0,0,.10); }
+    .vm-card h3 { font-size: 24px; margin-bottom: 16px; font-weight: 800; letter-spacing: .5px; position: relative; z-index: 1; }
+    .vm-card p  { font-size: 16.5px; line-height: 1.85; position: relative; z-index: 1; }
+    .vm-vision  p { color: rgba(255,255,255,.95); }
+
+    /* ============================================================
+       最新消息卡片樣式
+    ============================================================ */
+    .news { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .news-card {
+      background: var(--paper); border-radius: var(--radius-lg); padding: 40px 34px;
+      box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+      transition: all 0.5s var(--ease-out); display: flex; flex-direction: column;
+      justify-content: space-between; text-decoration: none; color: inherit; position: relative; overflow: hidden;
+    }
+    .news-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--brand-primary); transform: scaleY(0); transition: transform 0.4s var(--ease-out); transform-origin: top;
+    }
+    .news-card:hover {
+      transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: transparent;
+    }
+    .news-card:hover::before { transform: scaleY(1); }
+
+    .idx-news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 18px; font-weight: 700; }
+    .idx-news-tag { background: #ecfdf5; color: var(--brand-primary); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
+    .idx-news-tag.honor { background: #fffbeb; color: var(--brand-accent-deep); }
+    .idx-news-tag.event { background: #f0f9ff; color: #0369a1; }
+
+    .news-card h3 { font-size: 19px; font-weight: 800; color: var(--ink); line-height: 1.45; margin-bottom: 14px; transition: color 0.3s; }
+    .news-card:hover h3 { color: var(--brand-primary); }
+    .news-card p { font-size: 14.5px; color: var(--body); line-height: 1.7; margin-bottom: 20px; text-align: justify; }
+
+    .news-readmore-btn { font-size: 14px; font-weight: 800; color: var(--brand-primary); display: flex; align-items: center; gap: 6px; transition: gap 0.3s; margin-top: auto; }
+    .news-readmore-btn i { font-size: 12px; transition: transform 0.3s; }
+    .news-card:hover .news-readmore-btn { color: var(--brand-accent-deep); }
+    .news-card:hover .news-readmore-btn i { transform: translateX(4px); }
+
+    /* ============================================================
+       BRAND STORY
+    ============================================================ */
+    .story { display: flex; gap: 80px; align-items: center; }
+    .story-img {
+      flex: 1; border-radius: var(--radius-lg); height: 420px;
+      background: linear-gradient(135deg, var(--mist) 0%, #d8e6df 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; color: var(--brand-soft); box-shadow: var(--shadow-sm); border: 8px solid #fff;
+      transition: transform .5s var(--ease-out), box-shadow .5s;
+    }
+    .story-img:hover { transform: scale(1.015); box-shadow: var(--shadow-md); }
+    .story-img i    { font-size: 40px; opacity: .55; }
+    .story-img span { font-weight: 700; font-size: 14px; letter-spacing: 1px; opacity: .7; }
+    .story-text { flex: 1; }
+    .story-text h2  { font-size: 2.3rem; margin-bottom: 22px; color: var(--ink); font-weight: 800; letter-spacing: 0; }
+    .story-text p   { line-height: 1.9; color: var(--body); font-size: 16.5px; margin-bottom: 20px; }
+    .read-more {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
+      color: var(--brand-primary); text-decoration: none; font-weight: 800; font-size: 16.5px; transition: color .35s;
+    }
+    .read-more i { transition: transform .35s var(--ease-cubic); }
+    .read-more:hover { color: var(--brand-accent-deep); }
+    .read-more:hover i { transform: translateX(6px); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer { background: #0f172a; color: #cbd5e1; padding: 76px 56px 38px; margin-top: 40px; }
+    .footer-content {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      max-width: 1240px; margin: 0 auto; padding-bottom: 38px; border-bottom: 1px solid #334155;
+      gap: 40px; flex-wrap: wrap;
+    }
+    .footer-info h3  { font-size: 23px; margin-bottom: 22px; color: #fff; font-weight: 700; }
+    .footer-info p   { font-size: 16px; line-height: 1.8; color: #94a3b8; display: flex; align-items: center; gap: 14px; margin-bottom: 13px; }
+    .footer-social   { display: flex; gap: 16px; }
+    .footer-social a {
+      color: #fff; background: #1e293b; width: 46px; height: 46px;
+      display: flex; justify-content: center; align-items: center;
+      border-radius: 50%; text-decoration: none; transition: all .4s var(--ease-out); font-size: 19px;
+    }
+    .footer-social a:hover { background: var(--brand-accent-deep); color: #0f172a; transform: translateY(-4px); }
+    .footer-bottom { text-align: center; padding-top: 36px; font-size: 14px; color: #64748b; }
+    .footer-bottom a { color: #64748b; text-decoration: none; font-weight: 600; transition: color .3s; }
+    .footer-bottom a:hover { color: #fff; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 980px) {
+      .features, .vm, .news { grid-template-columns: 1fr; }
+      .story { flex-direction: column; gap: 36px; }
+      .block { margin: 84px auto; }
+    }
+    @media (max-width: 900px) {
+      header { padding: 14px 22px; background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; animation: none; transform: none; }
+      .menu-toggle { display: block; position: relative; z-index: 1001; }
+      nav {
+        position: fixed; inset: 0; width: 100%; height: 100%; background: #fff;
+        z-index: 1000; padding: 84px 30px 34px; overflow-y: auto;
+        display: flex; flex-direction: column;
+        opacity: 0; visibility: hidden; transform: translateY(-10px);
+        transition: opacity .3s ease, transform .4s var(--ease-out), visibility .4s;
+      }
+      nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
+      nav > ul { flex-direction: column; align-items: stretch; gap: 2px; width: 100%; }
+      nav > ul > li { width: 100%; border-bottom: 1px solid var(--line); }
+      nav > ul > li:last-child { border-bottom: none; }
+      nav > ul > li > a { display: block; padding: 16px 4px; font-size: 18px; }
+      nav > ul > li > a::after { display: none; }
+      .dropdown-menu { display: flex; position: static; transform: none; box-shadow: none; background: var(--mist); margin: 6px 0 10px; padding: 6px 0; border-radius: var(--radius-sm); min-width: 0; border: none; }
+      .dropdown-menu li a { text-align: left; padding: 12px 18px; }
+      .nav-cta { display: inline-block; margin-top: 16px; text-align: center; }
+      .hero { min-height: auto; padding: 82px 22px 70px; align-items: flex-start; }
+      .hero::before {
+        background-image:
+          linear-gradient(180deg, rgba(247,249,248,.98) 0%, rgba(247,249,248,.9) 42%, rgba(247,249,248,.72) 100%),
+          url("assets/images/broca-hero-classroom.png");
+        background-position: 64% center;
+      }
+      .hero-copy { max-width: 100%; }
+      .hero h1 { font-size: 2.65rem; line-height: 1.12; }
+      .hero .subtitle { font-size: 1.02rem; line-height: 1.8; }
+      .hero-actions { align-items: stretch; }
+      .hero-actions a { width: 100%; justify-content: center; }
+      .hero-proof { gap: 8px; }
+      .section-title { font-size: 1.7rem; }
+      footer { padding: 56px 24px 30px; }
+      .footer-content { flex-direction: column; align-items: center; text-align: center; }
+      .footer-info p { justify-content: center; }
+    }
+    @media (hover: none), (pointer: coarse) {
+      .hero { --hero-shift-x: 0px !important; --hero-shift-y: 0px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      html { scroll-behavior: auto; }
+      .section-title::after { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+<header id="siteHeader">
+  <div class="logo">
+    <a href="index.html" aria-label="布魯卡美語 首頁">
+      <svg width="234" height="68" viewBox="0 0 260 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <g id="broca-star">
+            <path d="M 0 -8 L 1.8 -2.5 L 7.6 -2.5 L 2.9 1 L 4.7 6.5 L 0 3 L -4.7 6.5 L -2.9 1 L -7.6 -2.5 L -1.8 -2.5 Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/>
+          </g>
+        </defs>
+        <use href="#broca-star" transform="translate(88, 12) scale(0.9) rotate(-15)"/>
+        <use href="#broca-star" transform="translate(85, 23) scale(0.8) rotate(15)"/>
+        <use href="#broca-star" transform="translate(97, 16) scale(0.4) rotate(-5)"/>
+        <use href="#broca-star" transform="translate(105, 11) scale(0.7) rotate(-15)"/>
+        <use href="#broca-star" transform="translate(108, 20) scale(0.6) rotate(15)"/>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="52" text-anchor="middle" font-family="'Arial Rounded MT Bold', '微軟正黑體', sans-serif" font-size="34" font-weight="900" fill="#FFCE00" letter-spacing="2">布魯卡美語</text>
+        <text x="92" y="69" text-anchor="middle" font-family="'Arial Rounded MT Bold', Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B" letter-spacing="1">BROCA ENGLISH</text>
+      </svg>
+    </a>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false" aria-controls="primaryNav">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <nav id="primaryNav">
+    <ul>
+      <li><a href="index.html" class="active">首頁</a></li>
+      <li><a href="about.html">關於我們</a></li>
+      <li class="dropdown">
+        <a href="courses.html">課程介紹 <i class="fa-solid fa-angle-down" style="font-size:12px;margin-left:4px;"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="course-details.html?id=halfday">半日美語課程</a></li>
+          <li><a href="course-details.html?id=kids">兒童美語課程</a></li>
+          <li><a href="course-details.html?id=junior">國中美語課程</a></li>
+          <li><a href="course-details.html?id=gept">全民英檢課程</a></li>
+          <li><a href="course-details.html?id=conversation">英文會話課程</a></li>
+          <li><a href="course-details.html?id=kindergarten">幼兒美語課程</a></li>
+          <li><a href="course-details.html?id=senior">高中美語課程</a></li>
+          <li><a href="course-details.html?id=tutor">國小安親課程</a></li>
+        </ul>
+      </li>
+      <li><a href="learning.html">學習中心</a></li>
+      <li><a href="info.html#news">最新消息</a></li>
+      <li><a href="info.html#calendar">家長行事曆</a></li>
+      <li><a href="info.html#honor">榮譽榜</a></li>
+      <li><a href="info.html#contact">聯絡我們</a></li>
+      <li><a href="info.html#registration" class="nav-cta" data-enrollment-link>線上報名</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="heroSection">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">BROCA ENGLISH · KAOHSIUNG LUZHU</span>
+        <h1>讓英文成為孩子走向世界的能力</h1>
+        <p class="subtitle">從幼兒啟蒙、兒童美語到國中先修，在穩定節奏裡累積真正敢說、聽得懂、讀得進的英文力。</p>
+        <div class="hero-actions">
+          <a href="info.html#registration" class="btn-primary" data-enrollment-link><i class="fa-solid fa-pen-to-square"></i> 預約試聽 / 線上報名</a>
+          <a href="courses.html" class="btn-ghost">查看課程 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="hero-proof" aria-label="主要課程">
+          <span>幼兒啟蒙</span>
+          <span>兒童美語</span>
+          <span>國中先修</span>
+          <span>安親課輔</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section block">
+    <div class="section-head reveal">
+      <span class="eyebrow">Our Approach</span>
+      <h2 class="section-title">教學三大核心</h2>
+    </div>
+    <div class="features">
+      <div class="feature reveal">
+        <div class="ic"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>嚴謹踏實</h3>
+        <p>堅持最穩健的教學步伐，為孩子打下牢固的語言地基。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic"><i class="fa-solid fa-trophy"></i></div>
+        <h3>最高成就</h3>
+        <p>引導孩子自主探索，創造學習生涯中最高的英語成就感。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic"><i class="fa-solid fa-comment-dots"></i></div>
+        <h3>自然開口</h3>
+        <p>打造全美語互動環境，讓說英語像呼吸一樣自然流暢。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section block">
+    <div class="section-head reveal">
+      <span class="eyebrow">Who We Are</span>
+      <h2 class="section-title">願景與使命</h2>
+    </div>
+    <div class="vm">
+      <div class="vm-card vm-vision reveal">
+        <div class="vm-ic"><i class="fa-solid fa-eye"></i></div>
+        <h3>Our Vision 願景</h3>
+        <p>我們期盼每個從布魯卡走出去的孩子，不僅具備卓越的英語能力，更能擁抱世界，擁有寬廣的國際視野與自信。</p>
+      </div>
+      <div class="vm-card vm-mission reveal">
+        <div class="vm-ic"><i class="fa-solid fa-bullseye"></i></div>
+        <h3>Our Mission 使命</h3>
+        <p>提供最扎實、最快樂的學習環境。我們致力於將死板的語言學習轉化為自然的生活本能，讓孩子在無壓力的情境下，真正學會用英語思考與表達。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section block">
+    <div class="section-head reveal">
+      <span class="eyebrow">News</span>
+      <h2 class="section-title">最新消息</h2>
+    </div>
+    <div class="news" id="indexNewsGrid"></div>
+  </section>
+
+  <section class="section block">
+    <div class="story reveal">
+      <div class="story-img">
+        <i class="fa-regular fa-image"></i>
+        <span>教室實景・即將更新</span>
+      </div>
+      <div class="story-text">
+        <span class="eyebrow">Our Story</span>
+        <h2>布魯卡美語</h2>
+        <p style="font-weight:700;color:var(--brand-soft);letter-spacing:1px;">WELCOME TO BROCA ENGLISH!</p>
+        <p>布魯卡美語成立於民國 93 年，致力於美語教學與課業陪伴。我們教學嚴謹，在堅持中力求踏實，期許學生在穩健的步伐中，站穩美語學習的根基。</p>
+        <p>我們希望孩子不只完成課程，更能在一次次練習中建立自信，慢慢看見自己的進步。</p>
+        <a href="about.html" class="read-more">閱讀完整故事 <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-info">
+      <h3>布魯卡美語 Broca English</h3>
+      <p><i class="fa-solid fa-location-dot"></i> 高雄市路竹區國昌路309號</p>
+      <p><i class="fa-solid fa-phone"></i> (07) 697-8690</p>
+    </div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/BrocaEnglish/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://maps.google.com/?q=高雄市路竹區國昌路309號" target="_blank" rel="noopener" aria-label="Google Maps"><i class="fa-solid fa-map-location-dot"></i></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 布魯卡美語 Broca English. All rights reserved.
+      <span style="margin:0 8px;color:#334155;">|</span>
+      <a href="login.html"><i class="fa-solid fa-lock" style="font-size:11px;margin-right:4px;opacity:.7;"></i>管理端登入</a>
+    </p>
+  </div>
+</footer>
+
+<script src="public-config.js"></script>
+<script>
+  /* ===== 核心最新消息資料庫 ===== */
+  const NEWS_DATA = [
+    {
+      id: "summer-camp-2026",
+      type: "notice",
+      tag: "重要公告",
+      title: "【2026 布魯卡美語暑期營隊｜報名開跑囉！】",
+      date: "2026-06-22",
+      desc: `布魯卡美語 2026 暑期營隊
+以「快樂學習 × 多元探索 × 能力養成」為核心主軸，精心規劃適齡、分級、多元化課程，讓孩子在愉快的學習環境中培養能力、拓展視野。
+
+八大主題探險，等你來挑戰：
+這個夏天，孩子將透過昆蟲探索、生命教育、生活理財、烏克麗麗、食品科學、物理實驗、古文明探究與成果發表等多元主題，在觀察、體驗、合作與分享中，培養思考與解決問題的能力。
+
+每天都有新發現，天天都有新收穫，讓孩子帶著滿滿的知識與歡笑，創造屬於自己的精彩暑假回憶。`
+    }
+  ];
+
+  /* 消息區塊動態渲染函式 */
+  function renderIndexNews() {
+    const grid = document.getElementById('indexNewsGrid');
+    if (!grid) return;
+
+    const topNews = NEWS_DATA.slice(0, 3);
+
+    grid.innerHTML = topNews.map(item => {
+      const cleanSummary = item.desc.replace(/\n+/g, ' ').substring(0, 50) + '...';
+
+      return `
+              <a href="info.html?newsId=${item.id}" class="news-card reveal">
+                  <div style="width: 100%;">
+                      <div class="idx-news-meta">
+                          <span class="idx-news-tag ${item.type}">${item.tag}</span>
+                          <span>${item.date}</span>
+                      </div>
+                      <h3>${item.title}</h3>
+                      <p>${cleanSummary}</p>
+                  </div>
+                  <div class="news-readmore-btn">閱讀全文 <i class="fa-solid fa-arrow-right"></i></div>
+              </a>
+          `;
+    }).join('');
+  }
+
+  /* ============================================================
+     ① GOLD READING PROGRESS BAR & SCROLLED BAR
+  ============================================================ */
+  (function () {
+    const bar    = document.getElementById('progressBar');
+    const header = document.getElementById('siteHeader');
+    let ticking  = false;
+
+    function update() {
+      const scrolled = window.scrollY;
+      const total    = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar)    bar.style.width = (total > 0 ? (scrolled / total * 100) : 0) + '%';
+      if (header) header.classList.toggle('scrolled', scrolled > 30);
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
+  })();
+
+  /* ============================================================
+     HERO: SUBTLE BACKGROUND PARALLAX
+  ============================================================ */
+  (function () {
+    const noMotion   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasHover   = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (noMotion || !hasHover) return;
+
+    const hero = document.getElementById('heroSection');
+    if (!hero) return;
+    let raf = null;
+    const SHIFT = 10;
+
+    hero.addEventListener('mousemove', e => {
+      const r  = hero.getBoundingClientRect();
+      const cx = (e.clientX - r.left) / r.width  - 0.5;
+      const cy = (e.clientY - r.top)  / r.height - 0.5;
+
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        hero.style.setProperty('--hero-shift-x', `${(cx * SHIFT).toFixed(1)}px`);
+        hero.style.setProperty('--hero-shift-y', `${(cy * SHIFT).toFixed(1)}px`);
+      });
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      if (raf) cancelAnimationFrame(raf);
+      hero.style.setProperty('--hero-shift-x', '0px');
+      hero.style.setProperty('--hero-shift-y', '0px');
+    });
+  })();
+
+  /* ============================================================
+     ③ SCROLL REVEAL & INITIALIZATION
+  ============================================================ */
+  document.addEventListener('DOMContentLoaded', () => {
+    // 渲染動態消息系統
+    renderIndexNews();
+
+    const obs = new IntersectionObserver((entries, o) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          o.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = Math.min((i % 3) * 0.08, 0.24) + 's';
+      obs.observe(el);
+    });
+  });
+
+  /* ============================================================
+     MOBILE NAV
+  ============================================================ */
+  (function () {
+    const toggle = document.getElementById('menuToggle');
+    const nav    = document.getElementById('primaryNav');
+    function setOpen(open) {
+      nav.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
+      toggle.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      if (window.innerWidth <= 900 && !a.parentElement.classList.contains('dropdown')) setOpen(false);
+    }));
+    window.addEventListener('keydown',  e => { if (e.key === 'Escape') setOpen(false); });
+    window.addEventListener('resize',   () => { if (window.innerWidth > 900) setOpen(false); });
+  })();
+</script>
+</body>
+</html>

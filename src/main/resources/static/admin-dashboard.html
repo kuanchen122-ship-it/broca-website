@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主任主控台 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: hidden; }
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+        .main-wrapper { flex: 1; min-width: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-accent); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .user-info strong { display: block; font-size: 13px; }
+        .user-info span { color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .content-area { flex: 1; overflow-y: auto; padding: 26px 30px 36px; }
+        .ops-feed { display: grid; gap: 10px; }
+        .ops-item { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid #edf2f7; }
+        .ops-item:last-child { border-bottom: none; }
+        .ops-item strong { display: block; font-size: 14px; font-weight: 950; margin-bottom: 4px; }
+        .ops-item span { color: var(--text-muted); font-size: 12px; font-weight: 800; line-height: 1.5; }
+        .ops-value { color: var(--brand-primary); font-size: 18px; font-weight: 950; white-space: nowrap; }
+    </style>
+    <link rel="stylesheet" href="admin-polish.css">
+</head>
+<body data-admin-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link active"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-table-columns" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>主任主控台</div>
+                <div class="topbar-subtitle" id="currentDate">載入日期中...</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <div class="avatar" data-user-initial>B</div>
+            <div class="user-info">
+                <strong data-user-name>系統管理員</strong>
+                <span data-user-role>教務主任</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="admin-hero">
+            <div class="admin-hero-main">
+                <div>
+                    <span class="admin-eyebrow"><i class="fa-solid fa-gauge-high"></i> OPERATIONS</span>
+                    <h1>教務、學生、家長與薪資集中管理。</h1>
+                    <p>主任主控台用來掌握每日課表、班級點名、學生分班、家長聯絡與老師薪資摘要。老師端則獨立成工作台，避免現場操作時進到主任專用資料。</p>
+                </div>
+                <div class="admin-hero-actions">
+                    <a class="admin-button primary" href="admin-registration.html"><i class="fa-solid fa-clipboard-list"></i> 報名諮詢</a>
+                    <a class="admin-button primary" href="admin-schedule.html"><i class="fa-solid fa-file-excel"></i> 課表匯入</a>
+                    <a class="admin-button secondary" href="admin-students.html"><i class="fa-solid fa-users-gear"></i> 學生分班</a>
+                    <a class="admin-button secondary" href="admin-line.html"><i class="fa-brands fa-line"></i> LINE 整合</a>
+                    <a class="admin-button secondary" href="admin-payroll.html"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a>
+                    <a class="admin-button secondary" href="admin-system.html"><i class="fa-solid fa-shield-halved"></i> 系統檢查</a>
+                </div>
+            </div>
+
+            <aside class="admin-hero-side">
+                <h2><i class="fa-solid fa-layer-group" style="color: var(--brand-primary);"></i> 營運模組狀態</h2>
+                <div class="readiness-list">
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <div><strong>課表與教材進度</strong><span>Excel 匯入後可依日期、班級、老師與教材查詢。</span></div>
+                    </div>
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-user-check"></i>
+                        <div><strong>班級點名</strong><span>電腦與手機皆可儲存出缺席、遲到時間與備註。</span></div>
+                    </div>
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-address-book"></i>
+                        <div><strong>家長聯絡資料</strong><span>電話、LINE ID、接送備註與緊急聯絡集中整理。</span></div>
+                    </div>
+                    <div class="readiness-item pending">
+                        <i class="fa-brands fa-line"></i>
+                        <div><strong>LINE 整合中心</strong><span>已建立狀態中心；正式推播待 Channel Token、Secret 與 LIFF 設定。</span></div>
+                    </div>
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <div><strong>薪資管理</strong><span>可登錄老師工時、時薪與月份薪資摘要。</span></div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="admin-metrics">
+            <article class="admin-metric">
+                <strong id="metricStudents">--</strong>
+                <span>在籍學生</span>
+            </article>
+            <article class="admin-metric">
+                <strong id="metricClasses">--</strong>
+                <span>啟用班級</span>
+            </article>
+            <article class="admin-metric line">
+                <strong id="metricLineCoverage">--</strong>
+                <span>家長 LINE 覆蓋率</span>
+            </article>
+            <article class="admin-metric">
+                <strong id="metricPayroll">--</strong>
+                <span>本月薪資估算</span>
+            </article>
+        </section>
+
+        <section class="admin-action-grid">
+            <a class="admin-action-card" href="admin-registration.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+                <h3>報名諮詢</h3>
+                <p>前台線上報名、試聽詢問與新生需求集中管理，可標記已聯絡、需追蹤與已入班。</p>
+            </a>
+            <a class="admin-action-card" href="admin-schedule.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                <h3>數位互動課表</h3>
+                <p>匯入 Daily Syllabus，依日期查看課程、老師、教材與核准狀態。</p>
+            </a>
+            <a class="admin-action-card" href="admin-learning.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-book-open-reader"></i></span>
+                <h3>學習內容</h3>
+                <p>發布今日單字、句型與作業提醒，讓學生與家長能在前台學習中心複習。</p>
+            </a>
+            <a class="admin-action-card" href="admin-students.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-users-gear"></i></span>
+                <h3>學生資料中心</h3>
+                <p>管理學生名單、班級分發、學校年級與家長 LINE 綁定狀態。</p>
+            </a>
+            <a class="admin-action-card" href="admin-attendance.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-user-check"></i></span>
+                <h3>班級點名</h3>
+                <p>儲存準時、遲到、請假、曠課與老師備註，支援日期回查。</p>
+            </a>
+            <a class="admin-action-card" href="admin-leave.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-clipboard-user"></i></span>
+                <h3>請假審核</h3>
+                <p>櫃台代登假單、主任核准退回，核准後同步到班級點名。</p>
+            </a>
+            <a class="admin-action-card" href="admin-contacts.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-address-book"></i></span>
+                <h3>家長聯絡資料</h3>
+                <p>整理電話、LINE ID、接送備註與緊急聯絡資料。</p>
+            </a>
+            <a class="admin-action-card" href="admin-line.html">
+                <span class="admin-action-icon"><i class="fa-brands fa-line"></i></span>
+                <h3>LINE 整合中心</h3>
+                <p>查看家長 LINE 覆蓋率、推播設定、通知佇列與訊息模板草稿。</p>
+            </a>
+            <a class="admin-action-card" href="admin-payroll.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                <h3>薪資管理</h3>
+                <p>依老師、日期、時數與時薪彙整薪資，後續可接課表自動帶入。</p>
+            </a>
+            <a class="admin-action-card" href="teacher-dashboard.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+                <h3>老師工作台</h3>
+                <p>預覽老師每天使用的課表、電腦點名與手機點名入口。</p>
+            </a>
+            <a class="admin-action-card" href="admin-system.html">
+                <span class="admin-action-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                <h3>系統健康檢查</h3>
+                <p>集中查看資料庫、LINE、課表批次、學生分班與 NAS 上線前狀態。</p>
+            </a>
+        </section>
+
+        <section class="admin-panels">
+            <article class="admin-panel">
+                <h2><i class="fa-solid fa-chart-line" style="color: var(--brand-primary);"></i> 營運摘要</h2>
+                <div class="ops-feed">
+                    <div class="ops-item">
+                        <div><strong>學生與分班</strong><span>學生、班級與分班人次由課表/名單匯入後同步。</span></div>
+                        <div class="ops-value" id="opsEnrollments">--</div>
+                    </div>
+                    <div class="ops-item">
+                        <div><strong>家長 LINE 資料</strong><span>缺 LINE ID 的學生會集中在家長聯絡資料中處理。</span></div>
+                        <div class="ops-value" id="opsMissingLine">--</div>
+                    </div>
+                    <div class="ops-item">
+                        <div><strong>LINE 推播模式</strong><span>沒有 Channel Token 前，點名只會儲存草稿與狀態，不會發送。</span></div>
+                        <div class="ops-value" id="opsLineMode">--</div>
+                    </div>
+                    <div class="ops-item">
+                        <div><strong>老師薪資</strong><span>本月登錄時數與薪資估算會進入薪資管理彙整。</span></div>
+                        <div class="ops-value" id="opsPayroll">--</div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="admin-panel">
+                <h2><i class="fa-solid fa-route" style="color: var(--brand-primary);"></i> 行政流程</h2>
+                <div class="admin-step-list">
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-1"></i>
+                        <div><strong>課表匯入</strong><span>主任或老師匯入 Excel，建立每日課程與班級資料。</span></div>
+                    </div>
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-2"></i>
+                        <div><strong>學生分班</strong><span>Reading Assignment 名單形成學生與班級關聯。</span></div>
+                    </div>
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-3"></i>
+                        <div><strong>點名與聯絡</strong><span>老師點名後，主任可接續處理家長聯絡與請假。</span></div>
+                    </div>
+                    <div class="admin-step ready">
+                        <i class="fa-solid fa-4"></i>
+                        <div><strong>薪資彙整</strong><span>老師工時、時薪與課程備註集中產生月份薪資摘要。</span></div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-TW', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
+        loadDashboardStats();
+    });
+
+    async function loadDashboardStats() {
+        await Promise.all([loadStudentStats(), loadLineStats(), loadPayrollStats()]);
+    }
+
+    async function loadStudentStats() {
+        try {
+            const response = await fetch('/api/admin/students', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('students failed');
+            const data = await response.json();
+            const summary = data.summary || {};
+            setText('metricStudents', summary.activeStudents ?? '--');
+            setText('metricClasses', summary.activeClasses ?? '--');
+            setText('opsEnrollments', summary.activeEnrollments ?? '--');
+            setText('opsMissingLine', summary.missingLineCount ?? '--');
+        } catch (error) {
+            ['metricStudents', 'metricClasses', 'opsEnrollments', 'opsMissingLine'].forEach((id) => setText(id, '--'));
+        }
+    }
+
+    async function loadLineStats() {
+        try {
+            const response = await fetch('/api/admin/line/overview', { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('line failed');
+            const data = await response.json();
+            const audience = data.audience || {};
+            const config = data.config || {};
+            const queue = data.attendanceQueue || {};
+            setText('metricLineCoverage', `${Number(audience.coveragePercent || 0)}%`);
+            setText('opsMissingLine', audience.missingLineStudents ?? '--');
+            setText('opsLineMode', lineModeLabel(config.mode));
+            if (queue.requestedButNotConfigured > 0) {
+                setText('opsLineMode', `${queue.requestedButNotConfigured} 筆待設定`);
+            }
+        } catch (error) {
+            setText('metricLineCoverage', '--');
+            setText('opsLineMode', '--');
+        }
+    }
+
+    async function loadPayrollStats() {
+        try {
+            const now = new Date();
+            const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const response = await fetch(`/api/admin/payroll?month=${month}`, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('payroll failed');
+            const data = await response.json();
+            const amount = formatMoney(data.totalAmount || 0);
+            setText('metricPayroll', amount);
+            setText('opsPayroll', amount);
+        } catch (error) {
+            setText('metricPayroll', '--');
+            setText('opsPayroll', '--');
+        }
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function lineModeLabel(mode) {
+        if (mode === 'READY_TO_SEND') return '正式推播';
+        if (mode === 'READY_FOR_REVIEW') return '憑證待審';
+        return '草稿';
+    }
+
+    function formatMoney(value) {
+        return Number(value || 0).toLocaleString('zh-TW', {
+            style: 'currency',
+            currency: 'TWD',
+            maximumFractionDigits: 0
+        });
+    }
+</script>
+</body>
+</html>

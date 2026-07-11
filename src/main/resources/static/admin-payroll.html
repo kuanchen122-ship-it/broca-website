@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薪資管理 | 布魯卡美語 後台系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-polish.css">
+    <style>
+        :root {
+            --bg-admin: #f6f8fb;
+            --sidebar-bg: #064E3B;
+            --sidebar-hover: #047857;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --brand-accent: #FFCE00;
+            --brand-primary: #064E3B;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --transition-smooth: all 0.24s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', '微軟正黑體', sans-serif; }
+        body { min-height: 100vh; background: var(--bg-admin); color: var(--text-main); display: flex; overflow: auto; }
+        .sidebar { width: 260px; height: 100vh; position: sticky; top: 0; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 800; color: var(--brand-accent); margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: #a7f3d0; letter-spacing: 2px; }
+        .nav-menu { padding: 20px 0; flex: 1; overflow-y: auto; }
+        .nav-item { padding: 0 15px; margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 14px 20px; color: #d1fae5; text-decoration: none; border-radius: var(--radius-md); font-weight: 700; transition: var(--transition-smooth); }
+        .nav-link i { width: 30px; margin-right: 10px; font-size: 18px; text-align: center; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: var(--brand-accent); }
+        .nav-link.active { border-left: 4px solid var(--brand-accent); padding-left: 16px; background: rgba(0,0,0,0.15); color: var(--brand-accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { width: 100%; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; text-decoration: none; border-radius: var(--radius-md); font-weight: 800; transition: var(--transition-smooth); }
+        .logout-btn:hover { background: var(--danger); color: var(--white); }
+        .main-wrapper { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; overflow: visible; }
+        .topbar { min-height: 70px; background: var(--white); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .topbar-left { display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 950; }
+        .topbar-subtitle { color: var(--text-muted); font-size: 12px; font-weight: 800; margin-top: 3px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--brand-accent); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; font-weight: 950; }
+        .user-info strong { display: block; font-size: 13px; }
+        .user-info span { color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .content-area { flex: 1; width: 100%; max-width: 1680px; margin: 0 auto; overflow: visible; padding: 26px 30px 36px; }
+
+        .payroll-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .payroll-kpi { min-height: 112px; padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--white); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
+        .payroll-kpi strong { display: block; color: var(--brand-primary); font-size: 26px; font-weight: 950; margin-bottom: 7px; }
+        .payroll-kpi span { display: block; color: var(--text-muted); font-size: 12px; font-weight: 850; line-height: 1.5; }
+        .payroll-layout { display: grid; grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr); gap: 18px; }
+        .payroll-form { display: grid; gap: 12px; }
+        .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .form-field label { display: block; color: var(--text-muted); font-size: 12px; font-weight: 900; margin-bottom: 6px; }
+        .form-field input, .form-field select {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0 12px;
+            background: #f8fafc;
+            color: var(--text-main);
+            font-weight: 850;
+            outline: none;
+        }
+        .form-field input:focus, .form-field select:focus { border-color: var(--brand-primary); background: #ffffff; }
+        .save-payroll-btn {
+            min-height: 46px;
+            border: none;
+            border-radius: 12px;
+            background: var(--brand-primary);
+            color: white;
+            font-weight: 950;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+        }
+        .form-insight { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .form-insight-card { min-height: 82px; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; background: #f8fafc; }
+        .form-insight-card strong { display: block; color: var(--text-main); font-size: 14px; font-weight: 950; margin-bottom: 5px; }
+        .form-insight-card span { display: block; color: var(--text-muted); font-size: 12px; font-weight: 800; line-height: 1.45; }
+        .export-btn {
+            min-height: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            padding: 0 14px;
+            font-weight: 950;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .month-control {
+            min-height: 42px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0 12px;
+            background: #ffffff;
+            font-weight: 900;
+        }
+        .payroll-summary-list { display: grid; gap: 10px; }
+        .summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid #edf2f7;
+            border-radius: 14px;
+            background: #f8fafc;
+            padding: 12px;
+        }
+        .summary-row strong { display: block; font-size: 14px; font-weight: 950; }
+        .summary-row span { display: block; margin-top: 3px; color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .summary-amount { color: var(--brand-primary); font-size: 18px; font-weight: 950; white-space: nowrap; }
+        .delete-entry {
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            color: #991b1b;
+            background: #fee2e2;
+            cursor: pointer;
+            font-weight: 900;
+        }
+        .empty-payroll {
+            padding: 34px 18px;
+            text-align: center;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-weight: 800;
+        }
+
+        @media (max-width: 1080px) {
+            .payroll-layout { grid-template-columns: 1fr; }
+            .payroll-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 760px) {
+            body { display: block; height: auto; min-height: 100vh; overflow: auto; }
+            .sidebar { display: none; }
+            .main-wrapper { min-height: 100vh; }
+            .topbar { padding: 16px; align-items: flex-start; flex-direction: column; }
+            .topbar-right { width: 100%; justify-content: stretch; }
+            .topbar-right > * { width: 100%; }
+            .content-area { padding: 16px; }
+            .field-grid, .form-insight, .payroll-kpis { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body data-admin-page="true">
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2>布魯卡美語</h2>
+        <p>ADMIN PORTAL</p>
+    </div>
+    <ul class="nav-menu">
+        <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fa-solid fa-house"></i> 主任主控台</a></li>
+        <li class="nav-item"><a href="teacher-dashboard.html" class="nav-link"><i class="fa-solid fa-chalkboard-user"></i> 老師工作台</a></li>
+        <li class="nav-item"><a href="admin-schedule.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i> 數位互動課表</a></li>
+        <li class="nav-item"><a href="admin-attendance.html" class="nav-link"><i class="fa-solid fa-user-check"></i> 班級點名系統</a></li>
+        <li class="nav-item"><a href="admin-students.html" class="nav-link"><i class="fa-solid fa-users-gear"></i> 學生資料中心</a></li>
+        <li class="nav-item"><a href="admin-contacts.html" class="nav-link"><i class="fa-solid fa-address-book"></i> 家長聯絡資料</a></li>
+        <li class="nav-item"><a href="admin-payroll.html" class="nav-link active"><i class="fa-solid fa-file-invoice-dollar"></i> 薪資管理</a></li>
+        <li class="nav-item"><a href="admin-leave.html" class="nav-link"><i class="fa-solid fa-clipboard-user"></i> 學生請假審核</a></li>
+        <li class="nav-item"><a href="admin-grades.html" class="nav-link"><i class="fa-solid fa-ranking-star"></i> 成績與榮譽榜</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> 登出系統</a>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="topbar">
+        <div class="topbar-left">
+            <i class="fa-solid fa-file-invoice-dollar" style="color: var(--brand-primary);"></i>
+            <div>
+                <div>薪資管理</div>
+                <div class="topbar-subtitle">老師時數、時薪與月薪資摘要</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <input class="month-control" id="payrollMonth" type="month" aria-label="薪資月份">
+            <div class="avatar" data-user-initial>B</div>
+            <div class="user-info">
+                <strong data-user-name>系統管理員</strong>
+                <span data-user-role>教務主任</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+        <section class="admin-hero">
+            <div class="admin-hero-main">
+                <div>
+                    <span class="admin-eyebrow"><i class="fa-solid fa-coins"></i> PAYROLL</span>
+                    <h1>把老師時數與鐘點費集中管理。</h1>
+                    <p>第一版先支援主任手動登錄課程工時、時薪與備註，系統自動彙整每位老師的月時數與薪資金額。後續可再從課表與點名資料自動帶入時數。</p>
+                </div>
+                <div class="admin-hero-actions">
+                    <a class="admin-button primary" href="#entryForm"><i class="fa-solid fa-plus"></i> 新增工時</a>
+                    <a class="admin-button secondary" href="admin-schedule.html"><i class="fa-solid fa-calendar-days"></i> 對照課表</a>
+                    <button class="export-btn" type="button" onclick="exportPayrollCsv()"><i class="fa-solid fa-file-csv"></i> 匯出本月 CSV</button>
+                </div>
+            </div>
+            <aside class="admin-hero-side">
+                <h2><i class="fa-solid fa-chart-simple" style="color: var(--brand-primary);"></i> 本月薪資摘要</h2>
+                <div class="readiness-list">
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-clock"></i>
+                        <div><strong id="totalHours">0 小時</strong><span>本月登錄總時數</span></div>
+                    </div>
+                    <div class="readiness-item ready">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <div><strong id="totalAmount">$0</strong><span>本月薪資估算總額</span></div>
+                    </div>
+                    <div class="readiness-item pending">
+                        <i class="fa-solid fa-link"></i>
+                        <div><strong>自動帶入待接</strong><span>之後可從課表時間、點名與老師設定自動產生草稿。</span></div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="payroll-kpis" aria-label="薪資資料品質">
+            <article class="payroll-kpi">
+                <strong id="kpiTeacherCount">0</strong>
+                <span>本月有工時紀錄的老師</span>
+            </article>
+            <article class="payroll-kpi">
+                <strong id="kpiEntryCount">0</strong>
+                <span>本月工時明細筆數</span>
+            </article>
+            <article class="payroll-kpi">
+                <strong id="kpiAverageRate">$0</strong>
+                <span>本月平均時薪估算</span>
+            </article>
+            <article class="payroll-kpi">
+                <strong id="kpiReviewHint">草稿</strong>
+                <span>目前為主任手動登錄，之後可接課表自動產生草稿。</span>
+            </article>
+        </section>
+
+        <section class="payroll-layout">
+            <article class="admin-panel" id="entryForm">
+                <h2><i class="fa-solid fa-pen-to-square" style="color: var(--brand-primary);"></i> 新增薪資工時</h2>
+                <form class="payroll-form" onsubmit="event.preventDefault(); createEntry();">
+                    <div class="field-grid">
+                        <div class="form-field">
+                            <label for="teacherSelect">老師</label>
+                            <select id="teacherSelect" required></select>
+                        </div>
+                        <div class="form-field">
+                            <label for="workDate">日期</label>
+                            <input id="workDate" type="date" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="classLabel">課程 / 班級</label>
+                            <input id="classLabel" type="text" placeholder="例如 C2A / 安親課輔">
+                        </div>
+                        <div class="form-field">
+                            <label for="hourlyRate">時薪</label>
+                            <input id="hourlyRate" type="number" min="0" step="1" placeholder="例如 550" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="startTime">開始時間</label>
+                            <input id="startTime" type="time">
+                        </div>
+                        <div class="form-field">
+                            <label for="endTime">結束時間</label>
+                            <input id="endTime" type="time">
+                        </div>
+                        <div class="form-field">
+                            <label for="hours">時數</label>
+                            <input id="hours" type="number" min="0" step="0.25" placeholder="若有開始/結束時間可留空">
+                        </div>
+                        <div class="form-field">
+                            <label for="note">備註</label>
+                            <input id="note" type="text" placeholder="代課、補課、行政時數...">
+                        </div>
+                    </div>
+                    <div class="form-insight">
+                        <div class="form-insight-card">
+                            <strong id="previewHours">0 小時</strong>
+                            <span>依開始/結束時間或手動時數計算</span>
+                        </div>
+                        <div class="form-insight-card">
+                            <strong id="previewAmount">$0</strong>
+                            <span>目前輸入資料的預估金額</span>
+                        </div>
+                        <div class="form-insight-card">
+                            <strong id="previewCheck">等待輸入</strong>
+                            <span>若開始與結束時間都有填，系統會自動帶入時數。</span>
+                        </div>
+                    </div>
+                    <button class="save-payroll-btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> 儲存工時</button>
+                </form>
+            </article>
+
+            <article class="admin-panel">
+                <h2><i class="fa-solid fa-user-tie" style="color: var(--brand-primary);"></i> 老師月薪資摘要</h2>
+                <div class="payroll-summary-list" id="summaryList">
+                    <div class="empty-payroll">正在讀取薪資摘要...</div>
+                </div>
+            </article>
+        </section>
+
+        <section class="admin-panel" style="margin-top: 18px;">
+            <h2><i class="fa-solid fa-table-list" style="color: var(--brand-primary);"></i> 工時明細</h2>
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>老師</th>
+                    <th>課程 / 班級</th>
+                    <th>時間</th>
+                    <th>時數</th>
+                    <th>時薪</th>
+                    <th>金額</th>
+                    <th>備註</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="entryRows">
+                <tr><td colspan="9" class="empty-payroll">正在讀取工時明細...</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</main>
+
+<script src="admin-session.js"></script>
+<script>
+    const payrollMonth = document.getElementById('payrollMonth');
+    const teacherSelect = document.getElementById('teacherSelect');
+    const workDate = document.getElementById('workDate');
+    const classLabel = document.getElementById('classLabel');
+    const hourlyRate = document.getElementById('hourlyRate');
+    const startTime = document.getElementById('startTime');
+    const endTime = document.getElementById('endTime');
+    const hours = document.getElementById('hours');
+    const note = document.getElementById('note');
+    const summaryList = document.getElementById('summaryList');
+    const entryRows = document.getElementById('entryRows');
+    const totalHours = document.getElementById('totalHours');
+    const totalAmount = document.getElementById('totalAmount');
+    const previewHours = document.getElementById('previewHours');
+    const previewAmount = document.getElementById('previewAmount');
+    const previewCheck = document.getElementById('previewCheck');
+    let lastPayrollData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date();
+        payrollMonth.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+        workDate.value = window.BrocaAdmin.localDateValue(today);
+        payrollMonth.addEventListener('change', loadPayroll);
+        [startTime, endTime, hours, hourlyRate].forEach((input) => input.addEventListener('input', updatePayrollPreview));
+        loadPayroll();
+        updatePayrollPreview();
+    });
+
+    async function loadPayroll() {
+        try {
+            const response = await fetch(`/api/admin/payroll?month=${encodeURIComponent(payrollMonth.value)}`, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('payroll failed');
+            const data = await response.json();
+            lastPayrollData = data;
+            renderTeachers(data.teachers || []);
+            renderSummary(data.summaries || []);
+            renderEntries(data.entries || []);
+            totalHours.textContent = `${formatNumber(data.totalHours || 0)} 小時`;
+            totalAmount.textContent = formatMoney(data.totalAmount || 0);
+            renderPayrollKpis(data);
+        } catch (error) {
+            summaryList.innerHTML = '<div class="empty-payroll">薪資資料讀取失敗，請確認後端已啟動。</div>';
+            entryRows.innerHTML = '<tr><td colspan="9" class="empty-payroll">薪資資料讀取失敗。</td></tr>';
+        }
+    }
+
+    function renderPayrollKpis(data) {
+        const entries = data.entries || [];
+        const summaries = data.summaries || [];
+        const totalHoursValue = Number(data.totalHours || 0);
+        const totalAmountValue = Number(data.totalAmount || 0);
+        const averageRate = totalHoursValue ? totalAmountValue / totalHoursValue : 0;
+        setText('kpiTeacherCount', summaries.length);
+        setText('kpiEntryCount', entries.length);
+        setText('kpiAverageRate', formatMoney(averageRate));
+        setText('kpiReviewHint', entries.length ? '可核對' : '草稿');
+    }
+
+    function renderTeachers(teachers) {
+        teacherSelect.innerHTML = teachers.map((teacher) =>
+            `<option value="${teacher.id}">${escapeHtml(teacher.displayName || teacher.username)}</option>`
+        ).join('');
+    }
+
+    function renderSummary(summaries) {
+        if (!summaries.length) {
+            summaryList.innerHTML = '<div class="empty-payroll">本月尚未登錄薪資工時。</div>';
+            return;
+        }
+        summaryList.innerHTML = summaries.map((item) => `
+            <div class="summary-row">
+                <div>
+                    <strong>${escapeHtml(item.teacherName)}</strong>
+                    <span>${formatNumber(item.totalHours)} 小時・${item.entryCount || 0} 筆紀錄</span>
+                </div>
+                <div class="summary-amount">${formatMoney(item.totalAmount)}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderEntries(entries) {
+        if (!entries.length) {
+            entryRows.innerHTML = '<tr><td colspan="9" class="empty-payroll">本月尚未登錄工時。</td></tr>';
+            return;
+        }
+        entryRows.innerHTML = entries.map((entry) => `
+            <tr>
+                <td>${escapeHtml(entry.workDate || '')}</td>
+                <td>${escapeHtml(entry.teacherName || '')}</td>
+                <td>${escapeHtml(entry.classLabel || '-')}</td>
+                <td>${formatTimeRange(entry.startTime, entry.endTime)}</td>
+                <td>${formatNumber(entry.hours)}</td>
+                <td>${formatMoney(entry.hourlyRate)}</td>
+                <td><strong>${formatMoney(entry.amount)}</strong></td>
+                <td>${escapeHtml(entry.note || '')}</td>
+                <td><button class="delete-entry" type="button" onclick="deleteEntry(${entry.id})"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    }
+
+    async function createEntry() {
+        if (!teacherSelect.value) {
+            window.BrocaAdmin?.notify?.('請先選擇老師。', 'warning');
+            return;
+        }
+        try {
+            const response = await fetch('/api/admin/payroll/entries', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    teacherId: Number(teacherSelect.value),
+                    workDate: workDate.value,
+                    classLabel: classLabel.value,
+                    startTime: startTime.value || null,
+                    endTime: endTime.value || null,
+                    hours: hours.value ? Number(hours.value) : null,
+                    hourlyRate: hourlyRate.value ? Number(hourlyRate.value) : 0,
+                    note: note.value
+                })
+            });
+            if (!response.ok) throw new Error('save failed');
+            classLabel.value = '';
+            startTime.value = '';
+            endTime.value = '';
+            hours.value = '';
+            note.value = '';
+            updatePayrollPreview();
+            await loadPayroll();
+            window.BrocaAdmin?.notify?.('薪資工時已儲存。', 'success');
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('薪資工時儲存失敗，請確認資料是否完整。', 'danger');
+        }
+    }
+
+    function updatePayrollPreview() {
+        const calculatedHours = resolvePreviewHours();
+        const rate = Number(hourlyRate.value || 0);
+        const amount = calculatedHours * rate;
+        previewHours.textContent = `${formatNumber(calculatedHours)} 小時`;
+        previewAmount.textContent = formatMoney(amount);
+        if (!rate) {
+            previewCheck.textContent = '請填時薪';
+        } else if (calculatedHours > 0) {
+            previewCheck.textContent = '可儲存';
+        } else {
+            previewCheck.textContent = '請填時數';
+        }
+    }
+
+    function resolvePreviewHours() {
+        const manualHours = Number(hours.value || 0);
+        if (manualHours > 0) return manualHours;
+        if (!startTime.value || !endTime.value) return 0;
+        const start = minutesOf(startTime.value);
+        const end = minutesOf(endTime.value);
+        if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+        return Math.round(((end - start) / 60) * 100) / 100;
+    }
+
+    function minutesOf(value) {
+        const parts = String(value || '').split(':').map(Number);
+        if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) return NaN;
+        return parts[0] * 60 + parts[1];
+    }
+
+    function exportPayrollCsv() {
+        const entries = lastPayrollData?.entries || [];
+        const rows = [['日期', '老師', '課程 / 班級', '開始時間', '結束時間', '時數', '時薪', '金額', '備註']];
+        entries.forEach((entry) => {
+            rows.push([
+                entry.workDate || '',
+                entry.teacherName || '',
+                entry.classLabel || '',
+                String(entry.startTime || '').slice(0, 5),
+                String(entry.endTime || '').slice(0, 5),
+                entry.hours || '',
+                entry.hourlyRate || '',
+                entry.amount || '',
+                entry.note || ''
+            ]);
+        });
+        const csv = rows.map((row) => row.map(csvCell).join(',')).join('\r\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `broca-payroll-${payrollMonth.value || 'month'}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        window.BrocaAdmin?.notify?.(`已匯出 ${entries.length} 筆薪資工時。`, 'success');
+    }
+
+    async function deleteEntry(entryId) {
+        if (!confirm('確定刪除這筆薪資工時？')) return;
+        try {
+            const response = await fetch(`/api/admin/payroll/entries/${entryId}`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            });
+            if (!response.ok) throw new Error('delete failed');
+            await loadPayroll();
+            window.BrocaAdmin?.notify?.('薪資工時已刪除。', 'success');
+        } catch (error) {
+            window.BrocaAdmin?.notify?.('刪除失敗，請稍後再試。', 'danger');
+        }
+    }
+
+    function formatTimeRange(start, end) {
+        if (!start && !end) return '-';
+        return `${String(start || '').slice(0, 5)}-${String(end || '').slice(0, 5)}`;
+    }
+
+    function formatNumber(value) {
+        return Number(value || 0).toLocaleString('zh-TW', { maximumFractionDigits: 2 });
+    }
+
+    function formatMoney(value) {
+        return Number(value || 0).toLocaleString('zh-TW', {
+            style: 'currency',
+            currency: 'TWD',
+            maximumFractionDigits: 0
+        });
+    }
+
+    function csvCell(value) {
+        return `"${String(value ?? '').replace(/"/g, '""')}"`;
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        }[char]));
+    }
+</script>
+</body>
+</html>
