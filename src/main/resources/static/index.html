@@ -740,10 +740,10 @@
     }
     toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
     nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      if (window.innerWidth <= 900 && !a.parentElement.classList.contains('dropdown')) setOpen(false);
+      if (window.innerWidth <= 1120 && !a.parentElement.classList.contains('dropdown')) setOpen(false);
     }));
     window.addEventListener('keydown',  e => { if (e.key === 'Escape') setOpen(false); });
-    window.addEventListener('resize',   () => { if (window.innerWidth > 900) setOpen(false); });
+    window.addEventListener('resize',   () => { if (window.innerWidth > 1120) setOpen(false); });
   })();
 </script>
 </body>
