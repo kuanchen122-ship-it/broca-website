@@ -1,0 +1,15 @@
+<svg width="184" height="75" viewBox="0 0 184 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g id="star">
+      <path d="M0-8 1.8-2.5H7.6L2.9 1l1.8 5.5L0 3l-4.7 3.5L-2.9 1l-4.7-3.5h5.8Z" fill="#FFCE00" stroke="#064E3B" stroke-width="1.5" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <use href="#star" transform="translate(88 12) scale(.9) rotate(-15)"/>
+  <use href="#star" transform="translate(85 23) scale(.8) rotate(15)"/>
+  <use href="#star" transform="translate(97 16) scale(.4) rotate(-5)"/>
+  <use href="#star" transform="translate(105 11) scale(.7) rotate(-15)"/>
+  <use href="#star" transform="translate(108 20) scale(.6) rotate(15)"/>
+  <text x="92" y="52" text-anchor="middle" font-family="Arial Rounded MT Bold, Microsoft JhengHei, sans-serif" font-size="34" font-weight="900" fill="none" stroke="#064E3B" stroke-width="5" stroke-linejoin="round">&#24067;&#39791;&#21345;&#32654;&#35486;</text>
+  <text x="92" y="52" text-anchor="middle" font-family="Arial Rounded MT Bold, Microsoft JhengHei, sans-serif" font-size="34" font-weight="900" fill="#FFCE00">&#24067;&#39791;&#21345;&#32654;&#35486;</text>
+  <text x="92" y="69" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-size="13" font-weight="800" fill="#064E3B">BROCA ENGLISH</text>
+</svg>

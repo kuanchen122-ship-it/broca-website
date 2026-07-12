@@ -82,6 +82,9 @@
         .textarea.vocab { min-height: 190px; font-family: "Consolas", "Microsoft JhengHei", monospace; font-size: 13px; }
         .input:focus, .select:focus, .textarea:focus { background: #fff; border-color: rgba(6,78,59,.58); box-shadow: 0 0 0 4px rgba(6,78,59,.08); }
         .hint { color: var(--muted); font-size: 11px; font-weight: 760; line-height: 1.55; }
+        .parse-summary { margin-top: 8px; min-height: 34px; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 850; line-height: 1.45; }
+        .parse-summary.ready { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+        .parse-summary.warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
         .schedule-helper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 9px; align-items: center; }
         .schedule-helper .select { background: #fff; }
         .schedule-note { margin-top: 7px; color: var(--muted); font-size: 11px; font-weight: 760; line-height: 1.55; }
@@ -142,7 +145,7 @@
     </style>
     <link rel="stylesheet" href="admin-polish.css">
 </head>
-<body data-teacher-page="true">
+<body class="page-admin-learning" data-teacher-page="true">
 <aside class="sidebar">
     <div class="sidebar-header">
         <h2>布魯卡美語</h2>
@@ -183,11 +186,11 @@
             </div>
             <div class="stat-card">
                 <strong id="todayCount">0</strong>
-                <span>今日手動發布</span>
+                <span>今日前台內容</span>
             </div>
             <div class="stat-card success">
                 <strong id="publishedCount">0</strong>
-                <span>手動發布總數</span>
+                <span>最近一次內容</span>
             </div>
             <div class="stat-card warning">
                 <strong id="draftCount">0</strong>
@@ -257,7 +260,8 @@
                             <div class="field full">
                                 <label for="vocabularyText">今日單字</label>
                                 <textarea class="textarea vocab" id="vocabularyText" placeholder="black	黑色的&#10;blue	藍色的&#10;green	綠色的"></textarea>
-                                <div class="hint">可從 Excel 直接貼上；支援 tab、兩個空白，或 word - 中文意思。</div>
+                                <div class="hint">可從 Excel 直接貼上；支援欄位、兩個空白、word - 意思、word：意思，或英文單字加英文解釋。</div>
+                                <div class="parse-summary" id="vocabularyParseSummary">貼上後會立即檢查辨識結果。</div>
                             </div>
                             <div class="field full">
                                 <label for="sentencePattern">今日句型</label>
@@ -329,7 +333,8 @@
         posts: [],
         classLabels: [],
         scheduleLessons: [],
-        editingId: null
+        editingId: null,
+        isAdmin: false
     };
 
     const els = {
@@ -341,6 +346,7 @@
         status: document.getElementById('status'),
         title: document.getElementById('title'),
         vocabularyText: document.getElementById('vocabularyText'),
+        vocabularyParseSummary: document.getElementById('vocabularyParseSummary'),
         sentencePattern: document.getElementById('sentencePattern'),
         homeworkNote: document.getElementById('homeworkNote'),
         teacherNote: document.getElementById('teacherNote'),
@@ -352,6 +358,7 @@
         filterClass: document.getElementById('filterClass'),
         filterStatus: document.getElementById('filterStatus'),
         deleteBtn: document.getElementById('deleteBtn'),
+        publishBtn: document.getElementById('publishBtn'),
         todayCount: document.getElementById('todayCount'),
         publishedCount: document.getElementById('publishedCount'),
         draftCount: document.getElementById('draftCount'),
@@ -413,30 +420,77 @@
         };
     }
 
+    const vocabularyHeadings = new Set([
+        'today', 'vocabulary', 'vocabulary list', 'word', 'words', 'meaning', 'meanings',
+        'example', 'examples', 'review', 'keep going', 'spelling', 'spelling test', 'quiz'
+    ]);
+
+    function cleanVocabularyLine(value) {
+        return String(value || '').trim().replace(/^(?:[-*•]|\d{1,3}[.)、])\s*/, '').trim();
+    }
+
+    function vocabularyItemFromLine(line) {
+        let cells = line.split(/\t+/);
+        if (cells.length === 1) cells = line.split(/\s{2,}/);
+        if (cells.length >= 2) {
+            return { word: (cells[0] || '').trim(), meaning: (cells[1] || '').trim(), example: cells.slice(2).join(' ').trim() };
+        }
+
+        let match = line.match(/^(.+?)\s+[–-]\s+(.+?)(?:\s+[–-]\s+(.+))?$/);
+        if (match) return { word: match[1].trim(), meaning: match[2].trim(), example: (match[3] || '').trim() };
+
+        match = line.match(/^(.+?)\s*[：:]\s*(.+)$/);
+        if (match) return { word: match[1].trim(), meaning: match[2].trim(), example: '' };
+
+        if (line.includes(',')) {
+            cells = line.split(/\s*,\s*/, 3);
+            if (cells.length >= 2) return { word: cells[0].trim(), meaning: cells[1].trim(), example: (cells[2] || '').trim() };
+        }
+
+        match = line.match(/^([A-Za-z][A-Za-z'’–-]*(?:\s+[A-Za-z][A-Za-z'’–-]*){0,3})\s+([\u4e00-\u9fff].*)$/);
+        if (match) return { word: match[1].trim(), meaning: match[2].trim(), example: '' };
+
+        match = line.match(/^([A-Za-z][A-Za-z'’–-]*)\s+(.{3,})$/);
+        if (match) return { word: match[1].trim(), meaning: match[2].trim(), example: '' };
+
+        if (/^[A-Za-z][A-Za-z'’–-]*$/.test(line)) return { word: line, meaning: '', example: '' };
+        return null;
+    }
+
+    function parseVocabularyDetailed(value) {
+        const lines = String(value || '').replace(/\r\n?/g, '\n').split('\n').map(cleanVocabularyLine).filter(Boolean);
+        const items = [];
+        const seen = new Set();
+        let issueCount = 0;
+
+        for (let index = 0; index < lines.length && items.length < 80; index += 1) {
+            const line = lines[index];
+            if (vocabularyHeadings.has(line.toLowerCase())) continue;
+
+            let item = vocabularyItemFromLine(line);
+            if (item && !item.meaning && /^[A-Za-z][A-Za-z'’–-]*$/.test(item.word) && index + 1 < lines.length) {
+                const next = lines[index + 1];
+                if (!vocabularyHeadings.has(next.toLowerCase()) && !/^[A-Za-z][A-Za-z'’–-]*$/.test(next)) {
+                    item = { word: item.word, meaning: next, example: '' };
+                    index += 1;
+                }
+            }
+
+            if (!item || !item.word) {
+                issueCount += 1;
+                continue;
+            }
+            const key = item.word.toLowerCase();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            if (!item.meaning) issueCount += 1;
+            items.push(item);
+        }
+        return { items, issueCount };
+    }
+
     function parseVocabulary(value) {
-        return String(value || '').split(/\r?\n/)
-            .map(line => line.trim().replace(/^[\-•*\d.、\s]+/, '').trim())
-            .filter(Boolean)
-            .slice(0, 80)
-            .map(line => {
-                let cells = line.split(/\t+/);
-                if (cells.length === 1) cells = line.split(/\s{2,}/);
-                let word = (cells[0] || '').trim();
-                let meaning = (cells[1] || '').trim();
-                let example = cells.slice(2).join(' ').trim();
-                if (!meaning && word.includes(' - ')) {
-                    const parts = word.split(/\s+-\s+/);
-                    word = parts[0] || '';
-                    meaning = parts[1] || '';
-                    example = parts.slice(2).join(' ');
-                }
-                if (!meaning && /[:：]/.test(word)) {
-                    const parts = word.split(/\s*[:：]\s*/);
-                    word = parts[0] || '';
-                    meaning = parts.slice(1).join('：');
-                }
-                return { word, meaning, example };
-            });
+        return parseVocabularyDetailed(value).items;
     }
 
     function categoryFromContent(content) {
@@ -466,7 +520,12 @@
         const text = String(content || '').replace(/\s+/g, ' ').trim();
         if (!text) return '';
         const homeworkMatch = text.match(/(?:📝\s*)?Homework\s*(.+)$/i);
-        if (homeworkMatch?.[1]) return homeworkMatch[1].trim();
+        if (homeworkMatch?.[1]) {
+            let homework = homeworkMatch[1].trim();
+            const stop = homework.search(/\s+(?:\d{4}-\d{2}-\d{2}\s*\([^)]*\)\s*單字考核|Basic English Words\b|Vocabulary(?:\s+Quiz)?\b|單字考核)/i);
+            if (stop >= 0) homework = homework.slice(0, stop).trim();
+            return homework;
+        }
         const chineseMatch = text.match(/(?:作業|回家功課)\s*[:：]?\s*(.+)$/);
         if (chineseMatch?.[1]) return chineseMatch[1].trim();
         return text.length > 900 ? `${text.slice(0, 900).trim()}...` : text;
@@ -517,7 +576,9 @@
         els.lessonDate.value = lesson.lessonDate || els.lessonDate.value || today();
         els.classLabel.value = lesson.classLabel || '';
         els.category.value = categoryFromContent(content);
-        els.title.value = `${lesson.classLabel || ''} 今日學習重點`.trim();
+        els.title.value = vocabularyText
+            ? `${lesson.classLabel || ''} 今日單字與複習`.trim()
+            : `${lesson.classLabel || ''} 今日學習重點`.trim();
         els.vocabularyText.value = vocabularyText;
         els.homeworkNote.value = extractHomeworkFromSchedule(content);
         els.teacherNote.value = [
@@ -528,14 +589,19 @@
         if (!vocabularyText) {
             notify('已帶入課表內容；這筆課表沒有可直接拆成單字卡的完整單字列。', 'info');
         } else {
-            notify('已從課表帶入單字與提醒。', 'success');
+            notify(`已從課表帶入 ${parseVocabulary(vocabularyText).length} 個單字與作業提醒。`, 'success');
         }
         renderPreview();
     }
 
     function renderPreview() {
         const data = payload();
-        const vocab = parseVocabulary(data.vocabularyText);
+        const vocabularyResult = parseVocabularyDetailed(data.vocabularyText);
+        const vocab = vocabularyResult.items;
+        els.vocabularyParseSummary.className = `parse-summary ${vocab.length ? (vocabularyResult.issueCount ? 'warning' : 'ready') : ''}`;
+        els.vocabularyParseSummary.textContent = vocab.length
+            ? `已辨識 ${vocab.length} 個單字${vocabularyResult.issueCount ? `，另有 ${vocabularyResult.issueCount} 列需要補充意思或調整格式。` : '，格式完整，可直接預覽。'}`
+            : (data.vocabularyText.trim() ? '目前沒有辨識到完整單字，請確認每列至少包含英文單字與意思。' : '貼上後會立即檢查辨識結果。');
         const statusClass = data.status === 'PUBLISHED' ? 'published' : 'status';
         const statusLabel = data.status === 'PUBLISHED' ? '已發布' : data.status === 'ARCHIVED' ? '已封存' : '草稿';
         els.previewCard.innerHTML = `
@@ -599,7 +665,7 @@
         els.homeworkNote.value = post.homeworkNote || '';
         els.teacherNote.value = post.teacherNote || '';
         els.pinned.checked = !!post.pinned;
-        els.deleteBtn.hidden = false;
+        els.deleteBtn.hidden = !state.isAdmin;
         window.scrollTo({ top: 0, behavior: 'smooth' });
         renderPreview();
     }
@@ -640,8 +706,8 @@
     }
 
     function renderSummary(summary = {}) {
-        els.todayCount.textContent = summary.todayPublishedCount ?? 0;
-        els.publishedCount.textContent = summary.publishedCount ?? 0;
+        els.todayCount.textContent = summary.todayAvailableCount ?? 0;
+        els.publishedCount.textContent = summary.latestAvailableCount ?? 0;
         els.draftCount.textContent = summary.draftCount ?? 0;
         els.latestDate.textContent = summary.latestPublishedDate ? summary.latestPublishedDate.slice(5).replace('-', '/') : '-';
     }
@@ -651,7 +717,17 @@
             els.postList.innerHTML = '<div class="empty">目前沒有符合條件的學習內容。</div>';
             return;
         }
-        els.postList.innerHTML = state.posts.map(post => `
+        els.postList.innerHTML = state.posts.map(post => {
+            const actions = state.isAdmin
+                ? `
+                    <button class="btn soft" type="button" data-action="edit" data-id="${post.id}"><i class="fa-solid fa-pen"></i> 編輯</button>
+                    ${post.status !== 'PUBLISHED' ? `<button class="btn gold" type="button" data-action="publish" data-id="${post.id}"><i class="fa-solid fa-paper-plane"></i> 發布</button>` : `<button class="btn soft" type="button" data-action="draft" data-id="${post.id}"><i class="fa-solid fa-file"></i> 撤回</button>`}
+                    <button class="btn soft" type="button" data-action="archive" data-id="${post.id}"><i class="fa-solid fa-box-archive"></i> 封存</button>
+                    <button class="btn danger" type="button" data-action="delete" data-id="${post.id}" aria-label="刪除"><i class="fa-solid fa-trash"></i></button>`
+                : (post.status === 'DRAFT'
+                    ? `<button class="btn soft" type="button" data-action="edit" data-id="${post.id}"><i class="fa-solid fa-pen"></i> 編輯草稿</button>`
+                    : '<span class="pill published">主任已確認</span>');
+            return `
             <article class="post-row">
                 <div>
                     <div style="display:flex; gap:7px; flex-wrap:wrap; margin-bottom:8px;">
@@ -663,13 +739,21 @@
                     <p>${escapeHtml(post.categoryLabel)} · ${post.vocabulary?.length || 0} 個單字 · 更新 ${escapeHtml(post.updatedAt || '-')}</p>
                 </div>
                 <div class="row-actions">
-                    <button class="btn soft" type="button" data-action="edit" data-id="${post.id}"><i class="fa-solid fa-pen"></i> 編輯</button>
-                    ${post.status !== 'PUBLISHED' ? `<button class="btn gold" type="button" data-action="publish" data-id="${post.id}"><i class="fa-solid fa-paper-plane"></i> 發布</button>` : `<button class="btn soft" type="button" data-action="draft" data-id="${post.id}"><i class="fa-solid fa-file"></i> 草稿</button>`}
-                    <button class="btn soft" type="button" data-action="archive" data-id="${post.id}"><i class="fa-solid fa-box-archive"></i> 封存</button>
-                    <button class="btn danger" type="button" data-action="delete" data-id="${post.id}"><i class="fa-solid fa-trash"></i></button>
+                    ${actions}
                 </div>
             </article>
-        `).join('');
+        `;
+        }).join('');
+    }
+
+    function applyRole(role) {
+        state.isAdmin = String(role || '').toUpperCase() === 'ADMIN';
+        els.publishBtn.hidden = !state.isAdmin;
+        els.status.disabled = !state.isAdmin;
+        if (!state.isAdmin) els.status.value = 'DRAFT';
+        if (!state.isAdmin) els.deleteBtn.hidden = true;
+        renderPosts();
+        renderPreview();
     }
 
     async function loadPosts() {
@@ -743,7 +827,10 @@
         }
     });
 
+    document.addEventListener('broca:session-ready', event => applyRole(event.detail?.role));
+
     resetForm();
+    if (window.BrocaAdmin?.currentRole) applyRole(window.BrocaAdmin.currentRole);
     Promise.all([loadPosts(), loadScheduleLessons()])
         .catch(error => notify(error.message || '載入失敗。', 'danger'));
 </script>

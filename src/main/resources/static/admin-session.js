@@ -67,21 +67,28 @@
     };
 
     const ADMIN_NAV_ITEMS = [
-        { href: 'admin-dashboard.html', icon: 'fa-house', label: '主任主控台', adminOnly: true },
-        { href: 'teacher-dashboard.html', icon: 'fa-chalkboard-user', label: '老師工作台' },
-        { href: 'admin-registration.html', icon: 'fa-clipboard-list', label: '招生諮詢', adminOnly: true },
-        { href: 'admin-schedule.html', icon: 'fa-calendar-days', label: '數位互動課表' },
-        { href: 'admin-learning.html', icon: 'fa-book-open-reader', label: '學習內容' },
-        { href: 'admin-attendance.html', icon: 'fa-user-check', label: '班級點名系統' },
-        { href: 'mobile-rollcall.html', icon: 'fa-mobile-screen', label: '手機點名' },
-        { href: 'admin-students.html', icon: 'fa-users-gear', label: '學生資料中心', adminOnly: true },
-        { href: 'admin-contacts.html', icon: 'fa-address-book', label: '家長聯絡資料', adminOnly: true },
-        { href: 'admin-line.html', icon: 'fa-brands fa-line', label: 'LINE 推播管理', adminOnly: true, brandIcon: true },
-        { href: 'admin-payroll.html', icon: 'fa-file-invoice-dollar', label: '薪資管理', adminOnly: true },
-        { href: 'admin-leave.html', icon: 'fa-clipboard-user', label: '學生請假審核', adminOnly: true },
-        { href: 'admin-grades.html', icon: 'fa-ranking-star', label: '成績與榮譽榜', adminOnly: true },
-        { href: 'admin-system.html', icon: 'fa-shield-halved', label: '系統檢查', adminOnly: true }
+        { href: 'admin-dashboard.html', icon: 'fa-house', label: '主任主控台', group: 'DAILY', adminOnly: true },
+        { href: 'teacher-dashboard.html', icon: 'fa-chalkboard-user', label: '老師工作台', group: 'DAILY' },
+        { href: 'admin-schedule.html', icon: 'fa-calendar-days', label: '數位互動課表', group: 'DAILY' },
+        { href: 'admin-learning.html', icon: 'fa-book-open-reader', label: '學習內容', group: 'DAILY' },
+        { href: 'admin-attendance.html', icon: 'fa-user-check', label: '班級點名系統', group: 'DAILY' },
+        { href: 'mobile-rollcall.html', icon: 'fa-mobile-screen', label: '手機點名', group: 'DAILY' },
+        { href: 'admin-registration.html', icon: 'fa-clipboard-list', label: '招生諮詢', group: 'STUDENTS', adminOnly: true },
+        { href: 'admin-students.html', icon: 'fa-users-gear', label: '學生資料中心', group: 'STUDENTS', adminOnly: true },
+        { href: 'admin-contacts.html', icon: 'fa-address-book', label: '家長聯絡資料', group: 'STUDENTS', adminOnly: true },
+        { href: 'admin-leave.html', icon: 'fa-clipboard-user', label: '學生請假審核', group: 'STUDENTS', adminOnly: true },
+        { href: 'admin-line.html', icon: 'fa-brands fa-line', label: 'LINE 推播管理', group: 'OPERATIONS', adminOnly: true, brandIcon: true },
+        { href: 'admin-payroll.html', icon: 'fa-file-invoice-dollar', label: '薪資管理', group: 'OPERATIONS', adminOnly: true },
+        { href: 'admin-grades.html', icon: 'fa-ranking-star', label: '成績與榮譽榜', group: 'OPERATIONS', adminOnly: true },
+        { href: 'admin-system.html', icon: 'fa-shield-halved', label: '系統檢查', group: 'SYSTEM', adminOnly: true }
     ];
+
+    const NAV_GROUP_LABELS = {
+        DAILY: '每日教務',
+        STUDENTS: '學生管理',
+        OPERATIONS: '營運管理',
+        SYSTEM: '系統設定'
+    };
 
     async function fetchJson(url, options = {}) {
         const response = await fetch(url, {
@@ -166,11 +173,16 @@
 
         const page = (window.location.pathname.split('/').pop() || 'admin-dashboard.html').toLowerCase();
         const visibleItems = ADMIN_NAV_ITEMS.filter((item) => role === 'ADMIN' || !item.adminOnly);
+        let currentGroup = '';
         navMenu.innerHTML = visibleItems.map((item) => {
             const active = item.href.toLowerCase() === page ? ' active' : '';
             const adminAttr = item.adminOnly ? ' data-admin-only' : '';
             const iconClass = item.brandIcon ? item.icon : `fa-solid ${item.icon}`;
-            return `
+            const groupHeading = item.group !== currentGroup
+                ? `<li class="nav-section-label">${NAV_GROUP_LABELS[item.group] || ''}</li>`
+                : '';
+            currentGroup = item.group;
+            return `${groupHeading}
                 <li class="nav-item"${adminAttr}>
                     <a href="${item.href}" class="nav-link${active}"><i class="${iconClass}"></i> ${item.label}</a>
                 </li>`;
@@ -245,11 +257,11 @@
         normalizeAdminNav(safeRole);
         setHiddenForRole(safeRole);
         syncActiveNav();
-        mountSystemChip();
         mountRoleBadge(safeRole);
         mountMobileNav();
         enforceRoleRoute(safeRole);
         document.body.classList.add('admin-shell-ready');
+        document.dispatchEvent(new CustomEvent('broca:session-ready', { detail: { user, role: safeRole } }));
     }
 
     ready(async () => {

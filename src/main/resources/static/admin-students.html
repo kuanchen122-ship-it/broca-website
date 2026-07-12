@@ -129,6 +129,12 @@
         .row-actions { display: flex; gap: 8px; justify-content: flex-end; }
         .empty-state { min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); font-weight: 850; padding: 42px 24px; }
         .empty-state i { color: #cbd5e1; font-size: 38px; margin-bottom: 12px; }
+        .pagination { min-height: 58px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--border-color); background: #fbfdfc; }
+        .pagination-info { color: var(--text-muted); font-size: 12px; font-weight: 850; }
+        .pagination-actions { display: flex; align-items: center; gap: 8px; }
+        .pagination-actions button { width: 36px; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; color: var(--brand-primary); cursor: pointer; }
+        .pagination-actions button:disabled { opacity: .35; cursor: not-allowed; }
+        .pagination-actions select { min-height: 36px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; color: var(--text-main); padding: 0 8px; font-weight: 850; }
 
         .modal-overlay { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, 0.58); }
         .modal-overlay.show { display: flex; }
@@ -390,7 +396,9 @@
         summary: {},
         selectedStudent: null,
         searchTimer: null,
-        pendingStudentId: null
+        pendingStudentId: null,
+        page: 1,
+        pageSize: window.matchMedia('(max-width: 860px)').matches ? 10 : 25
     };
 
     const studentSearch = document.getElementById('studentSearch');
@@ -422,6 +430,7 @@
             state.summary = result.summary || {};
             state.classes = result.classes || [];
             state.students = result.students || [];
+            state.page = 1;
             renderSummary();
             renderClassOptions();
             renderClassList();
@@ -512,7 +521,14 @@
     }
 
     function renderStudents() {
-        document.getElementById('studentCountLabel').textContent = `顯示 ${state.students.length} 位學生`;
+        const total = state.students.length;
+        const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+        state.page = Math.min(Math.max(1, state.page), totalPages);
+        const start = (state.page - 1) * state.pageSize;
+        const visibleStudents = state.students.slice(start, start + state.pageSize);
+        document.getElementById('studentCountLabel').textContent = total
+            ? `顯示 ${start + 1}-${Math.min(start + state.pageSize, total)} / ${total} 位學生`
+            : '顯示 0 位學生';
         if (!state.students.length) {
             studentTableWrap.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i> 沒有符合條件的學生</div>`;
             return;
@@ -532,7 +548,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                ${state.students.map(student => `
+                ${visibleStudents.map(student => `
                     <tr>
                         <td>
                             <div class="student-cell">
@@ -563,7 +579,30 @@
                 `).join('')}
                 </tbody>
             </table>
+            <div class="pagination">
+                <span class="pagination-info">第 ${state.page} / ${totalPages} 頁</span>
+                <div class="pagination-actions">
+                    <select aria-label="每頁筆數" onchange="changeStudentPageSize(this.value)">
+                        <option value="10" ${state.pageSize === 10 ? 'selected' : ''}>每頁 10 筆</option>
+                        <option value="25" ${state.pageSize === 25 ? 'selected' : ''}>每頁 25 筆</option>
+                        <option value="50" ${state.pageSize === 50 ? 'selected' : ''}>每頁 50 筆</option>
+                    </select>
+                    <button type="button" onclick="changeStudentPage(-1)" ${state.page <= 1 ? 'disabled' : ''} aria-label="上一頁"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button type="button" onclick="changeStudentPage(1)" ${state.page >= totalPages ? 'disabled' : ''} aria-label="下一頁"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
         `;
+    }
+
+    function changeStudentPage(direction) {
+        state.page += Number(direction || 0);
+        renderStudents();
+    }
+
+    function changeStudentPageSize(value) {
+        state.pageSize = [10, 25, 50].includes(Number(value)) ? Number(value) : 25;
+        state.page = 1;
+        renderStudents();
     }
 
     function selectClassFilter(classId) {
